@@ -1,0 +1,155 @@
+/* Global Reset & Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-light);
+    color: var(--text-main);
+}
+
+/* App Shell Layout (Desktop Sidebar + Main Content) */
+.app-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 260px;
+    background-color: var(--card-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.brand {
+    padding: 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.brand h2 {
+    color: var(--up-green);
+    font-size: 1.5rem;
+}
+
+.badge {
+    font-size: 0.75rem;
+    background-color: var(--up-green);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.nav-links {
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-links a {
+    padding: 12px 24px;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    background-color: var(--bg-light);
+    color: var(--up-green);
+    border-left: 4px solid var(--up-green);
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.top-bar {
+    padding: 20px 32px;
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--up-green);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+/* Weekly Schedule Grid Matrix */
+.schedule-grid-container {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.grid-header, .grid-row {
+    display: grid;
+    grid-template-columns: 100px repeat(6, 1fr);
+    gap: 12px;
+    align-items: center;
+}
+
+.grid-header span {
+    font-weight: bold;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.time-label {
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.time-slot {
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+
+/* Slot Types */
+.time-slot.free {
+    background-color: var(--status-free);
+    color: var(--status-free-text);
+}
+
+.time-slot.busy {
+    background-color: var(--status-busy);
+    color: var(--status-busy-text);
+}
+
+.time-slot.faculty {
+    background-color: var(--status-faculty);
+    color: var(--status-faculty-text);
+}

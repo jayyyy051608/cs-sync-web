@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | CS-Sync UP Mindanao</title>
+    <link rel="stylesheet" href="styles/variables.css">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+
+    <!-- Desktop App Shell -->
+    <div class="app-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <h2>CS-Sync</h2>
+                <span class="badge">BSCS Portal</span>
+            </div>
+            <nav class="nav-links">
+                <a href="dashboard.html" class="active">📅 My Schedule</a>
+                <a href="#">👥 Group Overlap</a>
+                <a href="#">🎓 Faculty Directory</a>
+                <a href="#">📊 Availability Tracker</a>
+                <a href="#">⚙️ Settings</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Top Header Bar -->
+            <header class="top-bar">
+                <h1>Weekly Schedule Grid</h1>
+                <div class="user-profile">
+                    <span>Prince Jay Ceriaca</span>
+                    <div class="avatar">PJC</div>
+                </div>
+            </header>
+
+            <!-- Schedule Matrix Container -->
+            <section class="schedule-grid-container">
+                <div class="grid-header">
+                    <span>Time</span>
+                    <span>Monday</span>
+                    <span>Tuesday</span>
+                    <span>Wednesday</span>
+                    <span>Thursday</span>
+                    <span>Friday</span>
+                    <span>Saturday</span>
+                </div>
+                
+                <!-- Sample Time Row (08:00 AM) -->
+                <div class="grid-row">
+                    <span class="time-label">08:00 AM</span>
+                    <div class="time-slot busy">CMSC 11 Lecture</div>
+                    <div class="time-slot free">Available</div>
+                    <div class="time-slot busy">CMSC 11 Lecture</div>
+                    <div class="time-slot free">Available</div>
+                    <div class="time-slot free">Available</div>
+                    <div class="time-slot free">Free</div>
+                </div>
+
+                <!-- Sample Time Row (01:00 PM) -->
+                <div class="grid-row">
+                    <span class="time-label">01:00 PM</span>
+                    <div class="time-slot free">Available</div>
+                    <div class="time-slot faculty">Faculty Consultation (Ms. Abot)</div>
+                    <div class="time-slot free">Available</div>
+                    <div class="time-slot busy">CMSC 3 Lab</div>
+                    <div class="time-slot free">Available</div>
+                    <div class="time-slot free">Free</div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+</body>
+</html>
