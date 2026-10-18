@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS-Sync Database</title>
+    <style>
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Fixed Navigation Bar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background-color: #7B1113; /* UP Maroon theme */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        /* Logo Styling */
+        .logo {
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Navigation Links List */
+        .nav-links {
+            list-style-type: none;
+            display: flex;
+        }
+
+        .nav-links li a {
+            display: block;
+            color: white;
+            padding: 16px 20px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+
+        .nav-links li a:hover, 
+        .nav-links li a.active {
+            background-color: #A31D1D; /* Slightly lighter maroon on hover */
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <!-- Website Logo -->
+        <div class="logo">CS-SYNC DATABASE</div>
+        
+        <!-- Navigation Links -->
+        <ul class="nav-links">
+            <li><a href="dashboard.html" class="active">Home</a></li>
+            <li><a href="#overlap">Overlap</a></li>
+            <li><a href="#faculty">Faculty</a></li>
+            <li><a href="#calendar">Calendar</a></li>
+        </ul>
+    </nav>
+
+</body>
+</html>
