@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Onboarding | CS-Sync UP Mindanao</title>
+    <link rel="stylesheet" href="styles/variables.css">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body class="login-body">
+
+    <div class="login-overlay">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo-badge">🛡️</div>
+                <h2>CS-Sync</h2>
+            </div>
+            <p class="login-tagline">Synchronize availability. Coordinate efficiently.</p>
+            <p class="login-subtext">Centralized consultation tracker for the Department of Computer Science, University of the Philippines - Mindanao.</p>
+            
+            <div class="onboarding-form-box">
+                <h3>Welcome to CS-Sync</h3>
+                <p class="form-instruction">Set up your university account profile.</p>
+                
+                <form action="dashboard.html" method="GET">
+                    <div class="form-group">
+                        <label>UP MAIL ADDRESS</label>
+                        <input type="email" value="mahalkosiya@up.edu.ph" required>
+                        <span class="input-check">✔️</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ACADEMIC PROGRAM</label>
+                        <select>
+                            <option selected>BS Computer Science</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>BATCH YEAR</label>
+                        <select>
+                            <option selected>2026 (Freshie)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="continue-btn">Continue</button>
+                    <p class="notice-footer">Only @up.edu.ph accounts are accepted</p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

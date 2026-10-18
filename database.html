@@ -3,74 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CS-Sync Database</title>
-    <style>
-        /* Global Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        /* Fixed Navigation Bar */
-        .navbar {
-            position: sticky;
-            top: 0;
-            width: 100%;
-            background-color: #7B1113; /* UP Maroon theme */
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 24px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        /* Logo Styling */
-        .logo {
-            color: white;
-            font-weight: bold;
-            font-size: 1.2rem;
-            letter-spacing: 0.5px;
-        }
-
-        /* Navigation Links List */
-        .nav-links {
-            list-style-type: none;
-            display: flex;
-        }
-
-        .nav-links li a {
-            display: block;
-            color: white;
-            padding: 16px 20px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-        }
-
-        .nav-links li a:hover, 
-        .nav-links li a.active {
-            background-color: #A31D1D; /* Slightly lighter maroon on hover */
-        }
-    </style>
+    <title>Faculty Directory | CS-Sync UP Mindanao</title>
+    <link rel="stylesheet" href="styles/variables.css">
+    <link rel="stylesheet" href="styles/main.css">
 </head>
-<body>
+<body class="dashboard-body">
 
-    <nav class="navbar">
-        <!-- Website Logo -->
-        <div class="logo">CS-SYNC DATABASE</div>
-        
-     <!-- Navigation Links -->
-        <ul class="nav-links">
-            <li><a href="dashboard.html">Dashboard</a></li>
-            <li><a href="database.html" class="active">Database</a></li>
-            <li><a href="#overlap">Overlap</a></li>
-            <li><a href="#faculty">Faculty</a></li>
-            <li><a href="#calendar">Calendar</a></li>
-        </ul>
-    </nav>
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+        <div class="nav-left">
+            <button class="menu-btn">☰</button>
+            <span class="brand-title">Faculty Directory</span>
+        </div>
+        <nav class="nav-center">
+            <a href="dashboard.html" class="nav-item">
+                <span class="icon">🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="overlap.html" class="nav-item">
+                <span class="icon">👥</span>
+                <span>Overlap</span>
+            </a>
+            <a href="database.html" class="nav-item active">
+                <span class="icon">🎓</span>
+                <span>Faculty</span>
+            </a>
+            <a href="#calendar" class="nav-item">
+                <span class="icon">📅</span>
+                <span>Calendar</span>
+            </a>
+        </nav>
+        <div class="nav-right">
+            <span class="notification-icon">🔔</span>
+            <div class="user-avatar-circle">P</div>
+        </div>
+    </header>
+
+    <!-- Main Faculty Directory Container -->
+    <div class="directory-container">
+        <div class="directory-header">
+            <h2>Faculty Directory</h2>
+            <div class="search-filter-bar">
+                <input type="text" placeholder="Search by name or specialty..." class="search-input">
+                <select class="filter-select">
+                    <option>All departments</option>
+                </select>
+                <button class="available-toggle-btn">Available now</button>
+            </div>
+            <p class="faculty-count">24 faculty members</p>
+        </div>
+
+        <!-- Faculty Cards Grid -->
+        <div class="faculty-grid">
+            
+            <!-- Faculty Card 1 -->
+            <div class="faculty-card">
+                <div class="faculty-top">
+                    <div class="faculty-avatar-box av-badge">AV</div>
+                    <div>
+                        <h3>Prof. Adrian Villanueva</h3>
+                        <span class="status-badge available">Available</span>
+                    </div>
+                </div>
+                <p class="faculty-title">Associate Professor • Algorithms & Theory</p>
+                <div class="faculty-courses">
+                    <span class="course-tag">CS 150</span>
+                    <span class="course-tag">CS 153</span>
+                </div>
+            </div>
+
+            <!-- Faculty Card 2 -->
+            <div class="faculty-card">
+                <div class="faculty-top">
+                    <div class="faculty-avatar-box df-badge">DF</div>
+                    <div>
+                        <h3>Dr. Edgardo Felizardo</h3>
+                        <span class="status-badge available">Available</span>
+                    </div>
+                </div>
+                <p class="faculty-title">Assistant Professor • Artificial Intelligence</p>
+                <div class="faculty-courses">
+                    <span class="course-tag">CS 180</span>
+                    <span class="course-tag">CS 198</span>
+                </div>
+            </div>
+
+            <!-- Faculty Card 3 -->
+            <div class="faculty-card">
+                <div class="faculty-top">
+                    <div class="faculty-avatar-box cm-badge">CM</div>
+                    <div>
+                        <h3>Prof. Carlos Mendoza</h3>
+                        <span class="status-badge in-class">In class</span>
+                    </div>
+                </div>
+                <p class="faculty-title">Senior Lecturer • Software Engineering</p>
+                <div class="faculty-courses">
+                    <span class="course-tag">CS 191</span>
+                    <span class="course-tag">CS 192</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
 
 </body>
 </html>

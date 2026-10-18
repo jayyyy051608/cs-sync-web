@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Overlap | CS-Sync UP Mindanao</title>
+    <link rel="stylesheet" href="styles/variables.css">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+        <div class="nav-left">
+            <button class="menu-btn">☰</button>
+            <span class="brand-title">Group Overlap</span>
+        </div>
+        <nav class="nav-center">
+            <a href="dashboard.html" class="nav-item">
+                <span class="icon">🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="overlap.html" class="nav-item active">
+                <span class="icon">👥</span>
+                <span>Overlap</span>
+            </a>
+            <a href="database.html" class="nav-item">
+                <span class="icon">🎓</span>
+                <span>Faculty</span>
+            </a>
+            <a href="#calendar" class="nav-item">
+                <span class="icon">📅</span>
+                <span>Calendar</span>
+            </a>
+        </nav>
+        <div class="nav-right">
+            <span class="notification-icon">🔔</span>
+            <div class="user-avatar-circle">P</div>
+        </div>
+    </header>
+
+    <!-- Main Container for Overlap Tool -->
+    <div class="overlap-container">
+        
+        <!-- Left Sidebar: Group Selector & Teammates -->
+        <aside class="overlap-sidebar">
+            <h3>Select Active Group</h3>
+            <select class="group-select">
+                <option selected>Final Project CMSC 3</option>
+            </select>
+
+            <div class="teammates-box">
+                <h4>Active Teammates (4)</h4>
+                <div class="teammate-chips">
+                    <span class="chip">Juan</span>
+                    <span class="chip">Carla</span>
+                    <span class="chip">Mikko</span>
+                    <span class="chip">Diane</span>
+                    <button class="add-member-btn">Add +</button>
+                </div>
+            </div>
+
+            <div class="ideal-window-banner">
+                <span class="banner-icon">✨</span>
+                <div>
+                    <h5>Ideal Free Window Found!</h5>
+                    <p>Fridays 1:00 PM - 2:00 PM is <strong>100% Free</strong></p>
+                </div>
+            </div>
+            
+            <button class="confirm-meeting-btn">Confirm Group Meeting</button>
+        </aside>
+
+        <!-- Right Section: Overlap Grid Matrix -->
+        <main class="overlap-matrix-main">
+            <h2>Group Availability Matrix</h2>
+            <div class="matrix-grid-box">
+                <div class="matrix-row header-row">
+                    <span>Time</span>
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span>Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                </div>
+                <div class="matrix-row">
+                    <span>09:00 AM</span>
+                    <span class="busy">BUSY</span>
+                    <span class="busy">BUSY</span>
+                    <span class="busy">BUSY</span>
+                    <span class="busy">BUSY</span>
+                    <span class="free-100">100% FREE</span>
+                </div>
+                <div class="matrix-row">
+                    <span>11:30 AM</span>
+                    <span class="busy">BUSY</span>
+                    <span class="free-100">100% FREE</span>
+                    <span class="busy">BUSY</span>
+                    <span class="busy">BUSY</span>
+                    <span class="free-100">100% FREE</span>
+                </div>
+                <div class="matrix-row">
+                    <span>01:00 PM</span>
+                    <span class="busy">BUSY</span>
+                    <span class="busy">BUSY</span>
+                    <span class="busy">BUSY</span>
+                    <span class="busy">BUSY</span>
+                    <span class="free-100">100% FREE</span>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+</body>
+</html>
