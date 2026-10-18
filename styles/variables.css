@@ -1,19 +1,13 @@
 :root {
-    /* UP Mindanao / Academic Color Palette */
-    --up-maroon: #7B1113;
-    --up-green: #005A36;
-    --up-green-hover: #004529;
-    --bg-light: #F4F6F8;
-    --card-bg: #FFFFFF;
-    --text-main: #2D3748;
-    --text-muted: #718096;
-    --border-color: #E2E8F0;
-    
-    /* Status Colors */
-    --status-free: #C6F6D5;
-    --status-free-text: #22543D;
-    --status-busy: #FED7D7;
-    --status-busy-text: #742A2A;
-    --status-faculty: #FEFCBF;
-    --status-faculty-text: #744210;
+    --up-maroon: #800000;
+    --up-maroon-dark: #600000;
+    --bg-color: #f4f6f9;
+    --card-bg: #ffffff;
+    --text-main: #333333;
+    --text-muted: #666666;
+    --green-accent: #d4edda;
+    --green-text: #155724;
+    --pink-accent: #f8d7da;
+    --pink-text: #721c24;
+    --border-color: #e0e0e0;
 }
