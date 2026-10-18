@@ -13,7 +13,7 @@
     <header class="top-navbar">
         <div class="nav-left">
             <button class="menu-btn">☰</button>
-            <span class="brand-title">Calendar</span>
+            <span class="brand-title">Calendar & Schedule</span>
         </div>
         <nav class="nav-center">
             <a href="dashboard.html" class="nav-item">
@@ -40,20 +40,20 @@
     </header>
 
     <!-- Main Calendar Container -->
-    <div class="calendar-container">
+    <div class="calendar-container" style="max-width: 1000px; margin: 24px auto; display: block;">
         
-        <!-- Left Side: Full Weekly Matrix -->
-        <main class="calendar-matrix-main">
-            <div class="calendar-header-row">
+        <!-- Weekly Matrix Main View -->
+        <main class="calendar-matrix-main" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div class="calendar-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2>Weekly Schedule Grid</h2>
-                <div class="calendar-stats-pill">
+                <div class="calendar-stats-pill" style="display: flex; gap: 16px; font-size: 12px; background: var(--bg-color); padding: 8px 12px; border-radius: 6px;">
                     <span><strong>10</strong> scheduled tasks</span>
                     <span><strong>15</strong> total blocks</span>
                 </div>
             </div>
 
             <div class="cal-grid-box">
-                <div class="cal-row header-titles">
+                <div class="cal-row header-titles" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); font-weight: bold; font-size: 13px; text-align: center; margin-bottom: 12px;">
                     <span>Time</span>
                     <span>Mon</span>
                     <span>Tue</span>
@@ -61,78 +61,53 @@
                     <span>Thu</span>
                     <span>Fri</span>
                 </div>
-                <div class="cal-row">
-                    <span>08:00 AM</span>
+                <div class="cal-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); gap: 6px; margin-bottom: 8px; align-items: center;">
+                    <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">08:00 AM</span>
                     <span class="busy">BUSY</span>
                     <span class="free">FREE</span>
                     <span class="busy">BUSY</span>
                     <span class="free">FREE</span>
                     <span class="free">FREE</span>
                 </div>
-                <div class="cal-row">
-                    <span>09:00 AM</span>
+                <div class="cal-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); gap: 6px; margin-bottom: 8px; align-items: center;">
+                    <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">09:00 AM</span>
                     <span class="free">FREE</span>
                     <span class="busy">BUSY</span>
                     <span class="free">FREE</span>
                     <span class="busy">BUSY</span>
                     <span class="free">FREE</span>
                 </div>
-                <div class="cal-row">
-                    <span>10:00 AM</span>
+                <div class="cal-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); gap: 6px; margin-bottom: 8px; align-items: center;">
+                    <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">10:00 AM</span>
                     <span class="free">FREE</span>
-                    <span class="free">FREE</span>
-                    <span class="free">FREE</span>
-                    <span class="busy">BUSY</span>
-                    <span class="free">FREE</span>
-                </div>
-                <div class="cal-row">
-                    <span>11:00 AM</span>
-                    <span class="free">FREE</span>
-                    <span class="busy">BUSY</span>
+                    <span class="free" style="background: #fff3cd; color: #856404; font-weight: bold;">CONSULT</span>
                     <span class="free">FREE</span>
                     <span class="busy">BUSY</span>
                     <span class="free">FREE</span>
                 </div>
-                <div class="cal-row">
-                    <span>01:00 PM</span>
+                <div class="cal-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); gap: 6px; margin-bottom: 8px; align-items: center;">
+                    <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">11:00 AM</span>
+                    <span class="free">FREE</span>
+                    <span class="busy">BUSY</span>
+                    <span class="free">FREE</span>
+                    <span class="busy">BUSY</span>
+                    <span class="free">FREE</span>
+                </div>
+                <div class="cal-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); gap: 6px; align-items: center;">
+                    <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">01:00 PM</span>
                     <span class="free">FREE</span>
                     <span class="free">FREE</span>
                     <span class="free">FREE</span>
                     <span class="free">FREE</span>
-                    <span class="free">FREE</span>
+                    <span class="free-100">100% FREE</span>
                 </div>
             </div>
 
-            <div class="cal-action-buttons">
-                <button class="add-btn">+ Add Class</button>
-                <button class="add-btn">+ Add Task</button>
+            <div class="cal-action-buttons" style="display: flex; gap: 12px; margin-top: 20px;">
+                <button onclick="alert('Add Class modal opened')" class="submit-request-btn" style="padding: 8px 16px; cursor: pointer;">+ Add Class</button>
+                <button onclick="alert('Add Task modal opened')" class="cancel-btn" style="padding: 8px 16px; cursor: pointer; background: #fff;">+ Add Task</button>
             </div>
         </main>
-
-        <!-- Right Side: Date Box & Feed Preview -->
-        <aside class="calendar-sidebar-preview">
-            <div class="date-badge-large">
-                <span class="day">21</span>
-                <span class="month">OCT</span>
-            </div>
-
-            <div class="mini-timeline-box">
-                <div class="timeline-row">
-                    <span class="timeline-time">9:00 AM</span>
-                    <div class="timeline-content pink-item">
-                        <strong>FRESHIE PRESS</strong>
-                        <span>CSM 227</span>
-                    </div>
-                </div>
-                <div class="timeline-row">
-                    <span class="timeline-time">11:30 AM</span>
-                    <div class="timeline-content green-item">
-                        <strong>Open Window</strong>
-                        <span class="sub-text">Everyone is available</span>
-                    </div>
-                </div>
-            </div>
-        </aside>
 
     </div>
 

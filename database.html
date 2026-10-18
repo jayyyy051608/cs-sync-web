@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faculty Directory | CS-Sync UP Mindanao</title>
+    <title>Faculty Directory & Booking | CS-Sync UP Mindanao</title>
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
 </head>
@@ -28,7 +28,7 @@
                 <span class="icon">🎓</span>
                 <span>Faculty</span>
             </a>
-            <a href="#calendar" class="nav-item">
+            <a href="calendar.html" class="nav-item">
                 <span class="icon">📅</span>
                 <span>Calendar</span>
             </a>
@@ -40,17 +40,17 @@
     </header>
 
     <!-- Main Faculty Directory Container -->
-    <div class="directory-container">
-        <div class="directory-header">
+    <div class="directory-container" style="display: block; max-width: 1000px; margin: 24px auto;">
+        <div class="directory-header" style="margin-bottom: 20px;">
             <h2>Faculty Directory</h2>
-            <div class="search-filter-bar">
-                <input type="text" placeholder="Search by name or specialty..." class="search-input">
-                <select class="filter-select">
+            <div class="search-filter-bar" style="display: flex; gap: 12px; margin-top: 12px;">
+                <input type="text" placeholder="Search by name or specialty..." class="search-input" style="flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;">
+                <select class="filter-select" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;">
                     <option>All departments</option>
                 </select>
-                <button class="available-toggle-btn">Available now</button>
+                <button class="available-toggle-btn" style="padding: 10px 16px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; cursor: pointer;">Available now</button>
             </div>
-            <p class="faculty-count">24 faculty members</p>
+            <p class="faculty-count" style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">24 faculty members</p>
         </div>
 
         <!-- Faculty Cards Grid -->
@@ -58,54 +58,108 @@
             
             <!-- Faculty Card 1 -->
             <div class="faculty-card">
-                <div class="faculty-top">
-                    <div class="faculty-avatar-box av-badge">AV</div>
+                <div class="faculty-top" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <div class="faculty-avatar-box av-badge" style="width: 40px; height: 40px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">AV</div>
                     <div>
-                        <h3>Prof. Adrian Villanueva</h3>
-                        <span class="status-badge available">Available</span>
+                        <h3 style="font-size: 16px;">Prof. Adrian Villanueva</h3>
+                        <span class="status-badge available" style="font-size: 11px; color: green; font-weight: 600;">Available</span>
                     </div>
                 </div>
-                <p class="faculty-title">Associate Professor • Algorithms & Theory</p>
-                <div class="faculty-courses">
-                    <span class="course-tag">CS 150</span>
-                    <span class="course-tag">CS 153</span>
+                <p class="faculty-title" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Associate Professor • Algorithms & Theory</p>
+                <div class="faculty-courses" style="display: flex; gap: 6px;">
+                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 150</span>
+                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 153</span>
                 </div>
             </div>
 
-            <!-- Faculty Card 2 -->
-            <div class="faculty-card">
-                <div class="faculty-top">
-                    <div class="faculty-avatar-box df-badge">DF</div>
+            <!-- Faculty Card 2 (Clickable to open booking modal) -->
+            <div class="faculty-card" id="open-booking-modal" style="cursor: pointer; border: 2px solid var(--up-maroon);">
+                <div class="faculty-top" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <div class="faculty-avatar-box df-badge" style="width: 40px; height: 40px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">DF</div>
                     <div>
-                        <h3>Dr. Edgardo Felizardo</h3>
-                        <span class="status-badge available">Available</span>
+                        <h3 style="font-size: 16px;">Dr. Edgardo Felizardo</h3>
+                        <span class="status-badge available" style="font-size: 11px; color: green; font-weight: 600;">Available (Click to Book)</span>
                     </div>
                 </div>
-                <p class="faculty-title">Assistant Professor • Artificial Intelligence</p>
-                <div class="faculty-courses">
-                    <span class="course-tag">CS 180</span>
-                    <span class="course-tag">CS 198</span>
+                <p class="faculty-title" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Assistant Professor • Artificial Intelligence</p>
+                <div class="faculty-courses" style="display: flex; gap: 6px;">
+                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 180</span>
+                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 198</span>
                 </div>
             </div>
 
             <!-- Faculty Card 3 -->
             <div class="faculty-card">
-                <div class="faculty-top">
-                    <div class="faculty-avatar-box cm-badge">CM</div>
+                <div class="faculty-top" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <div class="faculty-avatar-box cm-badge" style="width: 40px; height: 40px; background: var(--text-muted); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">CM</div>
                     <div>
-                        <h3>Prof. Carlos Mendoza</h3>
-                        <span class="status-badge in-class">In class</span>
+                        <h3 style="font-size: 16px;">Prof. Carlos Mendoza</h3>
+                        <span class="status-badge in-class" style="font-size: 11px; color: #856404; font-weight: 600;">In class</span>
                     </div>
                 </div>
-                <p class="faculty-title">Senior Lecturer • Software Engineering</p>
-                <div class="faculty-courses">
-                    <span class="course-tag">CS 191</span>
-                    <span class="course-tag">CS 192</span>
+                <p class="faculty-title" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Senior Lecturer • Software Engineering</p>
+                <div class="faculty-courses" style="display: flex; gap: 6px;">
+                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 191</span>
+                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 192</span>
                 </div>
             </div>
 
         </div>
     </div>
 
+    <!-- Consultation Booking Modal (Scenario C - Step 7) -->
+    <div class="modal-backdrop" id="bookingModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Submit Consultation Request</h3>
+                <span class="close-modal" id="closeModal">&times;</span>
+            </div>
+            <div class="faculty-profile-banner">
+                <div class="user-avatar-circle" style="width: 36px; height: 36px;">DF</div>
+                <div>
+                    <h4 style="font-size: 14px;">Dr. Edgardo Felizardo</h4>
+                    <p style="font-size: 12px; color: var(--text-muted);">Associate Professor, BSCS</p>
+                </div>
+            </div>
+            <p class="amber-notice">Slots in Amber are exclusive consultation blocks.</p>
+            
+            <form class="booking-form" onsubmit="event.preventDefault(); alert('Consultation request submitted successfully!'); modal.style.display='none';">
+                <div class="form-group">
+                    <label>RELATED COURSE</label>
+                    <select>
+                        <option>CS 198 - Special Problem</option>
+                        <option>CS 180 - Introduction to AI</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>REASON FOR CONSULTATION</label>
+                    <textarea rows="3" placeholder="Discuss thesis scope and obtain feedback on the draft proposal...">Discuss thesis scope and obtain feedback on the draft proposal...</textarea>
+                </div>
+
+                <div class="selected-slot-info">
+                    <span>📅 Dr. Edgardo Felizardo • <strong>Tue 10:00 AM</strong></span>
+                    <span class="exclusive-pill">Exclusive consultation slot</span>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="submit-request-btn">Submit Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const card = document.getElementById('open-booking-modal');
+        const modal = document.getElementById('bookingModal');
+        const closeBtn = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        card.onclick = () => modal.style.display = 'flex';
+        closeBtn.onclick = () => modal.style.display = 'none';
+        cancelBtn.onclick = () => modal.style.display = 'none';
+        window.onclick = (e) => { if (e.target == modal) modal.style.display = 'none'; }
+    </script>
 </body>
 </html>

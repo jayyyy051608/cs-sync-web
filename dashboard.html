@@ -7,75 +7,88 @@
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
 </head>
-<body>
+<body class="dashboard-body">
 
-    <!-- Desktop App Shell -->
-    <div class="app-container">
+    <!-- Top Navigation Bar (Matching Wireframes) -->
+    <header class="top-navbar">
+        <div class="nav-left">
+            <button class="menu-btn">☰</button>
+            <span class="brand-title">CS-Sync Dashboard</span>
+        </div>
         
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="brand">
-                <h2>CS-Sync</h2>
-                <span class="badge">BSCS Portal</span>
+        <nav class="nav-center">
+            <a href="dashboard.html" class="nav-item active">
+                <span class="icon">🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="overlap.html" class="nav-item">
+                <span class="icon">👥</span>
+                <span>Overlap</span>
+            </a>
+            <a href="database.html" class="nav-item">
+                <span class="icon">🎓</span>
+                <span>Faculty</span>
+            </a>
+            <a href="calendar.html" class="nav-item">
+                <span class="icon">📅</span>
+                <span>Calendar</span>
+            </a>
+        </nav>
+
+        <div class="nav-right">
+            <span class="notification-icon">🔔</span>
+            <div class="user-avatar-circle">P</div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="dashboard-container" style="display: block; max-width: 1000px; margin: 24px auto;">
+        
+        <!-- Top Header Bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1>Weekly Schedule Grid</h1>
+            <div class="user-profile" style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-weight: 600;">Prince Jay Ceriaca</span>
+                <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 12px;">P</div>
             </div>
-            <nav class="nav-links">
-                <a href="dashboard.html" class="active">📅 My Schedule</a>
-                <a href="#">👥 Group Overlap</a>
-                <a href="#">🎓 Faculty Directory</a>
-                <a href="#">📊 Availability Tracker</a>
-                <a href="#">⚙️ Settings</a>
-            </nav>
-        </aside>
+        </div>
 
-        <!-- Main Content Area -->
-        <main class="main-content">
+        <!-- Schedule Matrix Container -->
+        <section class="schedule-grid-container" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div class="grid-header" style="display: grid; grid-template-columns: 100px repeat(6, 1fr); gap: 8px; font-weight: bold; margin-bottom: 12px; font-size: 13px; text-align: center;">
+                <span>Time</span>
+                <span>Monday</span>
+                <span>Tuesday</span>
+                <span>Wednesday</span>
+                <span>Thursday</span>
+                <span>Friday</span>
+                <span>Saturday</span>
+            </div>
             
-            <!-- Top Header Bar -->
-            <header class="top-bar">
-                <h1>Weekly Schedule Grid</h1>
-                <div class="user-profile">
-                    <span>Prince Jay Ceriaca</span>
-                    <div class="avatar">PJC</div>
-                </div>
-            </header>
+            <!-- Sample Time Row (08:00 AM) -->
+            <div class="grid-row" style="display: grid; grid-template-columns: 100px repeat(6, 1fr); gap: 8px; margin-bottom: 8px; align-items: center;">
+                <span class="time-label" style="font-size: 12px; font-weight: 600; color: var(--text-muted);">08:00 AM</span>
+                <div class="time-slot busy">CMSC 11</div>
+                <div class="time-slot free">Free</div>
+                <div class="time-slot busy">CMSC 11</div>
+                <div class="time-slot free">Free</div>
+                <div class="time-slot free">Free</div>
+                <div class="time-slot free">Free</div>
+            </div>
 
-            <!-- Schedule Matrix Container -->
-            <section class="schedule-grid-container">
-                <div class="grid-header">
-                    <span>Time</span>
-                    <span>Monday</span>
-                    <span>Tuesday</span>
-                    <span>Wednesday</span>
-                    <span>Thursday</span>
-                    <span>Friday</span>
-                    <span>Saturday</span>
-                </div>
-                
-                <!-- Sample Time Row (08:00 AM) -->
-                <div class="grid-row">
-                    <span class="time-label">08:00 AM</span>
-                    <div class="time-slot busy">CMSC 11 Lecture</div>
-                    <div class="time-slot free">Available</div>
-                    <div class="time-slot busy">CMSC 11 Lecture</div>
-                    <div class="time-slot free">Available</div>
-                    <div class="time-slot free">Available</div>
-                    <div class="time-slot free">Free</div>
-                </div>
+            <!-- Sample Time Row (01:00 PM) -->
+            <div class="grid-row" style="display: grid; grid-template-columns: 100px repeat(6, 1fr); gap: 8px; align-items: center;">
+                <span class="time-label" style="font-size: 12px; font-weight: 600; color: var(--text-muted);">01:00 PM</span>
+                <div class="time-slot free">Free</div>
+                <div class="time-slot faculty" style="background: #fff3cd; color: #856404; font-size: 11px; padding: 8px; border-radius: 4px; text-align: center;">Consultation</div>
+                <div class="time-slot free">Free</div>
+                <div class="time-slot busy">CMSC 3 Lab</div>
+                <div class="time-slot free">Free</div>
+                <div class="time-slot free">Free</div>
+            </div>
+        </section>
 
-                <!-- Sample Time Row (01:00 PM) -->
-                <div class="grid-row">
-                    <span class="time-label">01:00 PM</span>
-                    <div class="time-slot free">Available</div>
-                    <div class="time-slot faculty">Faculty Consultation (Ms. Abot)</div>
-                    <div class="time-slot free">Available</div>
-                    <div class="time-slot busy">CMSC 3 Lab</div>
-                    <div class="time-slot free">Available</div>
-                    <div class="time-slot free">Free</div>
-                </div>
-            </section>
-
-        </main>
-    </div>
+    </main>
 
 </body>
 </html>
