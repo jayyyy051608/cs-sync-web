@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications & Updates | CS-Sync UP Mindanao</title>
+    <link rel="stylesheet" href="styles/variables.css">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+        <div class="nav-left">
+            <button class="menu-btn">☰</button>
+            <span class="brand-title">Notifications & Updates</span>
+        </div>
+        <nav class="nav-center">
+            <a href="dashboard.html" class="nav-item">
+                <span class="icon">🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="overlap.html" class="nav-item">
+                <span class="icon">👥</span>
+                <span>Overlap</span>
+            </a>
+            <a href="database.html" class="nav-item">
+                <span class="icon">🎓</span>
+                <span>Faculty</span>
+            </a>
+            <a href="calendar.html" class="nav-item">
+                <span class="icon">📅</span>
+                <span>Calendar</span>
+            </a>
+        </nav>
+        <div class="nav-right">
+            <a href="notifications.html" class="nav-item active" style="text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                <span class="notification-icon">🔔</span>
+            </a>
+            <div class="user-avatar-circle" id="userNameDisplay">P</div>
+        </div>
+    </header>
+
+    <!-- Main Notifications Container -->
+    <div class="notifications-container" style="max-width: 800px; margin: 24px auto; background: white; padding: 24px; border-radius: 8px; border: 1px solid var(--border-color);">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+            <h2 style="font-size: 18px; margin: 0;">Updates and Invites</h2>
+            <div style="display: flex; gap: 8px; font-size: 12px;">
+                <button style="background: var(--up-maroon); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">All Notifications</button>
+                <button style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 4px; cursor: pointer;">Appointments</button>
+                <button style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 4px; cursor: pointer;">Groups</button>
+                <button style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 4px; cursor: pointer;">System</button>
+            </div>
+        </div>
+
+        <!-- Notification List -->
+        <div class="notification-list" style="display: flex; flex-direction: column; gap: 16px;">
+            
+            <!-- Item 1: Appointment Accepted -->
+            <div style="padding: 14px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <strong style="font-size: 14px; color: #155724;">Appointment Accepted</strong>
+                    <span style="font-size: 11px; color: var(--text-muted);">2 hours ago</span>
+                </div>
+                <p style="font-size: 13px; margin: 0; color: #333;">Dr. Felizardo accepted your consultation request for <strong>Tue 10:00 AM</strong>.</p>
+            </div>
+
+            <!-- Item 2: New Group Overlap Invite -->
+            <div style="padding: 14px; border: 1px solid #ffecb5; border-radius: 6px; background: #fffdf5;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <strong style="font-size: 14px; color: #664d03;">New Group Overlap Invite</strong>
+                    <span style="font-size: 11px; color: var(--text-muted);">5 hours ago</span>
+                </div>
+                <p style="font-size: 13px; margin: 0 0 10px 0; color: #333;">Juan wants to add you to the group overlap for <strong>Final Project CMSC 3</strong>.</p>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="alert('✅ Invitation accepted!')" style="padding: 6px 12px; background: var(--up-maroon); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600;">Accept</button>
+                    <button onclick="alert('❌ Invitation declined.')" style="padding: 6px 12px; background: none; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; cursor: pointer;">Decline</button>
+                </div>
+            </div>
+
+            <!-- Item 3: Appointment Declined -->
+            <div style="padding: 14px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <strong style="font-size: 14px; color: #842029;">Appointment Declined</strong>
+                    <span style="font-size: 11px; color: var(--text-muted);">Yesterday</span>
+                </div>
+                <p style="font-size: 13px; margin: 0; color: #333;">Prof. Villanueva declined your request. <br><strong>Reason:</strong> Schedule conflict</p>
+            </div>
+
+            <!-- Item 4: Reminder -->
+            <div style="padding: 14px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <strong style="font-size: 14px; color: #084298;">Reminder</strong>
+                    <span style="font-size: 11px; color: var(--text-muted);">Yesterday</span>
+                </div>
+                <p style="font-size: 13px; margin: 0; color: #333;">Your consultation with Dr. Felizardo is tomorrow at <strong>10:00 AM</strong>.</p>
+            </div>
+
+            <!-- Item 5: Group Meeting Confirmed -->
+            <div style="padding: 14px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <strong style="font-size: 14px; color: #155724;">Group Meeting Confirmed</strong>
+                    <span style="font-size: 11px; color: var(--text-muted);">2 days ago</span>
+                </div>
+                <p style="font-size: 13px; margin: 0; color: #333;">All members confirmed for Friday 1:00 PM group meeting.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

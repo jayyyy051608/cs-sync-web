@@ -6,160 +6,320 @@
     <title>Faculty Directory & Booking | CS-Sync UP Mindanao</title>
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="dashboard-body">
+<body class="dashboard-body" style="background: var(--bg-color, #f4f6f8); margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
 
-    <!-- Top Navigation Bar -->
-    <header class="top-navbar">
-        <div class="nav-left">
-            <button class="menu-btn">☰</button>
-            <span class="brand-title">Faculty Directory</span>
+    <!-- Top Navigation Bar matching Dashboard design -->
+    <header style="background: white; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 12px 32px; position: sticky; top: 0; z-index: 1000;">
+        <div style="display: flex; align-items: center; gap: 32px;">
+            <h2 style="color: var(--up-maroon, #7b1113); margin: 0; font-size: 20px; font-weight: bold;">CS-Sync</h2>
+            <nav style="display: flex; gap: 24px;">
+                <a href="dashboard.html" style="color: var(--text-muted, #6c757d); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-house"></i> Home</a>
+                <a href="overlap.html" style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-users"></i> Overlap</a>
+                <a href="database.html" style="color: var(--up-maroon); font-weight: 600; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-graduation-cap"></i> Faculty</a>
+                <a href="calendar.html" style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-regular fa-calendar"></i> Calendar</a>
+            </nav>
         </div>
-        <nav class="nav-center">
-            <a href="dashboard.html" class="nav-item">
-                <span class="icon">🏠</span>
-                <span>Home</span>
-            </a>
-            <a href="overlap.html" class="nav-item">
-                <span class="icon">👥</span>
-                <span>Overlap</span>
-            </a>
-            <a href="database.html" class="nav-item active">
-                <span class="icon">🎓</span>
-                <span>Faculty</span>
-            </a>
-            <a href="calendar.html" class="nav-item">
-                <span class="icon">📅</span>
-                <span>Calendar</span>
-            </a>
-        </nav>
-        <div class="nav-right">
-            <span class="notification-icon">🔔</span>
-            <div class="user-avatar-circle">P</div>
+
+        <!-- Right Side Icons & Profile Dropdown -->
+        <div style="display: flex; align-items: center; gap: 20px; position: relative;">
+            
+            <!-- Notification Bell Icon -->
+            <div style="position: relative;">
+                <button id="notifBtn" style="background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; position: relative;">
+                    <i class="fa-regular fa-bell"></i>
+                    <span style="position: absolute; top: -4px; right: -4px; background: #dc3545; color: white; font-size: 9px; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">3</span>
+                </button>
+
+                <!-- Notifications Dropdown Center -->
+                <div id="notifDropdown" style="display: none; position: absolute; right: 0; top: 36px; width: 340px; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); z-index: 1100; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                        <h4 style="margin: 0; font-size: 14px; color: var(--up-maroon);">Notifications & Invites</h4>
+                        <span style="font-size: 11px; color: var(--text-muted); cursor: pointer;" id="clearAllNotifs">Clear all</span>
+                    </div>
+                    <div style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; font-size: 12px;">
+                            <strong>Appointment Accepted</strong><br>
+                            Dr. Felizardo accepted your consultation request for Tue 10:00 AM[cite: 1].<br>
+                            <span style="font-size: 10px; color: var(--text-muted);">2 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Avatar & Dropdown Trigger -->
+            <div style="position: relative;">
+                <div id="profileTrigger" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 4px 8px; border-radius: 20px; transition: background 0.2s;">
+                    <div id="userAvatar" style="width: 32px; height: 32px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px;">MS</div>
+                    <span id="userNameDisplay" style="font-size: 13px; font-weight: 600; color: #333;">Maria Santos</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: var(--text-muted);"></i>
+                </div>
+
+                <!-- Profile Settings Drawer Menu -->
+                <div id="profileDropdown" style="display: none; position: absolute; right: 0; top: 46px; width: 240px; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); z-index: 1100; overflow: hidden;">
+                    <div style="padding: 16px; border-bottom: 1px solid var(--border-color); background: #fdfdfd;">
+                        <p id="profileDropdownName" style="margin: 0; font-weight: bold; font-size: 13px; color: #333;">Maria Santos</p>
+                        <p id="profileDropdownEmail" style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-muted);">mahalkosiya@up.edu.ph</p>
+                        <span style="display: inline-block; margin-top: 6px; background: #e9ecef; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; color: #495057;">Student • BSCS</span>
+                    </div>
+                    <div style="padding: 6px 0;">
+                        <a href="profile.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-user" style="width: 16px;"></i> My Profile</a>
+                        <a href="settings.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-gear fa-regular" style="width: 16px;"></i> Settings</a>
+                        <a href="help.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-circle-question" style="width: 16px;"></i> Help & Support</a>
+                    </div>
+                    <div style="border-top: 1px solid var(--border-color); padding: 6px 0;">
+                        <a href="#" id="logoutBtn" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #dc3545; text-decoration: none; font-size: 13px;"><i class="fa-solid fa-right-from-bracket" style="width: 16px;"></i> Log Out</a>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </header>
 
-    <!-- Main Faculty Directory Container -->
-    <div class="directory-container" style="display: block; max-width: 1000px; margin: 24px auto;">
+    <!-- Main Faculty Directory View -->
+    <div id="directoryView" class="directory-container" style="display: block; max-width: 1100px; margin: 32px auto; padding: 0 16px;">
         <div class="directory-header" style="margin-bottom: 20px;">
             <h2>Faculty Directory</h2>
             <div class="search-filter-bar" style="display: flex; gap: 12px; margin-top: 12px;">
-                <input type="text" placeholder="Search by name or specialty..." class="search-input" style="flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;">
-                <select class="filter-select" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 6px;">
+                <input type="text" placeholder="Search by name or specialty..." class="search-input" style="flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: white;">
+                <select class="filter-select" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: white;">
                     <option>All departments</option>
                 </select>
                 <button class="available-toggle-btn" style="padding: 10px 16px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; cursor: pointer;">Available now</button>
             </div>
-            <p class="faculty-count" style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">24 faculty members</p>
+            <p class="faculty-count" style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">24 faculty members[cite: 1]</p>
         </div>
 
         <!-- Faculty Cards Grid -->
-        <div class="faculty-grid">
+        <div class="faculty-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
             
             <!-- Faculty Card 1 -->
-            <div class="faculty-card">
+            <div class="faculty-card" style="background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color);">
                 <div class="faculty-top" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                     <div class="faculty-avatar-box av-badge" style="width: 40px; height: 40px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">AV</div>
                     <div>
-                        <h3 style="font-size: 16px;">Prof. Adrian Villanueva</h3>
-                        <span class="status-badge available" style="font-size: 11px; color: green; font-weight: 600;">Available</span>
+                        <h3 style="font-size: 16px; margin: 0;">Prof. Adrian Villanueva</h3>
+                        <span class="status-badge available" style="font-size: 11px; color: green; font-weight: 600;">Available[cite: 1]</span>
                     </div>
                 </div>
-                <p class="faculty-title" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Associate Professor • Algorithms & Theory</p>
+                <p class="faculty-title" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Associate Professor • Algorithms & Theory[cite: 1]</p>
                 <div class="faculty-courses" style="display: flex; gap: 6px;">
-                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 150</span>
-                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 153</span>
+                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 150[cite: 1]</span>
+                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 153[cite: 1]</span>
                 </div>
             </div>
 
-            <!-- Faculty Card 2 (Clickable to open booking modal) -->
-            <div class="faculty-card" id="open-booking-modal" style="cursor: pointer; border: 2px solid var(--up-maroon);">
+            <!-- Faculty Card 2 (Clickable to view Dr. Felizardo's Consultation Slots - Step 6) -->
+            <div class="faculty-card" id="viewSlotsBtn" style="background: white; padding: 16px; border-radius: 8px; border: 2px solid var(--up-maroon); cursor: pointer;">
                 <div class="faculty-top" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                     <div class="faculty-avatar-box df-badge" style="width: 40px; height: 40px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">DF</div>
                     <div>
-                        <h3 style="font-size: 16px;">Dr. Edgardo Felizardo</h3>
-                        <span class="status-badge available" style="font-size: 11px; color: green; font-weight: 600;">Available (Click to Book)</span>
+                        <h3 style="font-size: 16px; margin: 0;">Dr. Edgardo Felizardo</h3>
+                        <span class="status-badge available" style="font-size: 11px; color: green; font-weight: 600;">Available (View Slots)[cite: 1]</span>
                     </div>
                 </div>
-                <p class="faculty-title" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Assistant Professor • Artificial Intelligence</p>
+                <p class="faculty-title" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Assistant Professor • Artificial Intelligence[cite: 1]</p>
                 <div class="faculty-courses" style="display: flex; gap: 6px;">
-                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 180</span>
-                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 198</span>
+                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 180[cite: 1]</span>
+                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 198[cite: 1]</span>
                 </div>
             </div>
 
             <!-- Faculty Card 3 -->
-            <div class="faculty-card">
+            <div class="faculty-card" style="background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color);">
                 <div class="faculty-top" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <div class="faculty-avatar-box cm-badge" style="width: 40px; height: 40px; background: var(--text-muted); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">CM</div>
+                    <div class="faculty-avatar-box cm-badge" style="width: 40px; height: 40px; background: #6c757d; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">CM</div>
                     <div>
-                        <h3 style="font-size: 16px;">Prof. Carlos Mendoza</h3>
-                        <span class="status-badge in-class" style="font-size: 11px; color: #856404; font-weight: 600;">In class</span>
+                        <h3 style="font-size: 16px; margin: 0;">Prof. Carlos Mendoza</h3>
+                        <span class="status-badge in-class" style="font-size: 11px; color: #856404; font-weight: 600;">In class[cite: 1]</span>
                     </div>
                 </div>
-                <p class="faculty-title" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Senior Lecturer • Software Engineering</p>
+                <p class="faculty-title" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Senior Lecturer • Software Engineering[cite: 1]</p>
                 <div class="faculty-courses" style="display: flex; gap: 6px;">
-                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 191</span>
-                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 192</span>
+                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 191[cite: 1]</span>
+                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 192[cite: 1]</span>
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- Consultation Booking Modal (Scenario C - Step 7) -->
-    <div class="modal-backdrop" id="bookingModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3>Submit Consultation Request</h3>
-                <span class="close-modal" id="closeModal">&times;</span>
-            </div>
-            <div class="faculty-profile-banner">
-                <div class="user-avatar-circle" style="width: 36px; height: 36px;">DF</div>
+    <!-- Scenario C - Step 6: Faculty Consultation Hour Slot View (Hidden by default) -->
+    <div id="slotView" class="slot-container" style="display: none; max-width: 900px; margin: 32px auto; background: white; padding: 24px; border-radius: 8px; border: 1px solid var(--border-color);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 44px; height: 44px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">DF</div>
                 <div>
-                    <h4 style="font-size: 14px;">Dr. Edgardo Felizardo</h4>
-                    <p style="font-size: 12px; color: var(--text-muted);">Associate Professor, BSCS</p>
+                    <h3 style="margin: 0; font-size: 16px;">Dr. Edgardo Felizardo</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-muted);">Associate Professor, BSCS[cite: 1]</p>
                 </div>
             </div>
-            <p class="amber-notice">Slots in Amber are exclusive consultation blocks.</p>
+            <button id="backToDirectory" style="background: none; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">← Back to Directory</button>
+        </div>
+
+        <p style="font-size: 12px; color: #856404; background: #fff3cd; padding: 8px; border-radius: 4px; margin-bottom: 20px;">Slots in Amber are exclusive consultation blocks[cite: 1].</p>
+
+        <div style="display: grid; grid-template-columns: 100px 1fr 1fr; gap: 12px; font-weight: bold; font-size: 13px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; text-align: center;">
+            <span>Time</span>
+            <span>Tuesday</span>
+            <span>Thursday</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 100px 1fr 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f1f1f1; align-items: center; font-size: 12px; text-align: center;">
+            <span style="font-weight: 600; color: var(--text-muted); text-align: left;">09:00 AM</span>
+            <span style="background: #e9ecef; padding: 6px; border-radius: 4px;">CS Major Class[cite: 1]</span>
+            <span style="background: #e9ecef; padding: 6px; border-radius: 4px;">Admin[cite: 1]</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 100px 1fr 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f1f1f1; align-items: center; font-size: 12px; text-align: center;">
+            <span style="font-weight: 600; color: var(--text-muted); text-align: left;">10:00 AM</span>
+            <button id="openBookingFromSlot" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 6px; border-radius: 4px; font-weight: bold; cursor: pointer;">Book Slot (Exclusive)</button>
+            <span style="background: #e9ecef; padding: 6px; border-radius: 4px;">CS Major Class[cite: 1]</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 100px 1fr 1fr; gap: 12px; padding: 10px 0; align-items: center; font-size: 12px; text-align: center;">
+            <span style="font-weight: 600; color: var(--text-muted); text-align: left;">11:00 AM</span>
+            <span style="background: #e9ecef; padding: 6px; border-radius: 4px;">CS Major Class[cite: 1]</span>
+            <span style="background: #e9ecef; padding: 6px; border-radius: 4px;">Admin[cite: 1]</span>
+        </div>
+    </div>
+
+    <!-- Scenario C - Step 7: Consultation Booking Modal -->
+    <div class="modal-backdrop" id="bookingModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;">
+        <div class="modal-card" style="background: white; width: 500px; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="margin: 0;">Submit Consultation Request</h3>
+                <span class="close-modal" id="closeModal" style="font-size: 24px; cursor: pointer; color: var(--text-muted);">&times;</span>
+            </div>
+            <div class="faculty-profile-banner" style="display: flex; align-items: center; gap: 12px; background: var(--bg-color); padding: 12px; border-radius: 6px; margin-bottom: 12px;">
+                <div class="user-avatar-circle" style="width: 36px; height: 36px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">DF</div>
+                <div>
+                    <h4 style="font-size: 14px; margin: 0;">Dr. Edgardo Felizardo</h4>
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">Associate Professor, BSCS[cite: 1]</p>
+                </div>
+            </div>
+            <p class="amber-notice" style="font-size: 12px; color: #856404; background-color: #fff3cd; padding: 8px; border-radius: 4px; margin-bottom: 16px;">Slots in Amber are exclusive consultation blocks[cite: 1].</p>
             
-            <form class="booking-form" onsubmit="event.preventDefault(); alert('Consultation request submitted successfully!'); modal.style.display='none';">
-                <div class="form-group">
-                    <label>RELATED COURSE</label>
-                    <select>
-                        <option>CS 198 - Special Problem</option>
+            <form class="booking-form">
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">RELATED COURSE</label>
+                    <select style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
+                        <option>CS 198 - Special Problem[cite: 1]</option>
                         <option>CS 180 - Introduction to AI</option>
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label>REASON FOR CONSULTATION</label>
-                    <textarea rows="3" placeholder="Discuss thesis scope and obtain feedback on the draft proposal...">Discuss thesis scope and obtain feedback on the draft proposal...</textarea>
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">REASON FOR CONSULTATION</label>
+                    <textarea rows="3" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: none;">Discuss thesis scope and obtain feedback on the draft proposal...[cite: 1]</textarea>
                 </div>
 
-                <div class="selected-slot-info">
-                    <span>📅 Dr. Edgardo Felizardo • <strong>Tue 10:00 AM</strong></span>
-                    <span class="exclusive-pill">Exclusive consultation slot</span>
+                <div class="selected-slot-info" style="display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 10px; border-radius: 6px; font-size: 12px; margin: 16px 0; border: 1px solid var(--border-color);">
+                    <span>📅 Dr. Edgardo Felizardo • <strong>Tue 10:00 AM</strong>[cite: 1]</span>
+                    <span class="exclusive-pill" style="background: #ffecb5; color: #664d03; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Exclusive consultation slot[cite: 1]</span>
                 </div>
 
-                <div class="modal-actions">
-                    <button type="button" class="cancel-btn" id="cancelBtn">Cancel</button>
-                    <button type="submit" class="submit-request-btn">Submit Request</button>
+                <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 12px;">
+                    <button type="button" class="cancel-btn" id="cancelBtn" style="padding: 10px 16px; background: none; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">Cancel</button>
+                    <button type="submit" class="submit-request-btn" style="padding: 10px 16px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Submit Request</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- Scripts for Interaction & Header State Management -->
     <script>
-        const card = document.getElementById('open-booking-modal');
-        const modal = document.getElementById('bookingModal');
-        const closeBtn = document.getElementById('closeModal');
-        const cancelBtn = document.getElementById('cancelBtn');
+        const storedUser = localStorage.getItem('cs_sync_user') || 'Maria Santos';
+        const storedEmail = localStorage.getItem('cs_sync_email') || 'mahalkosiya@up.edu.ph';
+        
+        document.getElementById('userNameDisplay').textContent = storedUser;
+        document.getElementById('profileDropdownName').textContent = storedUser;
+        document.getElementById('profileDropdownEmail').textContent = storedEmail;
 
-        card.onclick = () => modal.style.display = 'flex';
-        closeBtn.onclick = () => modal.style.display = 'none';
-        cancelBtn.onclick = () => modal.style.display = 'none';
-        window.onclick = (e) => { if (e.target == modal) modal.style.display = 'none'; }
+        const initials = storedUser.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        document.getElementById('userAvatar').textContent = initials;
+
+        const notifBtn = document.getElementById('notifBtn');
+        const notifDropdown = document.getElementById('notifDropdown');
+        const profileTrigger = document.getElementById('profileTrigger');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        notifBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notifDropdown.style.display = notifDropdown.style.display === 'block' ? 'none' : 'block';
+            profileDropdown.style.display = 'none';
+        });
+
+        profileTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+            notifDropdown.style.display = 'none';
+        });
+
+        window.addEventListener('click', function() {
+            notifDropdown.style.display = 'none';
+            profileDropdown.style.display = 'none';
+        });
+
+        document.getElementById('clearAllNotifs').addEventListener('click', function() {
+            notifDropdown.querySelector('div:nth-child(2)').innerHTML = '<p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>';
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('cs_sync_user');
+            localStorage.removeItem('cs_sync_email');
+            window.location.replace('index.html');
+        });
+
+        // Directory & Slot view controllers
+        const directoryView = document.getElementById('directoryView');
+        const slotView = document.getElementById('slotView');
+        const viewSlotsBtn = document.getElementById('viewSlotsBtn');
+        const backToDirectory = document.getElementById('backToDirectory');
+        
+        const bookingModal = document.getElementById('bookingModal');
+        const openBookingFromSlot = document.getElementById('openBookingFromSlot');
+        const closeModal = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const bookingForm = document.querySelector('.booking-form');
+
+        if (viewSlotsBtn) {
+            viewSlotsBtn.onclick = () => {
+                directoryView.style.display = 'none';
+                slotView.style.display = 'block';
+            };
+        }
+
+        if (backToDirectory) {
+            backToDirectory.onclick = () => {
+                slotView.style.display = 'none';
+                directoryView.style.display = 'block';
+            };
+        }
+
+        if (openBookingFromSlot) {
+            openBookingFromSlot.onclick = () => {
+                bookingModal.style.display = 'flex';
+            };
+        }
+
+        if (closeModal) closeModal.onclick = () => bookingModal.style.display = 'none';
+        if (cancelBtn) cancelBtn.onclick = () => bookingModal.style.display = 'none';
+        
+        if (bookingForm) {
+            bookingForm.onsubmit = (e) => {
+                e.preventDefault();
+                alert('✅ Consultation request successfully submitted to Dr. Felizardo!');
+                bookingModal.style.display = 'none';
+                slotView.style.display = 'none';
+                directoryView.style.display = 'block';
+            };
+        }
+
+        window.onclick = (e) => { if (e.target == bookingModal) bookingModal.style.display = 'none'; }
     </script>
+    <script src="app.js"></script>
 </body>
 </html>

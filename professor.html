@@ -40,26 +40,26 @@
     </header>
 
     <!-- Main Professor Dashboard Container -->
-    <div class="dashboard-container" style="max-width: 1000px; margin: 24px auto;">
+    <div class="dashboard-container" style="max-width: 1000px; margin: 24px auto; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 16px;">
         
         <!-- Left Section: Today's Consultations -->
-        <section class="consultations-section">
+        <section class="consultations-section" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); height: fit-content;">
             <div class="section-header" style="margin-bottom: 16px;">
-                <h2>Today's Consultations</h2>
+                <h2 style="font-size: 18px; margin: 0;">Today's Consultations</h2>
             </div>
             <div class="consultation-list" style="display: flex; flex-direction: column; gap: 12px;">
                 <div class="consultation-card" style="padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
-                    <strong>Prince Jay Ceriaca</strong>
+                    <strong style="font-size: 14px;">Prince Jay Ceriaca</strong>
                     <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0;">9:00 AM • CS 198 Thesis Discussion</p>
                     <span class="status-badge available" style="font-size: 11px; color: green; font-weight: 600;">Confirmed</span>
                 </div>
                 <div class="consultation-card" style="padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
-                    <strong>Maria Santos</strong>
+                    <strong style="font-size: 14px;">Maria Santos</strong>
                     <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0;">10:00 AM • CS 180 AI Project Help</p>
                     <span class="status-badge" style="font-size: 11px; color: #856404; font-weight: 600;">Pending Action</span>
                 </div>
                 <div class="consultation-card" style="padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background: #f8f9fa;">
-                    <strong>Open Consultation Slot</strong>
+                    <strong style="font-size: 14px;">Open Consultation Slot</strong>
                     <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0;">11:00 AM • No student booked yet</p>
                     <span class="status-badge available" style="font-size: 11px; color: #0d6efd; font-weight: 600;">Available Slot</span>
                 </div>
@@ -67,38 +67,38 @@
         </section>
 
         <!-- Right Section: Pending Requests Feed -->
-        <section class="schedule-section">
-            <h2 class="schedule-main-title" style="margin-bottom: 16px;">Pending Student Requests (2)</h2>
+        <section class="schedule-section" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); height: fit-content;">
+            <h2 class="schedule-main-title" style="font-size: 18px; margin-bottom: 16px;">Pending Student Requests (2)</h2>
             
-            <div class="schedule-card-box" style="padding: 16px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
+            <div class="schedule-card-box" style="display: flex; flex-direction: column; gap: 16px;">
                 
-                <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 14px; margin-bottom: 14px;">
+                <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 14px;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                        <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 11px;">P</div>
+                        <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 11px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">P</div>
                         <div>
                             <strong style="font-size: 14px;">Prince Jay Ceriaca</strong> 
                             <span style="font-size: 11px; color: var(--text-muted);">• 30 mins ago</span>
                         </div>
                     </div>
-                    <p style="font-size: 13px; margin-bottom: 10px;">Requesting consultation on Tuesday 10:00 AM for CS 198 Special Problem feedback.</p>
+                    <p style="font-size: 13px; margin-bottom: 10px; color: #333;">Requesting consultation on Tuesday 10:00 AM for CS 198 Special Problem feedback.</p>
                     <div style="display: flex; gap: 8px;">
-                        <button onclick="alert('Request accepted!')" style="padding: 6px 12px; background: var(--up-maroon); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">Accept</button>
-                        <button onclick="alert('Request declined.')" style="padding: 6px 12px; background: none; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; cursor: pointer;">Decline</button>
+                        <button onclick="alert('✅ Request accepted successfully!')" style="padding: 6px 12px; background: var(--up-maroon); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600;">Accept</button>
+                        <button onclick="alert('❌ Request declined.')" style="padding: 6px 12px; background: none; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; cursor: pointer;">Decline</button>
                     </div>
                 </div>
 
                 <div>
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                        <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 11px; background: #6c757d;">MS</div>
+                        <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 11px; background: #6c757d; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">MS</div>
                         <div>
                             <strong style="font-size: 14px;">Maria Santos</strong> 
                             <span style="font-size: 11px; color: var(--text-muted);">• 2 hours ago</span>
                         </div>
                     </div>
-                    <p style="font-size: 13px; margin-bottom: 10px;">Requesting consultation on Friday 1:00 PM for CS 180 query.</p>
+                    <p style="font-size: 13px; margin-bottom: 10px; color: #333;">Requesting consultation on Friday 1:00 PM for CS 180 query.</p>
                     <div style="display: flex; gap: 8px;">
-                        <button onclick="alert('Request accepted!')" style="padding: 6px 12px; background: var(--up-maroon); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">Accept</button>
-                        <button onclick="alert('Request declined.')" style="padding: 6px 12px; background: none; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; cursor: pointer;">Decline</button>
+                        <button onclick="alert('✅ Request accepted successfully!')" style="padding: 6px 12px; background: var(--up-maroon); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600;">Accept</button>
+                        <button onclick="alert('❌ Request declined.')" style="padding: 6px 12px; background: none; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; cursor: pointer;">Decline</button>
                     </div>
                 </div>
 
@@ -107,5 +107,6 @@
 
     </div>
 
+    <script src="app.js"></script>
 </body>
 </html>

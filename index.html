@@ -3,52 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login & Onboarding | CS-Sync UP Mindanao</title>
+    <title>Authentication | CS-Sync UP Mindanao</title>
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="login-body">
+<body class="dashboard-body" style="margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(rgba(123, 17, 19, 0.75), rgba(123, 17, 19, 0.75)), url('images/upmindanao.jpg') no-repeat center center fixed; background-size: cover; padding: 20px;">
 
-    <div class="login-overlay">
-        <div class="login-card">
-            <div class="login-header">
-                <div class="logo-badge">🛡️</div>
-                <h2>CS-Sync</h2>
+    <!-- Top Branding Header matching the wireframe -->
+    <div style="text-align: center; color: white; margin-bottom: 24px; z-index: 10;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 6px;">
+            <div style="width: 28px; height: 28px; background: white; color: var(--up-maroon, #7b1113); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
+                <i class="fa-solid fa-graduation-cap"></i>
             </div>
-            <p class="login-tagline">Synchronize availability. Coordinate efficiently.</p>
-            <p class="login-subtext">Centralized consultation tracker for the Department of Computer Science, University of the Philippines - Mindanao.</p>
+            <h2 style="margin: 0; font-size: 22px; font-weight: bold; letter-spacing: 0.5px;">CS-Sync</h2>
+        </div>
+        <h1 style="margin: 0 0 6px 0; font-size: 24px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Synchronize availability. Coordinate efficiently.</h1>
+        <p style="margin: 0; font-size: 12px; opacity: 0.9; max-width: 480px; line-height: 1.4;">Centralized consultation tracker for the Department of Computer Science, University of the Philippines - Mindanao.</p>
+    </div>
+
+    <!-- Main Card -->
+    <div class="login-card" style="background: white; padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); width: 100%; max-width: 420px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); z-index: 10;">
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h1 id="formTitle" style="color: var(--up-maroon, #7b1113); font-size: 20px; font-weight: bold; margin-bottom: 4px;">Welcome to CS-Sync</h1>
+            <p id="formSubtitle" style="font-size: 12px; color: var(--text-muted, #6c757d);">Set up your university account profile.</p>
+        </div>
+
+        <!-- Main Login / Sign Up Form -->
+        <form id="authForm">
             
-            <div class="onboarding-form-box">
-                <h3>Welcome to CS-Sync</h3>
-                <p class="form-instruction">Set up your university account profile.</p>
-                
-                <form action="dashboard.html" method="GET">
-                    <div class="form-group">
-                        <label>UP MAIL ADDRESS</label>
-                        <input type="email" value="mahalkosiya@up.edu.ph" required>
-                        <span class="input-check">✔️</span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>ACADEMIC PROGRAM</label>
-                        <select>
-                            <option selected>BS Computer Science</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>BATCH YEAR</label>
-                        <select>
-                            <option selected>2026 (Freshie)</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="continue-btn">Continue</button>
-                    <p class="notice-footer">Only @up.edu.ph accounts are accepted</p>
-                </form>
+            <!-- Full Name (Sign Up Only) -->
+            <div id="nameFieldContainer" style="margin-bottom: 16px; display: none;">
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">FULL NAME</label>
+                <input type="text" id="fullNameInput" placeholder="Maria Santos" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
             </div>
+
+            <!-- UP Mail Address -->
+            <div style="margin-bottom: 16px;">
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">UP MAIL ADDRESS</label>
+                <input type="email" id="upMailInput" value="mahalkosiya@up.edu.ph" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
+                <small id="domainError" style="color: #dc3545; font-size: 11px; display: none; margin-top: 4px; font-weight: 500;"></small>
+            </div>
+
+            <!-- Password -->
+            <div style="margin-bottom: 16px;">
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">PASSWORD</label>
+                <input type="password" id="passwordInput" placeholder="••••••••" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
+            </div>
+
+            <!-- Security Question & Program (Sign Up Only) -->
+            <div id="signupSecurityFields" style="display: none;">
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">SECURITY QUESTION</label>
+                    <select id="securityQuestion" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
+                        <option value="pet">What was the name of your first pet?</option>
+                        <option value="highschool">What high school did you graduate from?</option>
+                        <option value="course">What is your favorite computer science course?</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">SECURITY ANSWER</label>
+                    <input type="text" id="securityAnswer" placeholder="Enter your answer" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">ACADEMIC PROGRAM</label>
+                <select id="academicProgram" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
+                    <option value="BS Computer Science" selected>BS Computer Science</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">BATCH YEAR</label>
+                <select id="batchYear" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
+                    <option value="2026 (Freshie)" selected>2026 (Freshie)</option>
+                    <option value="2025 (Sophomore)">2025 (Sophomore)</option>
+                    <option value="2024 (Junior)">2024 (Junior)</option>
+                    <option value="2023 (Senior)">2023 (Senior)</option>
+                </select>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="submitBtn" style="width: 100%; padding: 12px; background: var(--up-maroon, #7b1113); color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer;">
+                Continue
+            </button>
+        </form>
+
+        <!-- Forgot Password Form -->
+        <form id="forgotForm" style="display: none;">
+            <div style="margin-bottom: 16px;">
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">ENTER YOUR UP MAIL</label>
+                <input type="email" id="recoveryEmail" placeholder="mahalkosiya@up.edu.ph" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
+                <small id="resetError" style="color: #dc3545; font-size: 11px; display: none; margin-top: 4px; font-weight: 500;"></small>
+            </div>
+
+            <button type="submit" id="resetBtn" style="width: 100%; padding: 12px; background: var(--up-maroon, #7b1113); color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer;">
+                Send Password Reset Link
+            </button>
+            <button type="button" id="backToLoginBtn" style="width: 100%; padding: 8px; background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; margin-top: 8px;">← Back to Sign In</button>
+        </form>
+
+        <!-- Navigation Links -->
+        <div style="text-align: center; margin-top: 16px;">
+            <p id="forgotPasswordContainer" style="font-size: 12px; margin-bottom: 8px;">
+                <a href="#" id="forgotPasswordLink" style="color: var(--text-muted); text-decoration: none;">Forgot password?</a>
+            </p>
+            <p id="toggleText" style="font-size: 12px; color: var(--text-muted);">
+                Don't have an account? <a href="#" id="toggleModeBtn" style="color: var(--up-maroon); font-weight: bold; text-decoration: none;">Create Account</a>
+            </p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+            <small style="font-size: 11px; color: var(--text-muted);">Only @up.edu.ph accounts are accepted</small>
         </div>
     </div>
 
+    <!-- Firebase Script Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
+            authDomain: "cs-sync-8a6a0.firebaseapp.com",
+            projectId: "cs-sync-8a6a0",
+            storageBucket: "cs-sync-8a6a0.firebasestorage.app",
+            messagingSenderId: "34056179764",
+            appId: "1:34056179764:web:f417af5001d576882d360d",
+            measurementId: "G-F663CN4012"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentMode = 'signin';
+
+        const authForm = document.getElementById('authForm');
+        const forgotForm = document.getElementById('forgotForm');
+        const formTitle = document.getElementById('formTitle');
+        const formSubtitle = document.getElementById('formSubtitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const toggleText = document.getElementById('toggleText');
+        const toggleModeBtn = document.getElementById('toggleModeBtn');
+        const forgotPasswordContainer = document.getElementById('forgotPasswordContainer');
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const backToLoginBtn = document.getElementById('backToLoginBtn');
+        const nameFieldContainer = document.getElementById('nameFieldContainer');
+        const signupSecurityFields = document.getElementById('signupSecurityFields');
+        const upMailInput = document.getElementById('upMailInput');
+        const domainError = document.getElementById('domainError');
+        const recoveryEmail = document.getElementById('recoveryEmail');
+        const resetError = document.getElementById('resetError');
+
+        toggleModeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            domainError.style.display = 'none';
+            upMailInput.style.borderColor = 'var(--border-color)';
+            if (currentMode === 'signin') {
+                currentMode = 'signup';
+                formTitle.textContent = "Create Account";
+                formSubtitle.textContent = "Set up your university account profile.";
+                submitBtn.textContent = "Continue";
+                nameFieldContainer.style.display = 'block';
+                signupSecurityFields.style.display = 'block';
+                forgotPasswordContainer.style.display = 'none';
+                toggleText.innerHTML = 'Already have an account? <a href="#" id="toggleModeBtn" style="color: var(--up-maroon); font-weight: bold; text-decoration: none;">Sign In</a>';
+            } else {
+                currentMode = 'signin';
+                formTitle.textContent = "Welcome to CS-Sync";
+                formSubtitle.textContent = "Set up your university account profile.";
+                submitBtn.textContent = "Continue";
+                nameFieldContainer.style.display = 'none';
+                signupSecurityFields.style.display = 'none';
+                forgotPasswordContainer.style.display = 'block';
+                toggleText.innerHTML = 'Don\'t have an account? <a href="#" id="toggleModeBtn" style="color: var(--up-maroon); font-weight: bold; text-decoration: none;">Create Account</a>';
+            }
+        });
+
+        forgotPasswordLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            currentMode = 'forgot';
+            formTitle.textContent = "Reset Password";
+            formSubtitle.textContent = "Enter your UP mail to receive a reset link.";
+            authForm.style.display = 'none';
+            forgotForm.style.display = 'block';
+            forgotPasswordContainer.style.display = 'none';
+            toggleText.style.display = 'none';
+            resetError.style.display = 'none';
+        });
+
+        backToLoginBtn.addEventListener('click', function(e) {
+            currentMode = 'signin';
+            formTitle.textContent = "Welcome to CS-Sync";
+            formSubtitle.textContent = "Set up your university account profile.";
+            forgotForm.style.display = 'none';
+            authForm.style.display = 'block';
+            forgotPasswordContainer.style.display = 'block';
+            toggleText.style.display = 'block';
+        });
+
+        authForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const emailValue = upMailInput.value.trim().toLowerCase();
+            const passwordValue = document.getElementById('passwordInput').value;
+
+            if (!emailValue.endsWith('@up.edu.ph')) {
+                domainError.textContent = "Only @up.edu.ph accounts are accepted.";
+                domainError.style.display = 'block';
+                upMailInput.style.borderColor = '#dc3545';
+                return;
+            }
+            domainError.style.display = 'none';
+            upMailInput.style.borderColor = 'var(--border-color)';
+
+            try {
+                if (currentMode === 'signup') {
+                    const fullName = document.getElementById('fullNameInput').value.trim() || "Maria Santos";
+                    const secQuestion = document.getElementById('securityQuestion').value;
+                    const secAnswer = document.getElementById('securityAnswer').value.trim();
+                    const batchYear = document.getElementById('batchYear').value;
+
+                    const userCredential = await createUserWithEmailAndPassword(auth, emailValue, passwordValue);
+                    const user = userCredential.user;
+
+                    await setDoc(doc(db, "users", user.uid), {
+                        fullName: fullName,
+                        email: emailValue,
+                        program: "BS Computer Science",
+                        batchYear: batchYear,
+                        securityQuestion: secQuestion,
+                        securityAnswer: secAnswer,
+                        createdAt: new Date()
+                    });
+
+                    domainError.style.color = '#28a745';
+                    domainError.textContent = "Account created successfully! Please sign in.";
+                    domainError.style.display = 'block';
+                    
+                    currentMode = 'signin';
+                    formTitle.textContent = "Welcome to CS-Sync";
+                    formSubtitle.textContent = "Set up your university account profile.";
+                    submitBtn.textContent = "Continue";
+                    nameFieldContainer.style.display = 'none';
+                    signupSecurityFields.style.display = 'none';
+                    forgotPasswordContainer.style.display = 'block';
+                    toggleText.innerHTML = 'Don\'t have an account? <a href="#" id="toggleModeBtn" style="color: var(--up-maroon); font-weight: bold; text-decoration: none;">Create Account</a>';
+                    authForm.reset();
+
+                } else {
+                    await signInWithEmailAndPassword(auth, emailValue, passwordValue);
+                    
+                    const username = emailValue.split('@')[0];
+                    const formattedName = username.charAt(0).toUpperCase() + username.slice(1);
+                    localStorage.setItem('cs_sync_user', formattedName);
+                    localStorage.setItem('cs_sync_email', emailValue);
+
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (error) {
+                let displayMessage = "Incorrect email or password, or the account does not exist.";
+                if (error.code === 'auth/email-already-in-use') {
+                    displayMessage = "An account with this UP mail already exists.";
+                } else if (error.code === 'auth/wrong-password') {
+                    displayMessage = "Incorrect password. Please try again.";
+                } else if (error.code === 'auth/user-not-found') {
+                    displayMessage = "Account does not exist. Please create an account.";
+                }
+
+                domainError.style.color = '#dc3545';
+                domainError.textContent = displayMessage;
+                domainError.style.display = 'block';
+                upMailInput.style.borderColor = '#dc3545';
+            }
+        });
+
+        forgotForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const emailVal = recoveryEmail.value.trim().toLowerCase();
+
+            if (!emailVal.endsWith('@up.edu.ph')) {
+                resetError.textContent = "Please enter a valid @up.edu.ph email address.";
+                resetError.style.display = 'block';
+                recoveryEmail.style.borderColor = '#dc3545';
+                return;
+            }
+
+            try {
+                await sendPasswordResetEmail(auth, emailVal);
+                resetError.style.color = '#28a745';
+                resetError.textContent = "Password reset link sent! Check your UP Mail inbox.";
+                resetError.style.display = 'block';
+                recoveryEmail.style.borderColor = 'var(--border-color)';
+            } catch (error) {
+                let errMsg = "Failed to send reset email. Account may not exist.";
+                if (error.code === 'auth/user-not-found') {
+                    errMsg = "No account found with this email address.";
+                }
+                resetError.style.color = '#dc3545';
+                resetError.textContent = errMsg;
+                resetError.style.display = 'block';
+                recoveryEmail.style.borderColor = '#dc3545';
+            }
+        });
+    </script>
 </body>
 </html>

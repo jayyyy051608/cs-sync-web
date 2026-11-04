@@ -6,76 +6,119 @@
     <title>Group Overlap | CS-Sync UP Mindanao</title>
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="dashboard-body">
+<body class="dashboard-body" style="background: var(--bg-color, #f4f6f8); margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
 
-    <!-- Top Navigation Bar -->
-    <header class="top-navbar">
-        <div class="nav-left">
-            <button class="menu-btn">☰</button>
-            <span class="brand-title">Group Overlap</span>
+    <!-- Top Navigation Bar matching Dashboard design -->
+    <header style="background: white; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 12px 32px; position: sticky; top: 0; z-index: 1000;">
+        <div style="display: flex; align-items: center; gap: 32px;">
+            <h2 style="color: var(--up-maroon, #7b1113); margin: 0; font-size: 20px; font-weight: bold;">CS-Sync</h2>
+            <nav style="display: flex; gap: 24px;">
+                <a href="dashboard.html" style="color: var(--text-muted, #6c757d); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-house"></i> Home</a>
+                <a href="overlap.html" style="color: var(--up-maroon); font-weight: 600; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-users"></i> Overlap</a>
+                <a href="database.html" style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-graduation-cap"></i> Faculty</a>
+                <a href="calendar.html" style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-regular fa-calendar"></i> Calendar</a>
+            </nav>
         </div>
-        <nav class="nav-center">
-            <a href="dashboard.html" class="nav-item">
-                <span class="icon">🏠</span>
-                <span>Home</span>
-            </a>
-            <a href="overlap.html" class="nav-item active">
-                <span class="icon">👥</span>
-                <span>Overlap</span>
-            </a>
-            <a href="database.html" class="nav-item">
-                <span class="icon">🎓</span>
-                <span>Faculty</span>
-            </a>
-            <a href="calendar.html" class="nav-item">
-                <span class="icon">📅</span>
-                <span>Calendar</span>
-            </a>
-        </nav>
-        <div class="nav-right">
-            <span class="notification-icon">🔔</span>
-            <div class="user-avatar-circle">P</div>
+
+        <!-- Right Side Icons & Profile Dropdown -->
+        <div style="display: flex; align-items: center; gap: 20px; position: relative;">
+            
+            <!-- Notification Bell Icon -->
+            <div style="position: relative;">
+                <button id="notifBtn" style="background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; position: relative;">
+                    <i class="fa-regular fa-bell"></i>
+                    <span style="position: absolute; top: -4px; right: -4px; background: #dc3545; color: white; font-size: 9px; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">3</span>
+                </button>
+
+                <!-- Notifications Dropdown Center -->
+                <div id="notifDropdown" style="display: none; position: absolute; right: 0; top: 36px; width: 340px; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); z-index: 1100; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                        <h4 style="margin: 0; font-size: 14px; color: var(--up-maroon);">Notifications & Invites</h4>
+                        <span style="font-size: 11px; color: var(--text-muted); cursor: pointer;" id="clearAllNotifs">Clear all</span>
+                    </div>
+                    <div style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; font-size: 12px;">
+                            <strong>New Group Overlap Invite</strong><br>
+                            Juan wants to add you to group overlap for Final Project CMSC 3.
+                            <div style="margin-top: 6px; display: flex; gap: 8px;">
+                                <button style="padding: 2px 8px; background: var(--up-maroon); color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer;">Accept</button>
+                                <button style="padding: 2px 8px; background: #e9ecef; border: none; border-radius: 4px; font-size: 10px; cursor: pointer;">Decline</button>
+                            </div>
+                            <span style="font-size: 10px; color: var(--text-muted);">5 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Avatar & Dropdown Trigger -->
+            <div style="position: relative;">
+                <div id="profileTrigger" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 4px 8px; border-radius: 20px; transition: background 0.2s;">
+                    <div id="userAvatar" style="width: 32px; height: 32px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px;">MS</div>
+                    <span id="userNameDisplay" style="font-size: 13px; font-weight: 600; color: #333;">Maria Santos</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: var(--text-muted);"></i>
+                </div>
+
+                <!-- Profile Settings Drawer Menu -->
+                <div id="profileDropdown" style="display: none; position: absolute; right: 0; top: 46px; width: 240px; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); z-index: 1100; overflow: hidden;">
+                    <div style="padding: 16px; border-bottom: 1px solid var(--border-color); background: #fdfdfd;">
+                        <p id="profileDropdownName" style="margin: 0; font-weight: bold; font-size: 13px; color: #333;">Maria Santos</p>
+                        <p id="profileDropdownEmail" style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-muted);">mahalkosiya@up.edu.ph</p>
+                        <span style="display: inline-block; margin-top: 6px; background: #e9ecef; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; color: #495057;">Student • BSCS</span>
+                    </div>
+                    <div style="padding: 6px 0;">
+                        <a href="profile.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-user" style="width: 16px;"></i> My Profile</a>
+                        <a href="settings.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-gear fa-regular" style="width: 16px;"></i> Settings</a>
+                        <a href="help.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-circle-question" style="width: 16px;"></i> Help & Support</a>
+                    </div>
+                    <div style="border-top: 1px solid var(--border-color); padding: 6px 0;">
+                        <a href="#" id="logoutBtn" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #dc3545; text-decoration: none; font-size: 13px;"><i class="fa-solid fa-right-from-bracket" style="width: 16px;"></i> Log Out</a>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </header>
 
     <!-- Main Container for Overlap Tool -->
-    <div class="overlap-container">
+    <div class="overlap-container" style="max-width: 1100px; margin: 24px auto; display: grid; grid-template-columns: 320px 1fr; gap: 20px; padding: 0 16px;">
         
         <!-- Left Sidebar: Group Selector & Teammates -->
-        <aside class="overlap-sidebar">
-            <h3>Select Active Group</h3>
-            <select class="group-select">
+        <aside class="overlap-sidebar" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); height: fit-content;">
+            <h3 style="font-size: 15px; margin-bottom: 10px;">Select Active Group</h3>
+            <select class="group-select" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; margin-bottom: 20px; background: white;">
                 <option selected>Final Project CMSC 3</option>
+                <option>CS 198 Thesis Group</option>
             </select>
 
-            <div class="teammates-box">
-                <h4>Active Teammates (4)</h4>
-                <div class="teammate-chips">
-                    <span class="chip">Juan</span>
-                    <span class="chip">Carla</span>
-                    <span class="chip">Mikko</span>
-                    <span class="chip">Diane</span>
-                    <button class="add-member-btn">Add +</button>
+            <div class="teammates-box" style="margin-bottom: 20px;">
+                <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Active Teammates (4)</h4>
+                <div class="teammate-chips" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+                    <span class="chip" style="background: var(--bg-color); padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 1px solid var(--border-color);">Juan</span>
+                    <span class="chip" style="background: var(--bg-color); padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 1px solid var(--border-color);">Carla</span>
+                    <span class="chip" style="background: var(--bg-color); padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 1px solid var(--border-color);">Mikko</span>
+                    <span class="chip" style="background: var(--bg-color); padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 1px solid var(--border-color);">Diane</span>
+                    <button class="add-member-btn" style="padding: 4px 10px; border-radius: 12px; font-size: 12px; background: none; border: 1px dashed var(--up-maroon); color: var(--up-maroon); cursor: pointer;">Add +</button>
                 </div>
             </div>
 
-            <div class="ideal-window-banner">
-                <span class="banner-icon">✨</span>
+            <div class="ideal-window-banner" style="background: #e8f5e9; border: 1px solid #c8e6c9; padding: 12px; border-radius: 6px; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 20px;">
+                <span class="banner-icon" style="font-size: 16px;">✨</span>
                 <div>
-                    <h5>Ideal Free Window Found!</h5>
-                    <p>Fridays 1:00 PM - 2:00 PM is <strong>100% Free</strong></p>
+                    <h5 style="font-size: 13px; color: #2e7d32; margin: 0 0 4px 0;">Ideal Free Window Found!</h5>
+                    <p style="font-size: 12px; color: #1b5e20; margin: 0;">Fridays 1:00 PM - 2:00 PM is <strong>100% Free</strong></p>
                 </div>
             </div>
             
-            <button class="confirm-meeting-btn">Confirm Group Meeting</button>
+            <button id="openConfirmModalBtn" class="confirm-meeting-btn" style="width: 100%; padding: 12px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer;">Confirm Group Meeting</button>
         </aside>
 
         <!-- Right Section: Overlap Grid Matrix -->
-        <main class="overlap-matrix-main">
-            <h2>Group Availability Matrix</h2>
-            <div class="matrix-grid-box">
-                <div class="matrix-row header-row">
+        <main class="overlap-matrix-main" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <h2 style="font-size: 18px; margin-bottom: 16px;">Group Availability Matrix</h2>
+            <div class="matrix-grid-box" style="display: flex; flex-direction: column; gap: 8px;">
+                <div class="matrix-row header-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); font-weight: bold; font-size: 13px; text-align: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-color);">
                     <span>Time</span>
                     <span>Mon</span>
                     <span>Tue</span>
@@ -83,34 +126,139 @@
                     <span>Thu</span>
                     <span>Fri</span>
                 </div>
-                <div class="matrix-row">
-                    <span>09:00 AM</span>
-                    <span class="busy">BUSY</span>
-                    <span class="busy">BUSY</span>
-                    <span class="busy">BUSY</span>
-                    <span class="busy">BUSY</span>
-                    <span class="free-100">100% FREE</span>
+                <div class="matrix-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); gap: 6px; align-items: center; font-size: 12px; text-align: center;">
+                    <span style="font-weight: 600; color: var(--text-muted); text-align: left;">09:00 AM</span>
+                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
+                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
+                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
+                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
+                    <span class="free-100" style="background: #d1e7dd; color: #0f5132; padding: 8px; border-radius: 4px; font-weight: bold;">FREE</span>
                 </div>
-                <div class="matrix-row">
-                    <span>11:30 AM</span>
-                    <span class="busy">BUSY</span>
-                    <span class="free-100">100% FREE</span>
-                    <span class="busy">BUSY</span>
-                    <span class="busy">BUSY</span>
-                    <span class="free-100">100% FREE</span>
+                <div class="matrix-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); gap: 6px; align-items: center; font-size: 12px; text-align: center;">
+                    <span style="font-weight: 600; color: var(--text-muted); text-align: left;">11:30 AM</span>
+                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
+                    <span class="free-100" style="background: #d1e7dd; color: #0f5132; padding: 8px; border-radius: 4px; font-weight: bold;">FREE</span>
+                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
+                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
+                    <span class="free-100" style="background: #d1e7dd; color: #0f5132; padding: 8px; border-radius: 4px; font-weight: bold;">FREE</span>
                 </div>
-                <div class="matrix-row">
-                    <span>01:00 PM</span>
-                    <span class="busy">BUSY</span>
-                    <span class="busy">BUSY</span>
-                    <span class="busy">BUSY</span>
-                    <span class="busy">BUSY</span>
-                    <span class="free-100">100% FREE</span>
+                <div class="matrix-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); gap: 6px; align-items: center; font-size: 12px; text-align: center;">
+                    <span style="font-weight: 600; color: var(--text-muted); text-align: left;">01:00 PM</span>
+                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
+                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
+                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
+                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
+                    <span class="free-100" style="background: #c3e6cb; color: #155724; padding: 8px; border-radius: 4px; font-weight: bold; border: 2px solid #28a745;">100% FREE</span>
                 </div>
             </div>
         </main>
 
     </div>
 
+    <!-- Scenario B - Step 4: Meeting Confirmation Modal -->
+    <div class="modal-backdrop" id="meetingModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;">
+        <div class="modal-card" style="background: white; width: 500px; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="margin: 0; font-size: 16px;">Confirm Group Meeting</h3>
+                <span class="close-modal" id="closeModal" style="font-size: 24px; cursor: pointer; color: var(--text-muted);">&times;</span>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Creating a mutual meeting invite for Project Group Bravo.</p>
+            
+            <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 14px; border: 1px solid var(--border-color);">
+                <div style="font-size: 13px; font-weight: 600; color: var(--up-maroon);">Friday, 1:00 PM - 2:00 PM</div>
+                <div style="font-size: 11px; color: #664d03; background: #fff3cd; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px;">Exclusive group slot</div>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">RECIPIENTS (4 TEAMMATES)</label>
+                <div style="display: flex; gap: 6px;">
+                    <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; font-size: 11px; border: 1px solid var(--border-color);">Juan</span>
+                    <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; font-size: 11px; border: 1px solid var(--border-color);">Carla</span>
+                    <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; font-size: 11px; border: 1px solid var(--border-color);">Mikko</span>
+                    <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; font-size: 11px; border: 1px solid var(--border-color);">Diane</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">AGENDA / NOTES</label>
+                <textarea rows="3" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: none;">Project Sprint Alignment and milestone tracking...</textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" id="cancelModalBtn" style="padding: 10px 16px; background: none; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">Cancel</button>
+                <button type="button" id="confirmInviteBtn" style="padding: 10px 16px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;">Confirm Invite</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts for Interaction & Header State Management -->
+    <script>
+        // Load stored user name and email if available from localStorage
+        const storedUser = localStorage.getItem('cs_sync_user') || 'Maria Santos';
+        const storedEmail = localStorage.getItem('cs_sync_email') || 'mahalkosiya@up.edu.ph';
+        
+        document.getElementById('userNameDisplay').textContent = storedUser;
+        document.getElementById('profileDropdownName').textContent = storedUser;
+        document.getElementById('profileDropdownEmail').textContent = storedEmail;
+
+        const initials = storedUser.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        document.getElementById('userAvatar').textContent = initials;
+
+        // Toggle Notification Dropdown
+        const notifBtn = document.getElementById('notifBtn');
+        const notifDropdown = document.getElementById('notifDropdown');
+        const profileTrigger = document.getElementById('profileTrigger');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        notifBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notifDropdown.style.display = notifDropdown.style.display === 'block' ? 'none' : 'block';
+            profileDropdown.style.display = 'none';
+        });
+
+        // Toggle Profile Dropdown
+        profileTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+            notifDropdown.style.display = 'none';
+        });
+
+        // Close dropdowns when clicking outside
+        window.addEventListener('click', function() {
+            notifDropdown.style.display = 'none';
+            profileDropdown.style.display = 'none';
+        });
+
+        // Clear notifications
+        document.getElementById('clearAllNotifs').addEventListener('click', function() {
+            notifDropdown.querySelector('div:nth-child(2)').innerHTML = '<p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>';
+        });
+
+        // Log Out Action
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('cs_sync_user');
+            localStorage.removeItem('cs_sync_email');
+            window.location.replace('index.html');
+        });
+
+        // Modal triggers
+        const openModalBtn = document.getElementById('openConfirmModalBtn');
+        const modal = document.getElementById('meetingModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const cancelModalBtn = document.getElementById('cancelModalBtn');
+        const confirmInviteBtn = document.getElementById('confirmInviteBtn');
+
+        if (openModalBtn) openModalBtn.onclick = () => modal.style.display = 'flex';
+        if (closeModalBtn) closeModalBtn.onclick = () => modal.style.display = 'none';
+        if (cancelModalBtn) cancelModalBtn.onclick = () => modal.style.display = 'none';
+        if (confirmInviteBtn) confirmInviteBtn.onclick = () => {
+            alert('🎉 Group meeting invite successfully sent to all 4 teammates!');
+            modal.style.display = 'none';
+            window.location.href = 'calendar.html';
+        };
+        window.onclick = (e) => { if (e.target == modal) modal.style.display = 'none'; }
+    </script>
+    <script src="app.js"></script>
 </body>
 </html>

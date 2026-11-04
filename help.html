@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help & Support | CS-Sync UP Mindanao</title>
+    <link rel="stylesheet" href="styles/variables.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard-body" style="background: var(--bg-color, #f4f6f8); margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+    <!-- Top Navigation Bar -->
+    <header style="background: white; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 12px 32px; position: sticky; top: 0; z-index: 1000;">
+        <div style="display: flex; align-items: center; gap: 32px;">
+            <h2 style="color: var(--up-maroon, #7b1113); margin: 0; font-size: 20px; font-weight: bold;">CS-Sync</h2>
+            <nav style="display: flex; gap: 24px;">
+                <a href="dashboard.html" style="color: var(--text-muted, #6c757d); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-house"></i> Home</a>
+                <a href="overlap.html" style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-users"></i> Overlap</a>
+                <a href="faculty.html" style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-graduation-cap"></i> Faculty</a>
+                <a href="calendar.html" style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-regular fa-calendar"></i> Calendar</a>
+            </nav>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <a href="dashboard.html" style="font-size: 13px; color: var(--up-maroon); text-decoration: none; font-weight: 600;"><i class="fa-solid fa-arrow-left" style="margin-right: 4px;"></i> Back to Dashboard</a>
+        </div>
+    </header>
+
+    <!-- Main Help Content -->
+    <main style="max-width: 800px; margin: 32px auto; padding: 0 20px;">
+        <div style="margin-bottom: 24px;">
+            <h1 style="margin: 0; font-size: 24px; color: #212529;">Help & Support</h1>
+            <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">Find answers to common questions or reach out to the development team.</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- FAQ Section -->
+            <div style="background: white; padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+                <h3 style="margin: 0 0 16px 0; font-size: 16px; color: var(--up-maroon); border-bottom: 1px solid var(--border-color); padding-bottom: 8px;"><i class="fa-solid fa-circle-question" style="margin-right: 6px;"></i> Frequently Asked Questions</h3>
+                
+                <div style="display: flex; flex-direction: column; gap: 16px; font-size: 13px;">
+                    <div>
+                        <strong>Q: How do I sync my class schedule with my groupmates?</strong>
+                        <p style="margin: 4px 0 0 0; color: var(--text-muted);">A: Head over to the <a href="overlap.html" style="color: var(--up-maroon);">Overlap</a> tab to view mutual free windows and schedule coordination times with your project partners.</p>
+                    </div>
+                    <div>
+                        <strong>Q: Why is my UP Mail address locked on my profile page?</strong>
+                        <p style="margin: 4px 0 0 0; color: var(--text-muted);">A: Official UP Mail (`@up.edu.ph`) addresses are bound to your student record for authentication security. You can add a personal backup address via your Profile settings if needed.</p>
+                    </div>
+                    <div>
+                        <strong>Q: How do I request a faculty consultation slot?</strong>
+                        <p style="margin: 4px 0 0 0; color: var(--text-muted);">A: Check the <a href="faculty.html" style="color: var(--up-maroon);">Faculty</a> directory to view available office hours and submit a direct consultation request.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Support Section -->
+            <div style="background: white; padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+                <h3 style="margin: 0 0 12px 0; font-size: 16px; color: var(--up-maroon); border-bottom: 1px solid var(--border-color); padding-bottom: 8px;"><i class="fa-solid fa-envelope" style="margin-right: 6px;"></i> Need Further Assistance?</h3>
+                <p style="font-size: 13px; color: #333; margin: 0 0 16px 0;">If you encounter bugs, feature bugs, or login issues with CS-Sync UP Mindanao, send a report to our support desk.</p>
+                <a href="mailto:support@up.edu.ph" style="display: inline-block; padding: 10px 18px; background: var(--up-maroon); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 13px;">Contact Support Team</a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Global Theme Script -->
+    <script>
+        const currentTheme = localStorage.getItem('cs_sync_theme');
+        if (currentTheme === 'dark' || (currentTheme === 'device' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.body.style.background = '#121212';
+            document.body.style.color = '#e0e0e0';
+            
+            window.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('header, div[style*="background: white"], div[style*="background: #fff"]').forEach(el => {
+                    el.style.background = '#1e1e1e';
+                    el.style.color = '#e0e0e0';
+                    el.style.borderColor = '#333';
+                });
+            });
+        }
+    </script>
+</body>
+</html>
