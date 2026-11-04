@@ -41,7 +41,7 @@
                     <div style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
                         <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; font-size: 12px;">
                             <strong>Reminder</strong><br>
-                            Your consultation with Dr. Felizardo is tomorrow at 10:00 AM[cite: 1].
+                            No pending schedule conflicts detected for this week.
                         </div>
                     </div>
                 </div>
@@ -76,41 +76,256 @@
         </div>
     </header>
 
-    <!-- Main Content: Calendar & Daily Schedule -->
+    <!-- Main Content: Calendar & Schedule -->
     <main style="max-width: 1200px; margin: 32px auto; padding: 0 20px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <div>
                 <h1 style="margin: 0; font-size: 24px; color: #212529;">My Calendar & Schedule</h1>
-                <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">Daily block overview and active consultation load[cite: 1].</p>
+                <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">Unified schedule and dynamic view controller.</p>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button style="padding: 8px 14px; background: white; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500;">+ Add Class</button>
-                <button style="padding: 8px 14px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600;">+ Add Task</button>
+            
+            <!-- View Mode Choices & Action -->
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div style="background: white; border: 1px solid var(--border-color); border-radius: 6px; display: flex; overflow: hidden; font-size: 12px;">
+                    <button class="view-btn" data-view="today" style="padding: 6px 12px; background: none; border: none; cursor: pointer; border-right: 1px solid var(--border-color);">Today</button>
+                    <button class="view-btn" data-view="schedule" style="padding: 6px 12px; background: none; border: none; cursor: pointer; border-right: 1px solid var(--border-color);">Schedule</button>
+                    <button class="view-btn" data-view="day" style="padding: 6px 12px; background: none; border: none; cursor: pointer; border-right: 1px solid var(--border-color);">Day</button>
+                    <button class="view-btn active-view" data-view="week" style="padding: 6px 12px; background: var(--up-maroon); color: white; border: none; cursor: pointer; border-right: 1px solid var(--border-color); font-weight: 600;">Week</button>
+                    <button class="view-btn" data-view="month" style="padding: 6px 12px; background: none; border: none; cursor: pointer;">Month</button>
+                </div>
+                <button id="addEventBtn" style="padding: 8px 14px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600;">+ Add Event</button>
             </div>
         </div>
 
+        <!-- Schedule Layer Controls Panel -->
+        <div style="background: white; padding: 16px 24px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; gap: 24px; align-items: center; font-size: 13px;">
+            <span style="font-weight: bold; color: var(--up-maroon);">Schedule Layers:</span>
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" checked id="layerClasses" style="accent-color: var(--up-maroon);"> Personal Classes</label>
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" checked id="layerMeetings" style="accent-color: var(--up-maroon);"> Synced Group Meetings</label>
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" checked id="layerFaculty" style="accent-color: var(--up-maroon);"> Faculty Consultation Hours</label>
+        </div>
+
+        <!-- Dynamic Timetable Matrix Grid Box -->
         <div style="background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
-                <span style="font-weight: 600; font-size: 14px; color: #333;">October 21, 2026</span>
-                <span style="font-size: 12px; color: var(--text-muted);">10 scheduled tasks • 15 total blocks[cite: 1]</span>
+                <span id="currentViewLabel" style="font-weight: 600; font-size: 14px; color: #333;">Week View • November 2026</span>
+                <span id="activeGroupSyncStatus" style="font-size: 12px; color: #2e7d32; font-weight: 600;">⚡ Connected to Cloud Groups</span>
             </div>
-            <div style="padding: 40px; text-align: center; color: var(--text-muted); font-size: 13px; background: #f8f9fa; border-radius: 8px;">
-                Interactive Weekly Matrix View Active... Click slots to manage schedule or block time.
+
+            <!-- Scrollable Calendar Grid Container -->
+            <div style="max-height: 480px; overflow-y: auto; padding-right: 6px;">
+                <div id="calendarGridContainer" style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Rendered dynamically by script -->
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Scripts for Interaction & Header State Management -->
+    <!-- Comprehensive Add Event Modal with Scrollable Selectors -->
+    <div id="eventModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;">
+        <div style="background: white; width: 450px; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="margin: 0; font-size: 16px; color: var(--up-maroon);">Create Schedule Block</h3>
+                <span id="closeModal" style="font-size: 24px; cursor: pointer; color: var(--text-muted);">&times;</span>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px;">
+                <div>
+                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 4px;">EVENT NAME</label>
+                    <input type="text" id="inputName" placeholder="e.g. CMSC 123 Lecture" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; background: white;">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 4px;">TIME</label>
+                        <select id="inputTime" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; background: white;">
+                            <option>07:00 AM</option>
+                            <option>08:00 AM</option>
+                            <option selected>09:00 AM</option>
+                            <option>10:00 AM</option>
+                            <option>11:00 AM</option>
+                            <option>12:00 PM</option>
+                            <option>01:00 PM</option>
+                            <option>02:00 PM</option>
+                            <option>03:00 PM</option>
+                            <option>04:00 PM</option>
+                            <option>05:00 PM</option>
+                            <option>06:00 PM</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 4px;">DATE / DAY</label>
+                        <select id="inputWhen" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; background: white;">
+                            <option selected>Monday</option>
+                            <option>Tuesday</option>
+                            <option>Wednesday</option>
+                            <option>Thursday</option>
+                            <option>Friday</option>
+                            <option>Saturday</option>
+                            <option>Sunday</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 4px;">LOCATION</label>
+                    <input type="text" id="inputWhere" placeholder="e.g. Vel Amor Hall Lab 2" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; background: white;">
+                </div>
+                <div>
+                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 4px;">NOTES</label>
+                    <textarea id="inputNotes" rows="2" placeholder="Additional details or instructions..." style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; resize: none; box-sizing: border-box; background: white;"></textarea>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;">
+                <button type="button" id="cancelModalBtn" style="padding: 8px 14px; background: none; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">Cancel</button>
+                <button type="button" id="saveEventBtn" style="padding: 8px 14px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;">Save Event</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts for Dynamic Grid Rendering and View Switching -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
+            authDomain: "cs-sync-8a6a0.firebaseapp.com",
+            projectId: "cs-sync-8a6a0",
+            storageBucket: "cs-sync-8a6a0.appspot.com",
+            messagingSenderId: "340561797624",
+            appId: "1:340561797624:web:f417af5001d576882d360d",
+            measurementId: "G-F663CN4012"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let teamCount = 1;
+        async function fetchGroupSyncMeetings() {
+            try {
+                const groupRef = doc(db, "groups", "project_cmsc_3");
+                const groupSnap = await getDoc(groupRef);
+                if (groupSnap.exists()) {
+                    const data = groupSnap.data();
+                    teamCount = data.teammates ? data.teammates.length : 1;
+                }
+            } catch (err) {
+                console.error("Error fetching group sync:", err);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            await fetchGroupSyncMeetings();
+            renderCalendarView('week');
+        });
+
+        // Dynamic Grid Render Engine based on view mode
+        window.renderCalendarView = function(viewType) {
+            const container = document.getElementById('calendarGridContainer');
+            const viewLabel = document.getElementById('currentViewLabel');
+            
+            if (viewType === 'week') {
+                viewLabel.textContent = 'Week View • Mon–Sun, November 2026';
+                const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                const colTemplate = `100px repeat(7, 1fr)`;
+                
+                let html = `
+                    <div style="display: grid; grid-template-columns: ${colTemplate}; font-weight: bold; font-size: 13px; text-align: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); color: var(--text-muted);">
+                        <span>Time</span>
+                        ${days.map(d => `<span>${d}</span>`).join('')}
+                    </div>
+                `;
+
+                ['08:00 AM', '10:00 AM', '01:00 PM', '03:00 PM', '05:00 PM', '07:00 PM'].forEach((t, index) => {
+                    let syncCell = (index === 2) ? `<span style="background: #c3e6cb; color: #155724; padding: 12px; border-radius: 4px; font-weight: bold; border: 2px solid #28a745; cursor: pointer; font-size: 11px;">🚀 Final Project Sync (${teamCount})</span>` : '';
+                    
+                    html += `
+                        <div style="display: grid; grid-template-columns: ${colTemplate}; gap: 6px; align-items: center; font-size: 12px; text-align: center; min-height: 55px;">
+                            <span style="font-weight: 600; color: var(--text-muted); text-align: left;">${t}</span>
+                            ${days.map((d, i) => (syncCell && d === 'Fri') ? syncCell : `<span style="background: #f8f9fa; border: 1px dashed var(--border-color); padding: 12px; border-radius: 4px; color: var(--text-muted); cursor: pointer;">-</span>`).join('')}
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+
+            } else if (viewType === 'schedule') {
+                viewLabel.textContent = 'Schedule List View • Scrollable';
+                container.innerHTML = `
+                    <div style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 13px; padding-right: 4px;">
+                        <div style="display: grid; grid-template-columns: 120px 1.5fr 1fr 1.5fr; font-weight: bold; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); color: var(--text-muted); position: sticky; top: 0; background: white;">
+                            <span>Time & Date</span><span>Event</span><span>Location</span><span>Notes</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 120px 1.5fr 1fr 1.5fr; align-items: center; padding: 10px; background: #e8f5e9; border-radius: 6px; border: 1px solid #c8e6c9;">
+                            <span style="font-weight: 600; color: #2e7d32;">Fri 01:00 PM</span>
+                            <span><strong>Final Project Sync (${teamCount} Teammates)</strong></span>
+                            <span>Online / Discord</span>
+                            <span style="color: #1b5e20; font-size: 12px;">Review milestone integration.</span>
+                        </div>
+                    </div>`;
+
+            } else if (viewType === 'day' || viewType === 'today') {
+                viewLabel.textContent = viewType === 'today' ? "Today's Scrollable Hourly Schedule" : "Scrollable Day View";
+                let html = `<div style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px;">`;
+                ['07:00 AM', '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM', '07:00 PM', '08:00 PM'].forEach(hour => {
+                    html += `<div style="display: grid; grid-template-columns: 90px 1fr; gap: 15px; align-items: center; padding: 12px; background: #fff; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px;">
+                        <span style="font-weight: bold; color: var(--up-maroon);">${hour}</span>
+                        <span style="color: var(--text-muted); font-style: italic;">No events scheduled. Click '+ Add Event' to add a block.</span>
+                    </div>`;
+                });
+                html += `</div>`;
+                container.innerHTML = html;
+
+            } else if (viewType === 'month') {
+                viewLabel.textContent = "Month Overview • November 2026 Calendar Grid";
+                const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                let html = `
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); font-weight: bold; font-size: 12px; text-align: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); color: var(--text-muted);">
+                        ${weekdays.map(w => `<span>${w}</span>`).join('')}
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px;">
+                `;
+                
+                for(let i = 1; i <= 30; i++) {
+                    html += `
+                        <div style="min-height: 85px; background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; font-size: 11px; display: flex; flex-direction: column; justify-content: space-between;">
+                            <span style="font-weight: bold; color: var(--text-muted);">${i}</span>
+                            ${i === 6 ? '<span style="background: #c3e6cb; color: #155724; padding: 2px 4px; border-radius: 3px; font-size: 9px; font-weight: bold;">Sync</span>' : ''}
+                        </div>
+                    `;
+                }
+                html += `</div>`;
+                container.innerHTML = html;
+            }
+        }
+
+        // View Switching Action Listeners
+        const viewButtons = document.querySelectorAll('.view-btn');
+        viewButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                viewButtons.forEach(b => {
+                    b.style.background = 'none';
+                    b.style.color = '#333';
+                    b.style.fontWeight = 'normal';
+                });
+                this.style.background = 'var(--up-maroon)';
+                this.style.color = 'white';
+                this.style.fontWeight = '600';
+
+                const viewType = this.getAttribute('data-view');
+                renderCalendarView(viewType);
+            });
+        });
+    </script>
+
     <script>
+        // Header & Profile Management
         const storedUser = localStorage.getItem('cs_sync_user') || 'Maria Santos';
         const storedEmail = localStorage.getItem('cs_sync_email') || 'mahalkosiya@up.edu.ph';
         
         document.getElementById('userNameDisplay').textContent = storedUser;
         document.getElementById('profileDropdownName').textContent = storedUser;
         document.getElementById('profileDropdownEmail').textContent = storedEmail;
-
-        const initials = storedUser.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-        document.getElementById('userAvatar').textContent = initials;
+        document.getElementById('userAvatar').textContent = storedUser.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
         const notifBtn = document.getElementById('notifBtn');
         const notifDropdown = document.getElementById('notifDropdown');
@@ -130,8 +345,8 @@
         });
 
         window.addEventListener('click', function() {
-            notifDropdown.style.display = 'none';
-            profileDropdown.style.display = 'none';
+            if(notifDropdown) notifDropdown.style.display = 'none';
+            if(profileDropdown) profileDropdown.style.display = 'none';
         });
 
         document.getElementById('clearAllNotifs').addEventListener('click', function() {
@@ -144,7 +359,18 @@
             localStorage.removeItem('cs_sync_email');
             window.location.replace('index.html');
         });
+
+        // Add Event Modal logic
+        const modal = document.getElementById('eventModal');
+        document.getElementById('addEventBtn').onclick = () => modal.style.display = 'flex';
+        document.getElementById('closeModal').onclick = () => modal.style.display = 'none';
+        document.getElementById('cancelModalBtn').onclick = () => modal.style.display = 'none';
+        document.getElementById('saveEventBtn').onclick = () => {
+            const name = document.getElementById('inputName').value;
+            if(!name) { alert('Please enter an event name.'); return; }
+            alert(`📅 Event "${name}" successfully saved!`);
+            modal.style.display = 'none';
+        };
     </script>
-    <script src="app.js"></script>
 </body>
 </html>

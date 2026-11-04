@@ -87,20 +87,17 @@
         <!-- Left Sidebar: Group Selector & Teammates -->
         <aside class="overlap-sidebar" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); height: fit-content;">
             <h3 style="font-size: 15px; margin-bottom: 10px;">Select Active Group</h3>
-            <select class="group-select" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; margin-bottom: 20px; background: white;">
-                <option selected>Final Project CMSC 3</option>
-                <option>CS 198 Thesis Group</option>
+            <select id="groupSelect" class="group-select" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; margin-bottom: 20px; background: white;">
+                <option value="Final Project CMSC 3" selected>Final Project CMSC 3</option>
+                <option value="CS 198 Thesis Group">CS 198 Thesis Group</option>
             </select>
 
             <div class="teammates-box" style="margin-bottom: 20px;">
-                <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Active Teammates (4)</h4>
-                <div class="teammate-chips" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
-                    <span class="chip" style="background: var(--bg-color); padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 1px solid var(--border-color);">Juan</span>
-                    <span class="chip" style="background: var(--bg-color); padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 1px solid var(--border-color);">Carla</span>
-                    <span class="chip" style="background: var(--bg-color); padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 1px solid var(--border-color);">Mikko</span>
-                    <span class="chip" style="background: var(--bg-color); padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 1px solid var(--border-color);">Diane</span>
-                    <button class="add-member-btn" style="padding: 4px 10px; border-radius: 12px; font-size: 12px; background: none; border: 1px dashed var(--up-maroon); color: var(--up-maroon); cursor: pointer;">Add +</button>
+                <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Active Teammates (<span id="teammateCount">0</span>)</h4>
+                <div id="teammateChipsContainer" class="teammate-chips" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px;">
+                    <span style="font-size: 12px; color: var(--text-muted); font-style: italic;">Loading cloud teammates...</span>
                 </div>
+                <button id="addMemberBtn" class="add-member-btn" style="padding: 4px 10px; border-radius: 12px; font-size: 12px; background: none; border: 1px dashed var(--up-maroon); color: var(--up-maroon); cursor: pointer;">Add +</button>
             </div>
 
             <div class="ideal-window-banner" style="background: #e8f5e9; border: 1px solid #c8e6c9; padding: 12px; border-radius: 6px; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 20px;">
@@ -155,6 +152,27 @@
 
     </div>
 
+    <!-- Add Teammate Modal -->
+    <div class="modal-backdrop" id="addTeammateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;">
+        <div class="modal-card" style="background: white; width: 400px; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="margin: 0; font-size: 16px; color: var(--up-maroon);">Add Teammate to Cloud Group</h3>
+                <span id="closeAddModal" style="font-size: 24px; cursor: pointer; color: var(--text-muted);">&times;</span>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Verify student in Firestore directory and sync to group.</p>
+            
+            <div style="margin-bottom: 16px;">
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">TEAMMATE NAME</label>
+                <input type="text" id="teammateNameInput" placeholder="e.g. Jay Ceriaca" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" id="cancelAddModalBtn" style="padding: 10px 16px; background: none; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">Cancel</button>
+                <button type="button" id="saveTeammateBtn" style="padding: 10px 16px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;">Sync to Group</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scenario B - Step 4: Meeting Confirmation Modal -->
     <div class="modal-backdrop" id="meetingModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;">
         <div class="modal-card" style="background: white; width: 500px; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
@@ -169,19 +187,9 @@
                 <div style="font-size: 11px; color: #664d03; background: #fff3cd; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px;">Exclusive group slot</div>
             </div>
 
-            <div style="margin-bottom: 14px;">
-                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">RECIPIENTS (4 TEAMMATES)</label>
-                <div style="display: flex; gap: 6px;">
-                    <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; font-size: 11px; border: 1px solid var(--border-color);">Juan</span>
-                    <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; font-size: 11px; border: 1px solid var(--border-color);">Carla</span>
-                    <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; font-size: 11px; border: 1px solid var(--border-color);">Mikko</span>
-                    <span style="background: var(--bg-color); padding: 4px 8px; border-radius: 4px; font-size: 11px; border: 1px solid var(--border-color);">Diane</span>
-                </div>
-            </div>
-
             <div style="margin-bottom: 16px;">
                 <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">AGENDA / NOTES</label>
-                <textarea rows="3" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: none;">Project Sprint Alignment and milestone tracking...</textarea>
+                <textarea rows="3" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: none; box-sizing: border-box;">Project Sprint Alignment and milestone tracking...</textarea>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 12px;">
@@ -191,8 +199,52 @@
         </div>
     </div>
 
-    <!-- Scripts for Interaction & Header State Management -->
-    <script>
+    <!-- Scripts with Real-Time Cloud Group Sync & Strict Firestore Verification -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Firebase Configuration for cs-sync
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
+            authDomain: "cs-sync-8a6a0.firebaseapp.com",
+            projectId: "cs-sync-8a6a0",
+            storageBucket: "cs-sync-8a6a0.appspot.com",
+            messagingSenderId: "340561797624",
+            appId: "1:340561797624:web:f417af5001d576882d360d",
+            measurementId: "G-F663CN4012"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let currentGroupName = "Final Project CMSC 3";
+        let activeTeammates = [];
+
+        function getGroupDocId() {
+            return currentGroupName === "Final Project CMSC 3" ? "project_cmsc_3" : "cs_198_thesis";
+        }
+
+        // Check saved theme preference on page load
+        const currentTheme = localStorage.getItem('cs_sync_theme');
+        if (currentTheme === 'dark' || (currentTheme === 'device' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.body.style.background = '#121212';
+            document.body.style.color = '#e0e0e0';
+            
+            window.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('header, aside, main, div[style*="background: white"], div[style*="background: #fff"], div[style*="background: #fdfdfd"]').forEach(el => {
+                    el.style.background = '#1e1e1e';
+                    el.style.color = '#e0e0e0';
+                    el.style.borderColor = '#333';
+                });
+                document.querySelectorAll('select, textarea, input[type="text"]').forEach(input => {
+                    input.style.background = '#2a2a2a';
+                    input.style.color = '#e0e0e0';
+                    input.style.borderColor = '#444';
+                });
+            });
+        }
+
         // Load stored user name and email if available from localStorage
         const storedUser = localStorage.getItem('cs_sync_user') || 'Maria Santos';
         const storedEmail = localStorage.getItem('cs_sync_email') || 'mahalkosiya@up.edu.ph';
@@ -203,6 +255,116 @@
 
         const initials = storedUser.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
         document.getElementById('userAvatar').textContent = initials;
+
+        // Fetch Group Teammates from Firestore Cloud Database
+        async function loadGroupFromCloud() {
+            const groupId = getGroupDocId();
+            const groupRef = doc(db, "groups", groupId);
+            const groupSnap = await getDoc(groupRef);
+
+            const container = document.getElementById('teammateChipsContainer');
+            const countDisplay = document.getElementById('teammateCount');
+
+            if (groupSnap.exists()) {
+                activeTeammates = groupSnap.data().teammates || [];
+            } else {
+                await setDoc(groupRef, { groupName: currentGroupName, teammates: [] });
+                activeTeammates = [];
+            }
+
+            countDisplay.textContent = activeTeammates.length;
+
+            if (activeTeammates.length === 0) {
+                container.innerHTML = '<span style="font-size: 12px; color: var(--text-muted); font-style: italic;">No cloud teammates synced yet.</span>';
+                return;
+            }
+
+            container.innerHTML = '';
+            activeTeammates.forEach((name) => {
+                const chip = document.createElement('span');
+                chip.className = 'chip';
+                chip.style.cssText = 'background: var(--bg-color); padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 6px;';
+                chip.innerHTML = `${name} <i class="fa-solid fa-xmark remove-chip" data-name="${name}" style="cursor: pointer; font-size: 10px; color: var(--text-muted);"></i>`;
+                container.appendChild(chip);
+            });
+
+            document.querySelectorAll('.remove-chip').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const nameToRemove = this.getAttribute('data-name');
+                    await removeTeammateFromCloud(nameToRemove);
+                });
+            });
+        }
+
+        async function removeTeammateFromCloud(name) {
+            const groupId = getGroupDocId();
+            const groupRef = doc(db, "groups", groupId);
+            try {
+                await updateDoc(groupRef, {
+                    teammates: arrayRemove(name)
+                });
+                loadGroupFromCloud();
+            } catch (err) {
+                console.error("Error removing teammate:", err);
+            }
+        }
+
+        // Switch active group dropdown listener
+        document.getElementById('groupSelect').addEventListener('change', function(e) {
+            currentGroupName = e.target.value;
+            loadGroupFromCloud();
+        });
+
+        // Modal triggers
+        const addTeammateModal = document.getElementById('addTeammateModal');
+        const teammateNameInput = document.getElementById('teammateNameInput');
+
+        document.getElementById('addMemberBtn').addEventListener('click', () => {
+            teammateNameInput.value = '';
+            addTeammateModal.style.display = 'flex';
+            teammateNameInput.focus();
+        });
+
+        document.getElementById('closeAddModal').onclick = () => addTeammateModal.style.display = 'none';
+        document.getElementById('cancelAddModalBtn').onclick = () => addTeammateModal.style.display = 'none';
+
+        // STRICT Search user in directory & push to Cloud Group
+        document.getElementById('saveTeammateBtn').onclick = async function() {
+            const searchName = teammateNameInput.value.trim();
+            if (!searchName) {
+                alert('Please enter a teammate name.');
+                return;
+            }
+
+            try {
+                // 1. Verify user exists strictly in Firestore users collection
+                const userQuery = query(collection(db, "users"), where("fullName", "==", searchName));
+                const userSnap = await getDocs(userQuery);
+
+                if (userSnap.empty) {
+                    alert(`❌ Access Denied: "${searchName}" is not registered in the Firebase Firestore user directory.`);
+                    return;
+                }
+
+                // 2. Add to Firestore Group document array
+                const groupId = getGroupDocId();
+                const groupRef = doc(db, "groups", groupId);
+
+                await updateDoc(groupRef, {
+                    teammates: arrayUnion(searchName)
+                });
+
+                addTeammateModal.style.display = 'none';
+                loadGroupFromCloud();
+            } catch (error) {
+                console.error("Cloud sync error:", error);
+                alert("Error updating cloud group. Check console.");
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadGroupFromCloud();
+        });
 
         // Toggle Notification Dropdown
         const notifBtn = document.getElementById('notifBtn');
@@ -216,25 +378,22 @@
             profileDropdown.style.display = 'none';
         });
 
-        // Toggle Profile Dropdown
         profileTrigger.addEventListener('click', function(e) {
             e.stopPropagation();
             profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
             notifDropdown.style.display = 'none';
         });
 
-        // Close dropdowns when clicking outside
-        window.addEventListener('click', function() {
+        window.addEventListener('click', function(e) {
             notifDropdown.style.display = 'none';
             profileDropdown.style.display = 'none';
+            if (e.target === addTeammateModal) addTeammateModal.style.display = 'none';
         });
 
-        // Clear notifications
         document.getElementById('clearAllNotifs').addEventListener('click', function() {
             notifDropdown.querySelector('div:nth-child(2)').innerHTML = '<p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>';
         });
 
-        // Log Out Action
         document.getElementById('logoutBtn').addEventListener('click', function(e) {
             e.preventDefault();
             localStorage.removeItem('cs_sync_user');
@@ -242,7 +401,7 @@
             window.location.replace('index.html');
         });
 
-        // Modal triggers
+        // Meeting Confirmation Modal triggers
         const openModalBtn = document.getElementById('openConfirmModalBtn');
         const modal = document.getElementById('meetingModal');
         const closeModalBtn = document.getElementById('closeModal');
@@ -253,12 +412,14 @@
         if (closeModalBtn) closeModalBtn.onclick = () => modal.style.display = 'none';
         if (cancelModalBtn) cancelModalBtn.onclick = () => modal.style.display = 'none';
         if (confirmInviteBtn) confirmInviteBtn.onclick = () => {
-            alert('🎉 Group meeting invite successfully sent to all 4 teammates!');
+            alert('🎉 Group meeting invite successfully sent to all teammates!');
             modal.style.display = 'none';
             window.location.href = 'calendar.html';
         };
-        window.onclick = (e) => { if (e.target == modal) modal.style.display = 'none'; }
+        window.onclick = (e) => { 
+            if (e.target == modal) modal.style.display = 'none'; 
+            if (e.target == addTeammateModal) addTeammateModal.style.display = 'none';
+        }
     </script>
-    <script src="app.js"></script>
 </body>
 </html>
