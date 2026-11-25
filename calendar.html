@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Calendar | CS-Sync UP Mindanao</title>
+    <script type="module" src="auth-guard.js"></script>
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 <body class="dashboard-body" style="background: var(--bg-color, #f4f6f8); margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+    <!-- In-Page Toast Container -->
+    <div id="toastContainer" style="position: fixed; top: 76px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; max-width: 360px; pointer-events: none;"></div>
 
     <!-- Top Navigation Bar matching Dashboard design -->
     <header style="background: white; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 12px 32px; position: sticky; top: 0; z-index: 1000;">
@@ -35,9 +39,12 @@
 
                 <!-- Notifications Dropdown Center -->
                 <div id="notifDropdown" style="display: none; position: absolute; right: 0; top: 36px; width: 340px; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); z-index: 1100; padding: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; gap: 8px;">
                         <h4 style="margin: 0; font-size: 14px; color: var(--up-maroon);">Notifications & Invites</h4>
-                        <span style="font-size: 11px; color: var(--text-muted); cursor: pointer;" id="clearAllNotifs">Clear all</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button type="button" id="enablePushCalBtn" style="background: #fff8e7; color: #664d03; border: 1px solid #ffecb5; border-radius: 4px; padding: 2px 6px; font-size: 10px; font-weight: 600; cursor: pointer;">Enable Push</button>
+                            <span style="font-size: 11px; color: var(--text-muted); cursor: pointer;" id="clearAllNotifs">Clear all</span>
+                        </div>
                     </div>
                     <div id="notifListBody" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
                         <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>
@@ -95,6 +102,9 @@
                 <button id="scanImageBtn" type="button" style="padding: 8px 14px; background: white; color: var(--up-maroon); border: 1px solid var(--up-maroon); border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                     <i class="fa-solid fa-camera"></i> Scan Schedule Image
                 </button>
+                <button id="exportIcsBtn" type="button" style="padding: 8px 14px; background: white; color: #333; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-file-export"></i> Export .ics
+                </button>
                 <button id="addEventBtn" type="button" style="padding: 8px 14px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600;">+ Add Event</button>
             </div>
         </div>
@@ -117,7 +127,10 @@
             <!-- Scrollable Calendar Grid Container -->
             <div style="max-height: 480px; overflow-y: auto; padding-right: 6px;">
                 <div id="calendarGridContainer" style="display: flex; flex-direction: column; gap: 10px;">
-                    <!-- Rendered dynamically by script -->
+                    <div style="padding: 36px; text-align: center; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: 8px; background: #fdfdfd;">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 22px; color: var(--up-maroon); margin-bottom: 10px; display: block;"></i>
+                        <p style="margin: 0; font-size: 13px;">Loading your schedule from Firestore...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -224,10 +237,10 @@
         </div>
     </div>
 
-    <!-- Scripts for Live Firestore Sync, Schedule Editing, Grid Rendering, View Switching, Accepted Consultations & Tesseract OCR -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, setDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
@@ -239,7 +252,8 @@
             measurementId: "G-F663CN4012"
         };
 
-        const app = initializeApp(firebaseConfig);
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
         let teamCount = 1;
@@ -250,6 +264,10 @@
         let studentAcceptedConsultations = [];
         let facultyAcceptedConsultations = [];
         let cloudNotifications = [];
+        let seenCalNotifIds = new Set();
+        let hasInitialCalNotifSnap = false;
+        let activeCalendarUnsubs = [];
+        let calendarInitialized = false;
         const DEFAULT_BLOCK_MINUTES = 60;
 
         function escapeHtml(value = '') {
@@ -260,6 +278,108 @@
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
         }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const palette = {
+                success: { bg: '#d1e7dd', color: '#0f5132', border: '#badbcc', icon: 'fa-circle-check' },
+                error: { bg: '#f8d7da', color: '#842029', border: '#f5c2c7', icon: 'fa-circle-exclamation' },
+                info: { bg: '#fff3cd', color: '#664d03', border: '#ffecb5', icon: 'fa-circle-info' }
+            }[type] || { bg: '#fff3cd', color: '#664d03', border: '#ffecb5', icon: 'fa-circle-info' };
+
+            const toast = document.createElement('div');
+            toast.style.cssText = `pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 8px; background: ${palette.bg}; color: ${palette.color}; border: 1px solid ${palette.border}; box-shadow: 0 6px 18px rgba(0,0,0,0.12); font-size: 12px; font-weight: 600; transition: opacity 0.25s ease, transform 0.25s ease;`;
+            toast.innerHTML = `
+                <i class="fa-solid ${palette.icon}" style="font-size: 14px; flex-shrink: 0;"></i>
+                <span style="flex: 1; line-height: 1.4;">${escapeHtml(message)}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-6px)';
+                setTimeout(() => toast.remove(), 260);
+            }, 3600);
+        }
+
+        function syncCalPushButton() {
+            const btn = document.getElementById('enablePushCalBtn');
+            if (!btn) return;
+            if (!('Notification' in window)) {
+                btn.textContent = 'Push N/A';
+                btn.disabled = true;
+                return;
+            }
+            if (Notification.permission === 'granted') {
+                btn.textContent = 'Push On';
+                btn.style.background = '#d1e7dd';
+                btn.style.color = '#0f5132';
+                btn.style.borderColor = '#badbcc';
+            } else if (Notification.permission === 'denied') {
+                btn.textContent = 'Push Blocked';
+            } else {
+                btn.textContent = 'Enable Push';
+            }
+        }
+
+        function triggerCalBrowserPush(item = {}) {
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+            const notif = new Notification(item.title || 'New CS-Sync Request', {
+                body: item.message || 'You have a new invite or consultation request.',
+                tag: String(item.id || `cssync-cal-${Date.now()}`),
+                renotify: true
+            });
+            notif.onclick = () => {
+                window.focus();
+                notif.close();
+            };
+        }
+
+        async function sendRequestEmailNotification({ toEmail, toName = '', subject, message, requestType = 'request' }) {
+            if (!toEmail) return { sent: false, reason: 'missing_email' };
+            try {
+                const res = await fetch('/api/notify-request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: toEmail,
+                        recipientName: toName,
+                        subject: subject || `CS-Sync Update: ${requestType}`,
+                        text: message,
+                        requestType
+                    })
+                });
+                return { sent: res.ok, status: res.status };
+            } catch (err) {
+                console.warn('Email notification endpoint not reachable:', err);
+                return { sent: false, reason: 'endpoint_unreachable' };
+            }
+        }
+
+        window.sendRequestEmailNotification = sendRequestEmailNotification;
+
+        document.getElementById('enablePushCalBtn')?.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (!('Notification' in window)) {
+                showToast('Browser push notifications are not supported here.', 'error');
+                return;
+            }
+            if (Notification.permission === 'granted') {
+                showToast('Push alerts are already enabled.', 'success');
+                syncCalPushButton();
+                return;
+            }
+            const perm = await Notification.requestPermission();
+            syncCalPushButton();
+            if (perm === 'granted') {
+                showToast('Push alerts enabled for new requests.', 'success');
+            } else {
+                showToast('Push permission was not granted.', 'info');
+            }
+        });
 
         function toDocSlug(value = '') {
             return String(value)
@@ -401,6 +521,9 @@
         }
 
         function buildScheduleDedupeKey(item = {}) {
+            if (item.id && item.type === 'group_meeting') {
+                return `id_${item.id}`;
+            }
             const titleKey = String(item.title || '')
                 .trim()
                 .toLowerCase()
@@ -436,13 +559,9 @@
             try {
                 const userKey = getActiveScheduleStorageKey();
                 const userRaw = localStorage.getItem(userKey);
-                if (userRaw !== null) {
-                    const parsed = JSON.parse(userRaw);
-                    return Array.isArray(parsed) ? deduplicateScheduleItems(parsed) : [];
-                }
-                const legacyRaw = localStorage.getItem('cs_sync_schedule');
-                const legacyParsed = legacyRaw ? JSON.parse(legacyRaw) : [];
-                return Array.isArray(legacyParsed) ? deduplicateScheduleItems(legacyParsed) : [];
+                if (!userRaw) return [];
+                const parsed = JSON.parse(userRaw);
+                return Array.isArray(parsed) ? deduplicateScheduleItems(parsed) : [];
             } catch (_) {
                 return [];
             }
@@ -475,9 +594,11 @@
         function removeCustomScheduleItem(index) {
             const existing = readCustomSchedule();
             if (index < 0 || index >= existing.length) return;
+            const removedTitle = existing[index]?.title || 'Schedule block';
             const updated = existing.filter((_, idx) => idx !== index);
             writeCustomSchedule(updated);
             renderCalendarView(currentView);
+            showToast(`Removed "${removedTitle}" from your schedule.`, 'info');
         }
 
         function openEditScheduleItem(index) {
@@ -532,14 +653,15 @@
                     const data = snap.data() || {};
                     if (Array.isArray(data.schedule)) {
                         const cloudDeduped = deduplicateScheduleItems(data.schedule);
-                        const localItems = readCustomSchedule();
-                        if (cloudDeduped.length > 0 || localItems.length === 0) {
-                            localStorage.setItem(getActiveScheduleStorageKey(), JSON.stringify(cloudDeduped));
-                        }
+                        localStorage.setItem(getActiveScheduleStorageKey(), JSON.stringify(cloudDeduped));
+                        return;
                     }
                 }
+                const ownLocal = readCustomSchedule();
+                localStorage.setItem(getActiveScheduleStorageKey(), JSON.stringify(ownLocal));
             } catch (err) {
                 console.warn("Could not load user schedule from Firestore:", err);
+                showToast("Could not sync schedule from Firestore; showing local cache.", 'error');
             }
         }
 
@@ -549,16 +671,23 @@
             return onSnapshot(
                 userRef,
                 (snap) => {
-                    if (!snap.exists()) return;
+                    if (!snap.exists()) {
+                        calendarInitialized = true;
+                        renderCalendarView(currentView);
+                        return;
+                    }
                     const data = snap.data() || {};
                     if (Array.isArray(data.schedule)) {
                         const cloudDeduped = deduplicateScheduleItems(data.schedule);
                         localStorage.setItem(getActiveScheduleStorageKey(), JSON.stringify(cloudDeduped));
-                        renderCalendarView(currentView);
                     }
+                    calendarInitialized = true;
+                    renderCalendarView(currentView);
                 },
                 (err) => {
                     console.warn("Live user schedule listener notice:", err);
+                    calendarInitialized = true;
+                    renderCalendarView(currentView);
                 }
             );
         }
@@ -597,32 +726,94 @@
                     const nextList = cloudNotifications.filter(x => x.id !== id);
                     cloudNotifications = nextList;
                     renderCalendarNotifications();
-                    await setDoc(doc(db, "users", getUserDocId()), { notifications: nextList }, { merge: true });
+
+                    const session = getSessionIdentity();
+                    const userUpdates = { notifications: nextList };
+                    if (target?.meetingBlock) {
+                        userUpdates.schedule = arrayUnion(target.meetingBlock);
+                    }
+                    await setDoc(doc(db, "users", getUserDocId()), userUpdates, { merge: true });
+
+                    if (target?.meetingBlock) {
+                        const updatedLocal = deduplicateScheduleItems([...readCustomSchedule(), target.meetingBlock]);
+                        localStorage.setItem(getActiveScheduleStorageKey(), JSON.stringify(updatedLocal));
+                        renderCalendarView(currentView);
+                    }
+
                     if (target?.groupName) {
                         const slug = toDocSlug(target.groupName) || 'final_project_cmsc_3';
                         localStorage.setItem('cs_sync_active_group', target.groupName);
-                        await setDoc(doc(db, "groups", slug), { groupName: target.groupName }, { merge: true });
+                        await setDoc(doc(db, "groups", slug), {
+                            groupName: target.groupName,
+                            teammates: arrayUnion(session.name)
+                        }, { merge: true });
                     }
+
+                    const senderEmail = target?.senderEmail || target?.requesterEmail || '';
+                    if (senderEmail) {
+                        await sendRequestEmailNotification({
+                            toEmail: senderEmail,
+                            toName: target?.senderName || target?.requesterName || '',
+                            subject: `CS-Sync Invite Accepted: ${target?.title || 'Request'}`,
+                            message: `${session.name} accepted "${target?.title || 'Request'}".`,
+                            requestType: 'invite_accepted'
+                        });
+                    }
+
+                    showToast("Invite accepted and synced to calendar.", 'success');
                 });
             });
 
             listBody.querySelectorAll('.cal-notif-decline').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     const id = btn.getAttribute('data-id');
+                    const target = cloudNotifications.find(x => x.id === id);
                     const nextList = cloudNotifications.filter(x => x.id !== id);
                     cloudNotifications = nextList;
                     renderCalendarNotifications();
                     await setDoc(doc(db, "users", getUserDocId()), { notifications: nextList }, { merge: true });
+
+                    const senderEmail = target?.senderEmail || target?.requesterEmail || '';
+                    if (senderEmail) {
+                        const session = getSessionIdentity();
+                        await sendRequestEmailNotification({
+                            toEmail: senderEmail,
+                            toName: target?.senderName || target?.requesterName || '',
+                            subject: `CS-Sync Invite Declined: ${target?.title || 'Request'}`,
+                            message: `${session.name} declined "${target?.title || 'Request'}".`,
+                            requestType: 'invite_declined'
+                        });
+                    }
+
+                    showToast("Invite declined.", 'info');
                 });
             });
         }
 
         function subscribeToCalendarNotificationsLive() {
             const userRef = doc(db, "users", getUserDocId());
+            seenCalNotifIds = new Set();
+            hasInitialCalNotifSnap = false;
+
             return onSnapshot(userRef, (snap) => {
                 if (!snap.exists()) return;
                 const data = snap.data() || {};
                 if (Array.isArray(data.notifications)) {
+                    if (!hasInitialCalNotifSnap) {
+                        data.notifications.forEach((n, idx) => seenCalNotifIds.add(String(n.id || `cal_n_${idx}`)));
+                        hasInitialCalNotifSnap = true;
+                    } else {
+                        data.notifications.forEach((n, idx) => {
+                            const nid = String(n.id || `cal_n_${idx}`);
+                            if (!seenCalNotifIds.has(nid)) {
+                                seenCalNotifIds.add(nid);
+                                if (n.hasActions || String(n.status || '').toLowerCase() === 'pending') {
+                                    triggerCalBrowserPush(n);
+                                    showToast(n.title || 'New request received', 'info');
+                                }
+                            }
+                        });
+                    }
                     cloudNotifications = data.notifications;
                     renderCalendarNotifications();
                 }
@@ -636,8 +827,10 @@
             renderCalendarNotifications();
             try {
                 await setDoc(doc(db, "users", getUserDocId()), { notifications: [] }, { merge: true });
+                showToast("Notifications cleared.", 'info');
             } catch (err) {
                 console.warn("Could not clear notifications in Firestore:", err);
+                showToast("Could not clear notifications in Firestore.", 'error');
             }
         };
 
@@ -749,11 +942,6 @@
             return () => unsubs.forEach(fn => fn());
         }
 
-        function resolveActiveGroupSlug() {
-            const savedGroup = localStorage.getItem('cs_sync_active_group') || 'Final Project CMSC 3';
-            return toDocSlug(savedGroup) || 'final_project_cmsc_3';
-        }
-
         function extractGroupMeetingsFromDoc(groupId, data = {}) {
             const count = Array.isArray(data.teammates) ? data.teammates.length : 1;
             const rawMeetings = Array.isArray(data.meetings) && data.meetings.length > 0
@@ -764,7 +952,7 @@
                 .filter(m => m && (m.day || m.time || m.title))
                 .map((m, idx) => ({
                     id: m.id || `${groupId}_mtg_${idx}`,
-                    title: m.title || `${data.groupName || 'Final Project CMSC 3'} Sync`,
+                    title: m.title || `${data.groupName || 'Group'} Sync`,
                     day: normalizeDayShort(m.day || 'Fri'),
                     time: formatNormalizedTime(m.time || '01:00 PM'),
                     location: m.location || 'Online / Discord',
@@ -778,49 +966,43 @@
         }
 
         function subscribeToGroupSyncLive() {
-            const activeSlug = resolveActiveGroupSlug();
-            const slugCandidates = Array.from(new Set([activeSlug, 'final_project_cmsc_3', 'project_cmsc_3']));
+            const session = getSessionIdentity();
+            const userLower = session.name.trim().toLowerCase();
+            const emailLower = session.email.trim().toLowerCase();
             const statusEl = document.getElementById('activeGroupSyncStatus');
-            const meetingsByDoc = new Map();
 
-            const rebuildGroupMeetings = () => {
-                const merged = new Map();
-                let latestCount = 1;
-                slugCandidates.forEach(slug => {
-                    const entry = meetingsByDoc.get(slug);
-                    if (!entry) return;
-                    if (entry.count > latestCount) latestCount = entry.count;
-                    entry.parsedMeetings.forEach(m => {
-                        merged.set(m.id, m);
+            return onSnapshot(
+                collection(db, "groups"),
+                (snap) => {
+                    const merged = new Map();
+                    let activeGroupsCount = 0;
+
+                    snap.forEach((docSnap) => {
+                        const data = docSnap.data() || {};
+                        const mates = Array.isArray(data.teammates) ? data.teammates.map(m => String(m).trim().toLowerCase()) : [];
+                        const isMember = mates.includes(userLower) || mates.includes(emailLower);
+                        if (!isMember) return;
+
+                        activeGroupsCount++;
+                        const { count, parsedMeetings } = extractGroupMeetingsFromDoc(docSnap.id, data);
+                        teamCount = count;
+                        parsedMeetings.forEach(m => {
+                            merged.set(m.id, m);
+                        });
                     });
-                });
-                teamCount = latestCount;
-                syncedGroupMeetings = Array.from(merged.values());
-                renderCalendarView(currentView);
-            };
 
-            if (statusEl) {
-                statusEl.textContent = `⚡ Live Sync (${activeSlug})`;
-            }
-
-            const unsubs = slugCandidates.map(slug =>
-                onSnapshot(
-                    doc(db, "groups", slug),
-                    (groupSnap) => {
-                        if (!groupSnap.exists()) {
-                            meetingsByDoc.delete(slug);
-                        } else {
-                            meetingsByDoc.set(slug, extractGroupMeetingsFromDoc(slug, groupSnap.data() || {}));
-                        }
-                        rebuildGroupMeetings();
-                    },
-                    (err) => {
-                        console.warn(`Live group sync listener notice (${slug}):`, err);
+                    syncedGroupMeetings = Array.from(merged.values());
+                    if (statusEl) {
+                        statusEl.textContent = activeGroupsCount > 0
+                            ? `⚡ Live Sync (${activeGroupsCount} Group${activeGroupsCount > 1 ? 's' : ''})`
+                            : '⚡ Live Firestore Sync Active';
                     }
-                )
+                    renderCalendarView(currentView);
+                },
+                (err) => {
+                    console.warn("Live group sync listener notice:", err);
+                }
             );
-
-            return () => unsubs.forEach(fn => fn());
         }
 
         function getCombinedCalendarItems() {
@@ -838,21 +1020,131 @@
                     })
                 : [];
             const consultationItems = showFaculty ? acceptedConsultations : [];
-            const meetingItems = showMeetings
-                ? [
-                    ...syncedGroupMeetings,
-                    ...customList.filter(item => item?.type === 'group_meeting').map((m, idx) => ({
-                        ...m,
-                        id: m.id || `local_group_mtg_${idx}`,
-                        type: 'group_meeting',
-                        isGroupMeeting: true,
-                        teammateCount: Array.isArray(m.teammates) && m.teammates.length > 0 ? m.teammates.length : teamCount
-                    }))
-                ]
-                : [];
 
-            return [...personalItems, ...consultationItems, ...meetingItems];
+            const meetingMap = new Map();
+            if (showMeetings) {
+                syncedGroupMeetings.forEach(m => {
+                    const key = m.id || buildScheduleDedupeKey(m);
+                    meetingMap.set(key, m);
+                });
+                customList.filter(item => item?.type === 'group_meeting').forEach((m, idx) => {
+                    const key = m.id || buildScheduleDedupeKey(m);
+                    if (!meetingMap.has(key)) {
+                        meetingMap.set(key, {
+                            ...m,
+                            id: m.id || `local_group_mtg_${idx}`,
+                            type: 'group_meeting',
+                            isGroupMeeting: true,
+                            teammateCount: Array.isArray(m.teammates) && m.teammates.length > 0 ? m.teammates.length : teamCount
+                        });
+                    }
+                });
+            }
+
+            return [...personalItems, ...consultationItems, ...Array.from(meetingMap.values())];
         }
+
+        function escapeIcsText(str = '') {
+            return String(str)
+                .replace(/\\/g, '\\\\')
+                .replace(/;/g, '\\;')
+                .replace(/,/g, '\\,')
+                .replace(/\r?\n/g, '\\n');
+        }
+
+        function dayToIcsByDay(dayStr = '') {
+            const map = {
+                mon: 'MO', monday: 'MO',
+                tue: 'TU', tuesday: 'TU',
+                wed: 'WE', wednesday: 'WE',
+                thu: 'TH', thursday: 'TH',
+                fri: 'FR', friday: 'FR',
+                sat: 'SA', saturday: 'SA',
+                sun: 'SU', sunday: 'SU'
+            };
+            return map[String(dayStr).trim().toLowerCase()] || 'MO';
+        }
+
+        function getNextDateForByDay(byDay, baseDate = new Date()) {
+            const dayIndexMap = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 };
+            const targetDay = dayIndexMap[byDay] ?? 1;
+            const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+            const diff = (targetDay - d.getDay() + 7) % 7;
+            d.setDate(d.getDate() + diff);
+            return d;
+        }
+
+        function formatIcsLocalDateTime(dateObj, minutesFromMidnight) {
+            const hours = Math.floor(minutesFromMidnight / 60);
+            const mins = minutesFromMidnight % 60;
+            const yyyy = dateObj.getFullYear();
+            const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const dd = String(dateObj.getDate()).padStart(2, '0');
+            const hh = String(hours).padStart(2, '0');
+            const minStr = String(mins).padStart(2, '0');
+            return `${yyyy}${mm}${dd}T${hh}${minStr}00`;
+        }
+
+        function buildIcsContent(items = []) {
+            const nowStamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            const lines = [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//CS-Sync UP Mindanao//Calendar Export//EN',
+                'CALSCALE:GREGORIAN',
+                'METHOD:PUBLISH'
+            ];
+
+            items.forEach((item, idx) => {
+                const range = parseScheduleItemRange(item);
+                if (!range) return;
+
+                const byDay = dayToIcsByDay(item.day || 'Monday');
+                const occurrenceDate = getNextDateForByDay(byDay);
+                const dtStart = formatIcsLocalDateTime(occurrenceDate, range.start);
+                const dtEnd = formatIcsLocalDateTime(occurrenceDate, range.end);
+                const uid = `${escapeIcsText(item.id || `cssync-${idx}-${byDay}`)}@cs-sync.upmin.edu.ph`;
+
+                lines.push('BEGIN:VEVENT');
+                lines.push(`UID:${uid}`);
+                lines.push(`DTSTAMP:${nowStamp}`);
+                lines.push(`DTSTART:${dtStart}`);
+                lines.push(`DTEND:${dtEnd}`);
+                lines.push(`RRULE:FREQ=WEEKLY;BYDAY=${byDay}`);
+                lines.push(`SUMMARY:${escapeIcsText(item.title || 'Schedule Block')}`);
+                if (item.location) {
+                    lines.push(`LOCATION:${escapeIcsText(item.location)}`);
+                }
+                if (item.notes) {
+                    lines.push(`DESCRIPTION:${escapeIcsText(item.notes)}`);
+                }
+                lines.push('END:VEVENT');
+            });
+
+            lines.push('END:VCALENDAR');
+            return lines.join('\r\n');
+        }
+
+        document.getElementById('exportIcsBtn')?.addEventListener('click', () => {
+            const items = getCombinedCalendarItems();
+            if (!items.length) {
+                showToast('No schedule events available to export.', 'info');
+                return;
+            }
+
+            const icsText = buildIcsContent(items);
+            const blob = new Blob([icsText], { type: 'text/calendar;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'cs-sync-schedule.ics';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+            showToast(`Exported ${items.length} schedule item(s) to cs-sync-schedule.ics.`, 'success');
+        });
 
         window.readCustomSchedule = readCustomSchedule;
         window.writeCustomSchedule = writeCustomSchedule;
@@ -861,15 +1153,33 @@
         window.upsertScheduleItemFromModal = upsertScheduleItemFromModal;
         window.syncScheduleFromCloud = syncScheduleFromCloud;
 
-        window.addEventListener('DOMContentLoaded', async () => {
+        async function initializeCalendarSession() {
+            activeCalendarUnsubs.forEach(fn => {
+                if (typeof fn === 'function') fn();
+            });
+            activeCalendarUnsubs = [];
+            syncedGroupMeetings = [];
+            acceptedConsultations = [];
+            studentAcceptedConsultations = [];
+            facultyAcceptedConsultations = [];
+            cloudNotifications = [];
+
             syncHeaderIdentity();
+            syncCalPushButton();
             await syncScheduleFromCloud();
-            subscribeToGroupSyncLive();
-            subscribeToUserScheduleLive();
-            subscribeToAcceptedConsultationsLive();
-            subscribeToCalendarNotificationsLive();
-            renderCalendarView('week');
-        });
+            calendarInitialized = true;
+            renderCalendarView(currentView);
+
+            activeCalendarUnsubs.push(
+                subscribeToGroupSyncLive(),
+                subscribeToUserScheduleLive(),
+                subscribeToAcceptedConsultationsLive(),
+                subscribeToCalendarNotificationsLive()
+            );
+        }
+
+        window.addEventListener('DOMContentLoaded', initializeCalendarSession);
+        window.addEventListener('cssync:auth-ready', initializeCalendarSession);
 
         ['layerClasses', 'layerMeetings', 'layerFaculty'].forEach(id => {
             const checkbox = document.getElementById(id);
@@ -882,8 +1192,19 @@
             currentView = viewType;
             const container = document.getElementById('calendarGridContainer');
             const viewLabel = document.getElementById('currentViewLabel');
+            if (!container || !viewLabel) return;
+
+            if (!calendarInitialized) {
+                container.innerHTML = `
+                    <div style="padding: 36px; text-align: center; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: 8px; background: #fdfdfd;">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 22px; color: var(--up-maroon); margin-bottom: 10px; display: block;"></i>
+                        <p style="margin: 0; font-size: 13px;">Loading your schedule from Firestore...</p>
+                    </div>
+                `;
+                return;
+            }
+
             const customItems = getCombinedCalendarItems();
-            const showMeetings = document.getElementById('layerMeetings')?.checked !== false;
 
             if (viewType === 'week') {
                 viewLabel.textContent = 'Week View • Mon–Sun, November 2026';
@@ -906,7 +1227,6 @@
                         ? (nextStart - slotStart)
                         : DEFAULT_BLOCK_MINUTES;
                     const slotRange = getRowSlotRange(t, slotDuration);
-                    const isSyncSlot = t === '01:00 PM';
 
                     const cells = days.map((d) => {
                         const matched = customItems.filter(item => {
@@ -916,14 +1236,8 @@
                             return rangesOverlap(slotRange, itemRange);
                         });
 
-                        const hasExplicitGroupMeeting = matched.some(m => m.isGroupMeeting || m.type === 'group_meeting');
-                        const showDefaultSyncSlot = showMeetings && isSyncSlot && d === 'Fri' && !hasExplicitGroupMeeting;
-
-                        if (matched.length > 0 || showDefaultSyncSlot) {
+                        if (matched.length > 0) {
                             const cards = [];
-                            if (showDefaultSyncSlot) {
-                                cards.push(`<div style="background: #c3e6cb; color: #155724; padding: 10px 8px; border-radius: 4px; font-weight: bold; border: 2px solid #28a745; font-size: 11px;">🚀 Final Project Sync (${teamCount})</div>`);
-                            }
                             matched.forEach(m => {
                                 const isMtg = Boolean(m.isGroupMeeting || m.type === 'group_meeting');
                                 const cardStyle = isMtg
@@ -965,7 +1279,11 @@
                     `;
                 }).join('');
 
-                container.innerHTML = headerRow + bodyRows;
+                const emptyBanner = customItems.length === 0
+                    ? `<div style="padding: 12px 16px; background: #fdfdfd; border: 1px dashed var(--border-color); border-radius: 6px; text-align: center; font-size: 12px; color: var(--text-muted);">No schedule blocks yet for this account. Click <strong>+ Add Event</strong> or <strong>Scan Schedule Image</strong> to add your classes or availability.</div>`
+                    : '';
+
+                container.innerHTML = headerRow + bodyRows + emptyBanner;
 
             } else if (viewType === 'schedule') {
                 viewLabel.textContent = 'Schedule List View • Scrollable';
@@ -996,23 +1314,12 @@
                     `;
                 }).join('');
 
-                const hasSyncedGroupRows = syncedGroupMeetings.length > 0;
-                const syncRowHtml = (showMeetings && !hasSyncedGroupRows) ? `
-                    <div style="display: grid; grid-template-columns: 150px 1.5fr 1fr 1.5fr; align-items: center; padding: 10px; background: #e8f5e9; border-radius: 6px; border: 1px solid #c8e6c9;">
-                        <span style="font-weight: 600; color: #2e7d32;">Fri 01:00 PM</span>
-                        <span><strong>Final Project Sync (${teamCount} Teammates)</strong></span>
-                        <span>Online / Discord</span>
-                        <span style="color: #1b5e20; font-size: 12px;">Review milestone integration.</span>
-                    </div>
-                ` : '';
-
                 container.innerHTML = `
                     <div style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 13px; padding-right: 4px;">
                         <div style="display: grid; grid-template-columns: 150px 1.5fr 1fr 1.5fr; font-weight: bold; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); color: var(--text-muted); position: sticky; top: 0; background: white;">
                             <span>Time & Date</span><span>Event</span><span>Location</span><span>Notes</span>
                         </div>
-                        ${syncRowHtml}
-                        ${customRowsHtml}
+                        ${customRowsHtml || '<div style="padding: 24px; text-align:center; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: 6px;">No scheduled blocks yet for this account.</div>'}
                     </div>`;
 
             } else if (viewType === 'day' || viewType === 'today') {
@@ -1045,16 +1352,9 @@
                 for (let i = 1; i <= 30; i++) {
                     const dateObj = new Date(2026, 10, i);
                     const weekdayShort = weekdays[dateObj.getDay()];
-
                     const dayEvents = customItems.filter(item => normalizeDayShort(item.day) === weekdayShort);
-                    const hasExplicitMeeting = dayEvents.some(e => e.isGroupMeeting || e.type === 'group_meeting');
-                    const showFallbackSyncChip = showMeetings && weekdayShort === 'Fri' && !hasExplicitMeeting;
 
                     const pills = [];
-                    if (showFallbackSyncChip) {
-                        pills.push(`<span style="background: #c3e6cb; color: #155724; padding: 2px 5px; border-radius: 3px; font-size: 9px; font-weight: bold; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">🚀 Sync (${teamCount})</span>`);
-                    }
-
                     dayEvents.forEach(ev => {
                         const isMtg = Boolean(ev.isGroupMeeting || ev.type === 'group_meeting');
                         const pillStyle = isMtg
@@ -1296,22 +1596,22 @@
             });
 
             if (verifiedItems.length === 0) {
-                alert('Please enter at least one schedule item title before saving.');
+                showToast('Please enter at least one schedule item title before saving.', 'error');
                 return;
             }
 
             const existing = readCustomSchedule();
             const merged = deduplicateScheduleItems([...existing, ...verifiedItems]);
+            const addedCount = Math.max(0, merged.length - existing.length);
             writeCustomSchedule(merged);
             renderCalendarView(currentView);
             ocrReviewModal.style.display = 'none';
-            alert(`✅ Saved ${merged.length - existing.length} new schedule item(s) (duplicates skipped)!`);
+            showToast(`Saved ${addedCount} new schedule item(s) (duplicates skipped).`, 'success');
         });
 
         closeOcrModal.onclick = () => ocrReviewModal.style.display = 'none';
         cancelOcrBtn.onclick = () => ocrReviewModal.style.display = 'none';
 
-        // Header & Add/Edit Event Modal Handlers
         const notifBtn = document.getElementById('notifBtn');
         const notifDropdown = document.getElementById('notifDropdown');
         const profileTrigger = document.getElementById('profileTrigger');
@@ -1338,14 +1638,23 @@
             await window.clearAllCalendarNotifications();
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        document.getElementById('logoutBtn').addEventListener('click', async function(e) {
             e.preventDefault();
+            const activeScheduleKey = getActiveScheduleStorageKey();
+            try {
+                await signOut(auth);
+            } catch (err) {
+                console.warn("Sign out error:", err);
+            }
+            localStorage.removeItem(activeScheduleKey);
+            localStorage.removeItem('cs_sync_schedule');
             localStorage.removeItem('cs_sync_user');
             localStorage.removeItem('cs_sync_email');
             localStorage.removeItem('cs_sync_role');
             localStorage.removeItem('cs_sync_program');
             localStorage.removeItem('cs_sync_batch');
             localStorage.removeItem('cs_sync_dept');
+            localStorage.removeItem('cs_sync_avatar');
             window.location.replace('index.html');
         });
 
@@ -1376,13 +1685,16 @@
             const location = document.getElementById('inputWhere').value.trim();
             const notes = document.getElementById('inputNotes').value.trim();
 
-            if (!name) { alert('Please enter an event name.'); return; }
+            if (!name) {
+                showToast('Please enter an event name.', 'error');
+                return;
+            }
 
             const wasEditing = typeof editingScheduleIndex === 'number' && editingScheduleIndex >= 0;
             upsertScheduleItemFromModal({ name, time, day, location, notes });
             editingScheduleIndex = null;
 
-            alert(wasEditing ? `✏️ Event "${name}" updated!` : `📅 Event "${name}" successfully saved!`);
+            showToast(wasEditing ? `Event "${name}" updated.` : `Event "${name}" saved to your schedule.`, 'success');
             modal.style.display = 'none';
         };
     </script>

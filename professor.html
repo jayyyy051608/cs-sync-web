@@ -4,19 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Professor Portal | CS-Sync UP Mindanao</title>
+    <script type="module" src="auth-guard.js"></script>
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @media (max-width: 768px) {
+            .portal-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
 </head>
 <body class="dashboard-body">
+
+    <!-- In-Page Toast Container -->
+    <div id="toastContainer" style="position: fixed; top: 76px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; max-width: 360px; pointer-events: none;"></div>
 
     <!-- Top Navigation Bar -->
     <header class="top-navbar">
         <div class="nav-left">
-            <button class="menu-btn">☰</button>
-            <span class="brand-title">Professor Portal (Dr. Felizardo)</span>
+            <button type="button" class="menu-btn">☰</button>
+            <span id="portalBrandTitle" class="brand-title">Professor Portal</span>
         </div>
         <nav class="nav-center">
-            <a href="professor.html" class="nav-item active">
+            <a href="dashboard.html" class="nav-item">
                 <span class="icon">🏠</span>
                 <span>Home</span>
             </a>
@@ -32,81 +44,524 @@
                 <span class="icon">📅</span>
                 <span>Calendar</span>
             </a>
+            <a href="professor.html" class="nav-item active">
+                <span class="icon">🧑‍🏫</span>
+                <span>Portal</span>
+            </a>
         </nav>
-        <div class="nav-right">
+        <div class="nav-right" style="display: flex; align-items: center; gap: 12px;">
+            <button type="button" id="enableProfPushBtn" style="padding: 5px 10px; background: #fff8e7; color: #664d03; border: 1px solid #ffecb5; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-bell"></i> <span id="profPushLabel">Enable Push</span>
+            </button>
             <span class="notification-icon">🔔</span>
-            <div class="user-avatar-circle" style="background-color: #555;">DF</div>
+            <div id="profAvatarBadge" class="user-avatar-circle" style="background-color: #555;">PR</div>
+            <button type="button" id="logoutBtn" style="padding: 6px 12px; background: #fff5f5; color: #dc3545; border: 1px solid #f1aeb5; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                Log Out
+            </button>
         </div>
     </header>
 
     <!-- Main Professor Dashboard Container -->
-    <div class="dashboard-container" style="max-width: 1000px; margin: 24px auto; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 16px;">
-        
-        <!-- Left Section: Today's Consultations -->
+    <div class="dashboard-container portal-grid" style="max-width: 1000px; margin: 24px auto; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 16px;">
+
+        <!-- Left Section: Scheduled / Processed Consultations -->
         <section class="consultations-section" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); height: fit-content;">
             <div class="section-header" style="margin-bottom: 16px;">
-                <h2 style="font-size: 18px; margin: 0;">Today's Consultations</h2>
+                <h2 style="font-size: 18px; margin: 0;">Scheduled Consultations</h2>
             </div>
-            <div class="consultation-list" style="display: flex; flex-direction: column; gap: 12px;">
-                <div class="consultation-card" style="padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
-                    <strong style="font-size: 14px;">Prince Jay Ceriaca</strong>
-                    <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0;">9:00 AM • CS 198 Thesis Discussion</p>
-                    <span class="status-badge available" style="font-size: 11px; color: green; font-weight: 600;">Confirmed</span>
-                </div>
-                <div class="consultation-card" style="padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
-                    <strong style="font-size: 14px;">Maria Santos</strong>
-                    <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0;">10:00 AM • CS 180 AI Project Help</p>
-                    <span class="status-badge" style="font-size: 11px; color: #856404; font-weight: 600;">Pending Action</span>
-                </div>
-                <div class="consultation-card" style="padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background: #f8f9fa;">
-                    <strong style="font-size: 14px;">Open Consultation Slot</strong>
-                    <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0;">11:00 AM • No student booked yet</p>
-                    <span class="status-badge available" style="font-size: 11px; color: #0d6efd; font-weight: 600;">Available Slot</span>
+            <div id="scheduledConsultationsList" class="consultation-list" style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="padding: 20px; border: 1px dashed var(--border-color); border-radius: 6px; text-align: center; font-size: 13px; color: var(--text-muted);">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 18px; color: var(--up-maroon); margin-bottom: 8px; display: block;"></i>
+                    Loading scheduled consultations...
                 </div>
             </div>
         </section>
 
         <!-- Right Section: Pending Requests Feed -->
         <section class="schedule-section" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); height: fit-content;">
-            <h2 class="schedule-main-title" style="font-size: 18px; margin-bottom: 16px;">Pending Student Requests (2)</h2>
-            
-            <div class="schedule-card-box" style="display: flex; flex-direction: column; gap: 16px;">
-                
-                <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 14px;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                        <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 11px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">P</div>
-                        <div>
-                            <strong style="font-size: 14px;">Prince Jay Ceriaca</strong> 
-                            <span style="font-size: 11px; color: var(--text-muted);">• 30 mins ago</span>
-                        </div>
-                    </div>
-                    <p style="font-size: 13px; margin-bottom: 10px; color: #333;">Requesting consultation on Tuesday 10:00 AM for CS 198 Special Problem feedback.</p>
-                    <div style="display: flex; gap: 8px;">
-                        <button onclick="alert('✅ Request accepted successfully!')" style="padding: 6px 12px; background: var(--up-maroon); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600;">Accept</button>
-                        <button onclick="alert('❌ Request declined.')" style="padding: 6px 12px; background: none; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; cursor: pointer;">Decline</button>
-                    </div>
+            <h2 id="pendingRequestsTitle" class="schedule-main-title" style="font-size: 18px; margin-bottom: 16px;">Pending Student Requests (Loading...)</h2>
+            <div id="pendingRequestsList" class="schedule-card-box" style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="padding: 20px; border: 1px dashed var(--border-color); border-radius: 6px; text-align: center; font-size: 13px; color: var(--text-muted);">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 18px; color: var(--up-maroon); margin-bottom: 8px; display: block;"></i>
+                    Loading pending student requests...
                 </div>
-
-                <div>
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                        <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 11px; background: #6c757d; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">MS</div>
-                        <div>
-                            <strong style="font-size: 14px;">Maria Santos</strong> 
-                            <span style="font-size: 11px; color: var(--text-muted);">• 2 hours ago</span>
-                        </div>
-                    </div>
-                    <p style="font-size: 13px; margin-bottom: 10px; color: #333;">Requesting consultation on Friday 1:00 PM for CS 180 query.</p>
-                    <div style="display: flex; gap: 8px;">
-                        <button onclick="alert('✅ Request accepted successfully!')" style="padding: 6px 12px; background: var(--up-maroon); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600;">Accept</button>
-                        <button onclick="alert('❌ Request declined.')" style="padding: 6px 12px; background: none; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; cursor: pointer;">Decline</button>
-                    </div>
-                </div>
-
             </div>
         </section>
 
     </div>
 
-    <script src="app.js"></script>
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, setDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
+            authDomain: "cs-sync-8a6a0.firebaseapp.com",
+            projectId: "cs-sync-8a6a0",
+            storageBucket: "cs-sync-8a6a0.appspot.com",
+            messagingSenderId: "340561797624",
+            appId: "1:34056179764:web:f417af5001d576882d360d",
+            measurementId: "G-F663CN4012"
+        };
+
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let facultyName = '';
+        let facultyEmail = '';
+        let activeListenerUnsubs = [];
+        let seenPendingIds = new Set();
+        let hasInitialPendingSnap = false;
+
+        let consultations = [];
+        let consultationsLoaded = false;
+        const savingIds = new Set();
+
+        function escapeHtml(value = '') {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function toDocSlug(value = '') {
+            return String(value)
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '_')
+                .replace(/^_|_$/g, '');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const palette = {
+                success: { bg: '#d1e7dd', color: '#0f5132', border: '#badbcc', icon: 'fa-circle-check' },
+                error: { bg: '#f8d7da', color: '#842029', border: '#f5c2c7', icon: 'fa-circle-exclamation' },
+                info: { bg: '#fff3cd', color: '#664d03', border: '#ffecb5', icon: 'fa-circle-info' }
+            }[type] || { bg: '#fff3cd', color: '#664d03', border: '#ffecb5', icon: 'fa-circle-info' };
+
+            const toast = document.createElement('div');
+            toast.style.cssText = `pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 8px; background: ${palette.bg}; color: ${palette.color}; border: 1px solid ${palette.border}; box-shadow: 0 6px 18px rgba(0,0,0,0.12); font-size: 12px; font-weight: 600; transition: opacity 0.25s ease, transform 0.25s ease;`;
+            toast.innerHTML = `
+                <i class="fa-solid ${palette.icon}" style="font-size: 14px; flex-shrink: 0;"></i>
+                <span style="flex: 1; line-height: 1.4;">${escapeHtml(message)}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-6px)';
+                setTimeout(() => toast.remove(), 260);
+            }, 3600);
+        }
+
+        function syncProfPushButton() {
+            const labelEl = document.getElementById('profPushLabel');
+            const btnEl = document.getElementById('enableProfPushBtn');
+            if (!labelEl || !btnEl) return;
+
+            if (!('Notification' in window)) {
+                labelEl.textContent = 'Push Unsupported';
+                btnEl.disabled = true;
+                return;
+            }
+            if (Notification.permission === 'granted') {
+                labelEl.textContent = 'Push Enabled';
+                btnEl.style.background = '#d1e7dd';
+                btnEl.style.color = '#0f5132';
+                btnEl.style.borderColor = '#badbcc';
+            } else if (Notification.permission === 'denied') {
+                labelEl.textContent = 'Push Blocked';
+            } else {
+                labelEl.textContent = 'Enable Push';
+            }
+        }
+
+        function sendProfBrowserPush(reqItem = {}) {
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+            const student = reqItem.studentName || reqItem.studentEmail || 'A student';
+            const slot = reqItem.slot || reqItem.time || 'requested slot';
+            const course = reqItem.course || 'consultation';
+
+            const notif = new Notification(`New Consultation Request: ${student}`, {
+                body: `${course} • ${slot}`,
+                tag: String(reqItem.id || `prof-req-${Date.now()}`),
+                renotify: true
+            });
+            notif.onclick = () => {
+                window.focus();
+                notif.close();
+            };
+        }
+
+        async function sendRequestEmailNotification({ toEmail, toName = '', subject, message, requestType = 'consultation' }) {
+            if (!toEmail) return { sent: false, reason: 'missing_email' };
+            try {
+                const res = await fetch('/api/notify-request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: toEmail,
+                        recipientName: toName,
+                        subject: subject || `CS-Sync Update: ${requestType}`,
+                        text: message,
+                        requestType
+                    })
+                });
+                return { sent: res.ok, status: res.status };
+            } catch (err) {
+                console.warn('Email notification endpoint not reachable:', err);
+                return { sent: false, reason: 'endpoint_unreachable' };
+            }
+        }
+
+        window.sendRequestEmailNotification = sendRequestEmailNotification;
+
+        document.getElementById('enableProfPushBtn')?.addEventListener('click', async () => {
+            if (!('Notification' in window)) {
+                showToast('Browser push notifications are not supported in this browser.', 'error');
+                return;
+            }
+            if (Notification.permission === 'granted') {
+                showToast('Push alerts are already enabled for student requests.', 'success');
+                syncProfPushButton();
+                return;
+            }
+            const perm = await Notification.requestPermission();
+            syncProfPushButton();
+            if (perm === 'granted') {
+                showToast('Push alerts enabled for new consultation requests.', 'success');
+            } else {
+                showToast('Push notification permission was not granted.', 'info');
+            }
+        });
+
+        function syncFacultyHeader() {
+            facultyName = (localStorage.getItem('cs_sync_user') || 'Dr. Felizardo').trim();
+            facultyEmail = (localStorage.getItem('cs_sync_email') || '').trim().toLowerCase();
+
+            document.getElementById('portalBrandTitle').textContent = `Professor Portal (${facultyName})`;
+            document.getElementById('profAvatarBadge').textContent = facultyName
+                .split(' ')
+                .filter(Boolean)
+                .map(n => n[0])
+                .join('')
+                .substring(0, 2)
+                .toUpperCase() || 'PR';
+        }
+
+        function getStatusStyle(status = 'Pending') {
+            const s = String(status).toLowerCase();
+            if (s === 'accepted') return 'color: #198754; background: #d1e7dd;';
+            if (s === 'declined' || s === 'cancelled' || s === 'withdrawn') {
+                return 'color: #842029; background: #f8d7da;';
+            }
+            return 'color: #664d03; background: #fff3cd;';
+        }
+
+        function renderConsultations() {
+            const scheduledList = document.getElementById('scheduledConsultationsList');
+            const pendingList = document.getElementById('pendingRequestsList');
+            const pendingTitle = document.getElementById('pendingRequestsTitle');
+
+            if (!consultationsLoaded) {
+                if (pendingTitle) pendingTitle.textContent = 'Pending Student Requests (Loading...)';
+                if (scheduledList) {
+                    scheduledList.innerHTML = `
+                        <div style="padding: 20px; border: 1px dashed var(--border-color); border-radius: 6px; text-align: center; font-size: 13px; color: var(--text-muted);">
+                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 18px; color: var(--up-maroon); margin-bottom: 8px; display: block;"></i>
+                            Loading scheduled consultations...
+                        </div>
+                    `;
+                }
+                if (pendingList) {
+                    pendingList.innerHTML = `
+                        <div style="padding: 20px; border: 1px dashed var(--border-color); border-radius: 6px; text-align: center; font-size: 13px; color: var(--text-muted);">
+                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 18px; color: var(--up-maroon); margin-bottom: 8px; display: block;"></i>
+                            Loading pending student requests...
+                        </div>
+                    `;
+                }
+                return;
+            }
+
+            const pendingItems = consultations.filter(
+                c => String(c.status || 'Pending').toLowerCase() === 'pending'
+            );
+            const activeOrProcessedItems = consultations.filter(
+                c => String(c.status || 'Pending').toLowerCase() !== 'pending'
+            );
+
+            if (pendingTitle) {
+                pendingTitle.textContent = `Pending Student Requests (${pendingItems.length})`;
+            }
+
+            if (scheduledList) {
+                if (activeOrProcessedItems.length === 0) {
+                    scheduledList.innerHTML = `
+                        <div style="padding: 22px; border: 1px dashed var(--border-color); border-radius: 6px; background: #fdfdfd; text-align: center; font-size: 13px; color: var(--text-muted);">
+                            <i class="fa-regular fa-calendar-check" style="font-size: 20px; color: #adb5bd; margin-bottom: 8px; display: block;"></i>
+                            No accepted or processed consultations yet.
+                        </div>
+                    `;
+                } else {
+                    scheduledList.innerHTML = activeOrProcessedItems.map(item => {
+                        const student = item.studentName || item.studentEmail || 'Student';
+                        const course = item.course || 'Consultation';
+                        const slot = item.slot || item.time || 'Schedule TBA';
+                        const status = item.status || 'Accepted';
+
+                        return `
+                            <div class="consultation-card" style="padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
+                                <strong style="font-size: 14px;">${escapeHtml(student)}</strong>
+                                <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 8px 0;">${escapeHtml(slot)} • ${escapeHtml(course)}</p>
+                                <span class="status-badge" style="display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; ${getStatusStyle(status)}">${escapeHtml(status)}</span>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+
+            if (pendingList) {
+                if (pendingItems.length === 0) {
+                    pendingList.innerHTML = `
+                        <div style="padding: 22px; border: 1px dashed var(--border-color); border-radius: 6px; background: #fdfdfd; text-align: center; font-size: 13px; color: var(--text-muted);">
+                            <i class="fa-regular fa-inbox" style="font-size: 20px; color: #adb5bd; margin-bottom: 8px; display: block;"></i>
+                            No pending student requests right now.
+                        </div>
+                    `;
+                } else {
+                    pendingList.innerHTML = pendingItems.map((req, idx) => {
+                        const student = req.studentName || req.studentEmail || 'Student';
+                        const initials = student
+                            .split(' ')
+                            .filter(Boolean)
+                            .map(n => n[0])
+                            .join('')
+                            .substring(0, 2)
+                            .toUpperCase() || 'ST';
+                        const slot = req.slot || req.time || 'requested time';
+                        const course = req.course || 'course consultation';
+                        const reason = req.reason || req.notes || `Requesting consultation on ${slot} for ${course}.`;
+                        const borderBottom = idx < pendingItems.length - 1 ? 'border-bottom: 1px solid var(--border-color); padding-bottom: 14px;' : '';
+                        const isBusy = savingIds.has(req.id);
+
+                        return `
+                            <div data-request-card="${escapeHtml(req.id)}" style="${borderBottom}">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                                    <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 11px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">${escapeHtml(initials)}</div>
+                                    <div>
+                                        <strong style="font-size: 14px;">${escapeHtml(student)}</strong>
+                                        <span style="font-size: 11px; color: var(--text-muted);">• ${escapeHtml(slot)}</span>
+                                    </div>
+                                </div>
+                                <p style="font-size: 13px; margin-bottom: 10px; color: #333;">${escapeHtml(reason)} (${escapeHtml(course)})</p>
+                                <div data-action-group="${escapeHtml(req.id)}" style="display: flex; gap: 8px; align-items: center;">
+                                    <button type="button" class="decide-btn" data-id="${escapeHtml(req.id)}" data-status="Accepted" ${isBusy ? 'disabled' : ''} style="padding: 6px 12px; background: var(--up-maroon); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: ${isBusy ? 'not-allowed' : 'pointer'}; font-weight: 600; opacity: ${isBusy ? '0.6' : '1'};">Accept</button>
+                                    <button type="button" class="decide-btn" data-id="${escapeHtml(req.id)}" data-status="Declined" ${isBusy ? 'disabled' : ''} style="padding: 6px 12px; background: none; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; cursor: ${isBusy ? 'not-allowed' : 'pointer'}; opacity: ${isBusy ? '0.6' : '1'};">Decline</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    pendingList.querySelectorAll('.decide-btn').forEach(btn => {
+                        btn.addEventListener('click', async () => {
+                            if (btn.disabled) return;
+                            const docId = btn.getAttribute('data-id');
+                            const nextStatus = btn.getAttribute('data-status');
+                            await updateConsultationStatus(docId, nextStatus);
+                        });
+                    });
+                }
+            }
+        }
+
+        async function notifyStudent(item, nextStatus) {
+            const targets = new Set();
+            [item.studentEmail, item.studentName].forEach(val => {
+                const raw = String(val || '').trim().toLowerCase();
+                if (!raw) return;
+                const slug = toDocSlug(raw);
+                if (slug) targets.add(slug);
+                if (raw.includes('@')) {
+                    const localSlug = toDocSlug(raw.split('@')[0]);
+                    if (localSlug) targets.add(localSlug);
+                }
+            });
+
+            const summaryMsg = `${facultyName} ${nextStatus.toLowerCase()} your consultation request (${item.course || 'Consultation'} • ${item.slot || item.time || ''}).`;
+            const payload = {
+                id: `consult_${item.id}_${Date.now()}`,
+                title: `Consultation ${nextStatus}`,
+                message: summaryMsg,
+                timeAgo: 'Just now',
+                hasActions: false
+            };
+
+            for (const uid of targets) {
+                try {
+                    await setDoc(doc(db, "users", uid), {
+                        notifications: arrayUnion(payload)
+                    }, { merge: true });
+                } catch (err) {
+                    console.warn(`Could not notify student doc ${uid}:`, err);
+                }
+            }
+
+            if (item.studentEmail) {
+                await sendRequestEmailNotification({
+                    toEmail: item.studentEmail,
+                    toName: item.studentName || '',
+                    subject: `CS-Sync Consultation ${nextStatus}: ${item.course || 'Consultation'}`,
+                    message: summaryMsg,
+                    requestType: 'consultation_decision'
+                });
+            }
+        }
+
+        async function updateConsultationStatus(docId, nextStatus) {
+            const target = consultations.find(c => c.id === docId);
+            if (!docId || !target || savingIds.has(docId)) return;
+
+            savingIds.add(docId);
+
+            const actionGroup = document.querySelector(`[data-action-group="${CSS.escape(docId)}"]`);
+            if (actionGroup) {
+                actionGroup.innerHTML = `<span style="display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; ${getStatusStyle(nextStatus)}">${escapeHtml(nextStatus)}</span>`;
+            }
+
+            const previousStatus = target.status;
+            target.status = nextStatus;
+            renderConsultations();
+
+            try {
+                await updateDoc(doc(db, "consultations", docId), {
+                    status: nextStatus,
+                    updatedAt: new Date().toISOString()
+                });
+                await notifyStudent(target, nextStatus);
+                showToast(
+                    `Request from ${target.studentName || target.studentEmail || 'student'} marked as ${nextStatus}.`,
+                    nextStatus === 'Accepted' ? 'success' : 'info'
+                );
+            } catch (err) {
+                console.error("Failed to update consultation status:", err);
+                target.status = previousStatus;
+                renderConsultations();
+                showToast("Error updating consultation status in Firestore.", 'error');
+            } finally {
+                savingIds.delete(docId);
+            }
+        }
+
+        function startFacultyConsultationsListener() {
+            activeListenerUnsubs.forEach(fn => {
+                if (typeof fn === 'function') fn();
+            });
+            activeListenerUnsubs = [];
+            seenPendingIds = new Set();
+            hasInitialPendingSnap = false;
+
+            syncFacultyHeader();
+            syncProfPushButton();
+
+            const colRef = collection(db, "consultations");
+            const nameMap = new Map();
+            const emailMap = new Map();
+            let nameReady = false;
+            let emailReady = false;
+
+            const syncMap = () => {
+                const readyNow = (!facultyName || nameReady) && (!facultyEmail || emailReady);
+                const merged = new Map();
+                nameMap.forEach((v, k) => merged.set(k, v));
+                emailMap.forEach((v, k) => merged.set(k, v));
+                consultations = Array.from(merged.values());
+
+                if (readyNow) {
+                    const currentPending = consultations.filter(
+                        c => String(c.status || 'Pending').toLowerCase() === 'pending'
+                    );
+                    if (!hasInitialPendingSnap) {
+                        currentPending.forEach(item => seenPendingIds.add(String(item.id)));
+                        hasInitialPendingSnap = true;
+                    } else {
+                        currentPending.forEach(item => {
+                            const itemId = String(item.id);
+                            if (!seenPendingIds.has(itemId)) {
+                                seenPendingIds.add(itemId);
+                                sendProfBrowserPush(item);
+                                showToast(`New consultation request from ${item.studentName || item.studentEmail || 'a student'}.`, 'info');
+                            }
+                        });
+                    }
+                    consultationsLoaded = true;
+                }
+
+                renderConsultations();
+            };
+
+            if (!facultyName && !facultyEmail) {
+                consultationsLoaded = true;
+                renderConsultations();
+                return;
+            }
+
+            if (facultyName) {
+                activeListenerUnsubs.push(onSnapshot(query(colRef, where("facultyName", "==", facultyName)), (snap) => {
+                    nameReady = true;
+                    nameMap.clear();
+                    snap.forEach(d => nameMap.set(d.id, { id: d.id, ...d.data() }));
+                    syncMap();
+                }, (err) => {
+                    nameReady = true;
+                    console.warn("facultyName snapshot notice:", err);
+                    syncMap();
+                }));
+            }
+
+            if (facultyEmail) {
+                activeListenerUnsubs.push(onSnapshot(query(colRef, where("facultyEmail", "==", facultyEmail)), (snap) => {
+                    emailReady = true;
+                    emailMap.clear();
+                    snap.forEach(d => emailMap.set(d.id, { id: d.id, ...d.data() }));
+                    syncMap();
+                }, (err) => {
+                    emailReady = true;
+                    console.warn("facultyEmail snapshot notice:", err);
+                    syncMap();
+                }));
+            }
+        }
+
+        document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await signOut(auth);
+            } catch (err) {
+                console.warn("Sign out error:", err);
+            }
+            [
+                'cs_sync_user',
+                'cs_sync_email',
+                'cs_sync_role',
+                'cs_sync_program',
+                'cs_sync_batch',
+                'cs_sync_dept',
+                'cs_sync_avatar'
+            ].forEach((key) => localStorage.removeItem(key));
+            window.location.replace('index.html');
+        });
+
+        startFacultyConsultationsListener();
+        window.addEventListener('cssync:auth-ready', startFacultyConsultationsListener);
+    </script>
 </body>
 </html>
