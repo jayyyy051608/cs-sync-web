@@ -1,0 +1,88 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function normalizedUserEmail() {
+      return isSignedIn() && request.auth.token.email != null
+        ? request.auth.token.email.lower()
+        : "";
+    }
+
+    function isOwnerDoc(userDocId) {
+      return isSignedIn() && (
+        request.auth.uid == userDocId ||
+        (normalizedUserEmail() != "" && (
+          resource.data.email == normalizedUserEmail() ||
+          request.resource.data.email == normalizedUserEmail()
+        ))
+      );
+    }
+
+    function callerUserDoc() {
+      return isSignedIn()
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid))
+        : null;
+    }
+
+    function isFaculty() {
+      return isSignedIn() && (
+        request.auth.token.role == 'faculty' ||
+        request.auth.token.role == 'professor' ||
+        (
+          callerUserDoc() != null &&
+          callerUserDoc().data != null &&
+          callerUserDoc().data.role in ['faculty', 'professor', 'Faculty', 'Professor']
+        )
+      );
+    }
+
+    function isConsultationParticipant(data) {
+      return isSignedIn() && data != null && (
+        data.studentUid == request.auth.uid ||
+        data.facultyUid == request.auth.uid ||
+        (
+          normalizedUserEmail() != "" && (
+            (data.studentEmail != null && data.studentEmail.lower() == normalizedUserEmail()) ||
+            (data.facultyEmail != null && data.facultyEmail.lower() == normalizedUserEmail())
+          )
+        )
+      );
+    }
+
+    function statusUnchanged() {
+      return (!("status" in request.resource.data) && !("status" in resource.data)) ||
+        request.resource.data.status == resource.data.status;
+    }
+
+    // Users: can read and write only their own document
+    match /users/{userDocId} {
+      allow read: if isOwnerDoc(userDocId);
+      allow create, update, delete: if isOwnerDoc(userDocId);
+    }
+
+    // Consultations: visible only to the student and professor involved;
+    // only faculty can change status
+    match /consultations/{consultationId} {
+      allow read: if isConsultationParticipant(resource.data);
+
+      allow create: if isSignedIn()
+        && isConsultationParticipant(request.resource.data)
+        && (
+          !("status" in request.resource.data) ||
+          request.resource.data.status == "Pending" ||
+          isFaculty()
+        );
+
+      allow update: if isConsultationParticipant(resource.data)
+        && isConsultationParticipant(request.resource.data)
+        && (statusUnchanged() || isFaculty());
+
+      allow delete: if isConsultationParticipant(resource.data) && isFaculty();
+    }
+  }
+}

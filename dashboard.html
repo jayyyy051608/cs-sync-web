@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | CS-Sync UP Mindanao</title>
+    <script type="module" src="auth-guard.js"></script>
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="dashboard-body" style="background: var(--bg-color, #f4f6f8); margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+    <!-- In-Page Toast Container -->
+    <div id="toastContainer" style="position: fixed; top: 76px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; max-width: 360px; pointer-events: none;"></div>
 
     <!-- Top Navigation Bar matching wireframes -->
     <header style="background: white; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 12px 32px; position: sticky; top: 0; z-index: 1000;">
@@ -39,7 +43,7 @@
                         <span style="font-size: 11px; color: var(--text-muted); cursor: pointer;" id="clearAllNotifs">Clear all</span>
                     </div>
                     <div id="notifList" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
-                        <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>
+                        <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">Loading notifications...</p>
                     </div>
                 </div>
             </div>
@@ -103,8 +107,8 @@
 
                     <div id="scheduleContainer">
                         <div style="padding: 24px; text-align: center; color: var(--text-muted); background: #fdfdfd; border: 1px dashed var(--border-color); border-radius: 6px;">
-                            <i class="fa-regular fa-calendar-days" style="font-size: 24px; margin-bottom: 8px; color: #adb5bd;"></i>
-                            <p style="margin: 0; font-size: 13px;">No schedule items for today.</p>
+                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 20px; margin-bottom: 8px; color: var(--up-maroon); display: block;"></i>
+                            <p style="margin: 0; font-size: 13px;">Loading today's schedule...</p>
                         </div>
                     </div>
                 </div>
@@ -118,8 +122,8 @@
 
                     <div id="consultationsContainer">
                         <div style="padding: 24px; text-align: center; color: var(--text-muted); background: #fdfdfd; border: 1px dashed var(--border-color); border-radius: 6px;">
-                            <i class="fa-regular fa-clock" style="font-size: 24px; margin-bottom: 8px; color: #adb5bd;"></i>
-                            <p id="consultationsEmptyText" style="margin: 0; font-size: 13px;">No upcoming consultations scheduled.</p>
+                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 20px; margin-bottom: 8px; color: var(--up-maroon); display: block;"></i>
+                            <p id="consultationsEmptyText" style="margin: 0; font-size: 13px;">Loading upcoming consultations...</p>
                         </div>
                     </div>
                 </div>
@@ -157,8 +161,9 @@
 
     <!-- Dashboard Interactive & Firestore Real-Time Sync Scripts -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, query, where, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, doc, setDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const MONTH_SHORT = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
@@ -187,6 +192,32 @@
                 .toLowerCase()
                 .replace(/[^a-z0-9]+/g, '_')
                 .replace(/^_|_$/g, '');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const palette = {
+                success: { bg: '#d1e7dd', color: '#0f5132', border: '#badbcc', icon: 'fa-circle-check' },
+                error: { bg: '#f8d7da', color: '#842029', border: '#f5c2c7', icon: 'fa-circle-exclamation' },
+                info: { bg: '#fff3cd', color: '#664d03', border: '#ffecb5', icon: 'fa-circle-info' }
+            }[type] || { bg: '#fff3cd', color: '#664d03', border: '#ffecb5', icon: 'fa-circle-info' };
+
+            const toast = document.createElement('div');
+            toast.style.cssText = `pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 8px; background: ${palette.bg}; color: ${palette.color}; border: 1px solid ${palette.border}; box-shadow: 0 6px 18px rgba(0,0,0,0.12); font-size: 12px; font-weight: 600; transition: opacity 0.25s ease, transform 0.25s ease;`;
+            toast.innerHTML = `
+                <i class="fa-solid ${palette.icon}" style="font-size: 14px; flex-shrink: 0;"></i>
+                <span style="flex: 1; line-height: 1.4;">${escapeHtml(message)}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-6px)';
+                setTimeout(() => toast.remove(), 260);
+            }, 3600);
         }
 
         function getTodayInfo() {
@@ -386,7 +417,6 @@
 
         if (isFaculty) {
             document.getElementById('dashboardSubtitle').textContent = 'Manage consultation hours, student requests, and daily schedule overview.';
-            document.getElementById('consultationsEmptyText').textContent = 'No student consultations scheduled yet.';
         }
 
         const todayInfo = getTodayInfo();
@@ -400,10 +430,31 @@
         }
 
         const scheduleContainer = document.getElementById('scheduleContainer');
+        const consultationsContainer = document.getElementById('consultationsContainer');
+        const notifList = document.getElementById('notifList');
+        const notifBadge = document.getElementById('notifBadge');
+
+        let cloudNotifications = [];
+        let latestConsultationItems = [];
+        let consultationsLoaded = false;
+        let userDocLoaded = false;
+        const cancellingBookingIds = new Set();
 
         function renderTodaySchedule(rawItems = []) {
             if (!scheduleContainer) return;
-            const todayScheduleItems = deduplicateScheduleItems(rawItems)
+            const list = Array.isArray(rawItems) ? rawItems : [];
+
+            if (!userDocLoaded && list.length === 0) {
+                scheduleContainer.innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: var(--text-muted); background: #fdfdfd; border: 1px dashed var(--border-color); border-radius: 6px;">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 20px; margin-bottom: 8px; color: var(--up-maroon); display: block;"></i>
+                        <p style="margin: 0; font-size: 13px;">Loading today's schedule...</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const todayScheduleItems = deduplicateScheduleItems(list)
                 .filter(item => item.dayNormalized === todayInfo.dayName)
                 .sort((a, b) => a.startMinutes - b.startMinutes);
 
@@ -423,8 +474,9 @@
             } else {
                 scheduleContainer.innerHTML = `
                     <div style="padding: 24px; text-align: center; color: var(--text-muted); background: #fdfdfd; border: 1px dashed var(--border-color); border-radius: 6px;">
-                        <i class="fa-regular fa-calendar-days" style="font-size: 24px; margin-bottom: 8px; color: #adb5bd;"></i>
-                        <p style="margin: 0; font-size: 13px;">No schedule items for <strong>${escapeHtml(todayInfo.dayName)}</strong>.</p>
+                        <i class="fa-regular fa-calendar-days" style="font-size: 24px; margin-bottom: 8px; color: #adb5bd; display: block;"></i>
+                        <p style="margin: 0 0 8px 0; font-size: 13px;">No schedule items for <strong>${escapeHtml(todayInfo.dayName)}</strong>.</p>
+                        <a href="calendar.html" style="font-size: 12px; color: var(--up-maroon); font-weight: 600; text-decoration: none;">Manage your schedule in Calendar →</a>
                     </div>
                 `;
             }
@@ -441,15 +493,101 @@
 
         renderTodaySchedule(getScopedLocalSchedule());
 
-        const consultationsContainer = document.getElementById('consultationsContainer');
-        const notifList = document.getElementById('notifList');
-        const notifBadge = document.getElementById('notifBadge');
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
+            authDomain: "cs-sync-8a6a0.firebaseapp.com",
+            projectId: "cs-sync-8a6a0",
+            storageBucket: "cs-sync-8a6a0.appspot.com",
+            messagingSenderId: "340561797624",
+            appId: "1:34056179764:web:f417af5001d576882d360d",
+            measurementId: "G-F663CN4012"
+        };
 
-        let cloudNotifications = [];
-        let latestConsultationItems = [];
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const userDocId = toDocSlug(storedEmail || storedUser) || 'current_student';
+        const scopedScheduleKey = `cs_sync_schedule_${encodeURIComponent((storedEmail || storedUser || 'default').trim().toLowerCase())}`;
+
+        function getStatusBadgeStyle(status = 'Pending') {
+            const normalized = String(status).trim().toLowerCase();
+            if (normalized === 'accepted') return 'background: #d1e7dd; color: #155724;';
+            if (normalized === 'declined' || normalized === 'cancelled' || normalized === 'withdrawn') {
+                return 'background: #f8d7da; color: #842029;';
+            }
+            return 'background: #fff3cd; color: #664d03;';
+        }
+
+        async function notifyFacultyOfCancellation(booking) {
+            const targets = new Set();
+            [booking.facultyUid, booking.facultyEmail, booking.facultyName].forEach((val) => {
+                const raw = String(val || '').trim().toLowerCase();
+                if (!raw) return;
+                const slug = toDocSlug(raw);
+                if (slug) targets.add(slug);
+                if (raw.includes('@')) {
+                    const localSlug = toDocSlug(raw.split('@')[0]);
+                    if (localSlug) targets.add(localSlug);
+                }
+            });
+
+            const studentLabel = storedUser || storedEmail || 'A student';
+            const slotLabel = booking.slot || booking.time || 'requested slot';
+            const courseLabel = booking.course || 'Consultation';
+            const notifPayload = {
+                id: `cancel_${booking.id}_${Date.now()}`,
+                title: 'Consultation Cancelled',
+                message: `${studentLabel} withdrew their consultation request (${courseLabel} • ${slotLabel}).`,
+                timeAgo: 'Just now',
+                hasActions: false
+            };
+
+            for (const facultyDocId of targets) {
+                try {
+                    await setDoc(doc(db, "users", facultyDocId), {
+                        notifications: arrayUnion(notifPayload)
+                    }, { merge: true });
+                } catch (err) {
+                    console.warn(`Could not notify faculty doc ${facultyDocId}:`, err);
+                }
+            }
+        }
+
+        async function cancelStudentBooking(docId) {
+            const target = latestConsultationItems.find(item => String(item.id) === String(docId));
+            if (!docId || !target || cancellingBookingIds.has(String(docId))) return;
+
+            const currentStatus = String(target.status || 'Pending').trim().toLowerCase();
+            if (!['pending', 'accepted'].includes(currentStatus)) return;
+
+            cancellingBookingIds.add(String(docId));
+            renderConsultations(latestConsultationItems);
+
+            try {
+                await updateDoc(doc(db, "consultations", String(docId)), {
+                    status: 'Cancelled',
+                    cancelledAt: new Date().toISOString(),
+                    cancelledBy: storedEmail || storedUser || 'Student',
+                    updatedAt: new Date().toISOString()
+                });
+                await notifyFacultyOfCancellation(target);
+                showToast(`Booking with ${target.facultyName || 'faculty'} (${target.slot || target.time || ''}) cancelled.`, 'info');
+            } catch (err) {
+                console.error("Failed to cancel consultation booking:", err);
+                showToast("Could not cancel booking right now. Please try again.", 'error');
+            } finally {
+                cancellingBookingIds.delete(String(docId));
+                renderConsultations(latestConsultationItems);
+            }
+        }
 
         function refreshNotificationDropdown() {
             if (!notifList || !notifBadge) return;
+            if (!userDocLoaded && !consultationsLoaded) {
+                notifList.innerHTML = '<p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">Loading notifications...</p>';
+                return;
+            }
+
             const combined = [
                 ...cloudNotifications.map(n => ({
                     id: n.id || '',
@@ -460,7 +598,7 @@
                 ...latestConsultationItems.map(item => ({
                     id: item.id || '',
                     title: `Consultation Request (${item.status || 'Pending'})`,
-                    message: `${isFaculty ? (item.studentName || 'Student') : (item.facultyName || 'Faculty')} • ${item.slot || ''}`,
+                    message: `${isFaculty ? (item.studentName || 'Student') : (item.facultyName || 'Faculty')} • ${item.slot || item.time || ''}`,
                     timeAgo: ''
                 }))
             ];
@@ -484,11 +622,23 @@
 
         function renderConsultations(items) {
             if (!consultationsContainer) return;
+
+            if (!consultationsLoaded) {
+                consultationsContainer.innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: var(--text-muted); background: #fdfdfd; border: 1px dashed var(--border-color); border-radius: 6px;">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 20px; margin-bottom: 8px; color: var(--up-maroon); display: block;"></i>
+                        <p style="margin: 0; font-size: 13px;">Loading upcoming consultations...</p>
+                    </div>
+                `;
+                return;
+            }
+
             if (!items || items.length === 0) {
                 consultationsContainer.innerHTML = `
                     <div style="padding: 24px; text-align: center; color: var(--text-muted); background: #fdfdfd; border: 1px dashed var(--border-color); border-radius: 6px;">
-                        <i class="fa-regular fa-clock" style="font-size: 24px; margin-bottom: 8px; color: #adb5bd;"></i>
-                        <p style="margin: 0; font-size: 13px;">${isFaculty ? 'No student consultations scheduled yet.' : 'No upcoming consultations scheduled.'}</p>
+                        <i class="fa-regular fa-clock" style="font-size: 24px; margin-bottom: 8px; color: #adb5bd; display: block;"></i>
+                        <p style="margin: 0 0 8px 0; font-size: 13px;">${isFaculty ? 'No student consultations scheduled yet.' : 'No upcoming consultations scheduled.'}</p>
+                        ${!isFaculty ? `<a href="faculty.html" style="font-size: 12px; color: var(--up-maroon); font-weight: 600; text-decoration: none;">Browse Faculty Directory & Book a Slot →</a>` : ''}
                     </div>
                 `;
                 return;
@@ -496,29 +646,41 @@
 
             consultationsContainer.innerHTML = items.map(item => {
                 const status = item.status || 'Pending';
-                const badgeColor = status === 'Accepted' ? '#155724' : (status === 'Declined' ? '#842029' : '#664d03');
-                const badgeBg = status === 'Accepted' ? '#d1e7dd' : (status === 'Declined' ? '#f8d7da' : '#fff3cd');
+                const normalizedStatus = String(status).trim().toLowerCase();
+                const isPending = normalizedStatus === 'pending';
+                const canStudentCancel = !isFaculty && Boolean(item.id) && ['pending', 'accepted'].includes(normalizedStatus);
+                const isCancelling = cancellingBookingIds.has(String(item.id || ''));
+                const badgeStyle = getStatusBadgeStyle(status);
 
-                const actionButtons = (isFaculty && item.id) ? `
-                    <div style="display: flex; gap: 6px; margin-top: 8px;">
+                const facultyButtons = (isFaculty && item.id && isPending) ? `
+                    <div class="consultation-action-row" style="display: flex; gap: 6px; margin-top: 8px;">
                         <button type="button" class="consultation-status-btn" data-id="${escapeHtml(item.id)}" data-status="Accepted" style="padding: 4px 10px; background: #198754; color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Accept</button>
                         <button type="button" class="consultation-status-btn" data-id="${escapeHtml(item.id)}" data-status="Declined" style="padding: 4px 10px; background: #e9ecef; color: #333; border: 1px solid var(--border-color); border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Decline</button>
                     </div>
                 ` : '';
 
+                const studentCancelButton = canStudentCancel ? `
+                    <div class="student-booking-actions" style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                        <button type="button" class="cancel-booking-btn" data-id="${escapeHtml(item.id)}" ${isCancelling ? 'disabled' : ''} style="padding: 5px 10px; background: #fff5f5; color: #842029; border: 1px solid #f5c2c7; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: ${isCancelling ? 'not-allowed' : 'pointer'}; opacity: ${isCancelling ? '0.65' : '1'};">
+                            ${isCancelling ? 'Cancelling...' : 'Cancel Booking'}
+                        </button>
+                    </div>
+                ` : '';
+
                 return `
-                    <div style="padding: 14px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; background: #fcfcfd;">
+                    <div class="consultation-item-card" data-booking-id="${escapeHtml(item.id || '')}" style="padding: 14px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; background: #fcfcfd;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
                             <div>
                                 <strong style="font-size: 13px; color: #212529; display: block;">${escapeHtml(isFaculty ? (item.studentName || 'Student') : (item.facultyName || 'Faculty'))} • ${escapeHtml(item.course || 'Consultation')}</strong>
                                 <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">${escapeHtml(item.reason || '')}</span>
                             </div>
                             <div style="text-align: right;">
-                                <span style="font-size: 12px; font-weight: 600; color: var(--up-maroon); display: block;">${escapeHtml(item.slot || '')}</span>
-                                <span style="display: inline-block; margin-top: 4px; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; background: ${badgeBg}; color: ${badgeColor};">${escapeHtml(status)}</span>
+                                <span style="font-size: 12px; font-weight: 600; color: var(--up-maroon); display: block;">${escapeHtml(item.slot || item.time || '')}</span>
+                                <span style="display: inline-block; margin-top: 4px; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; ${badgeStyle}">${escapeHtml(status)}</span>
                             </div>
                         </div>
-                        ${actionButtons}
+                        ${facultyButtons}
+                        ${studentCancelButton}
                     </div>
                 `;
             }).join('');
@@ -527,44 +689,52 @@
                 btn.addEventListener('click', async function() {
                     const docId = this.getAttribute('data-id');
                     const nextStatus = this.getAttribute('data-status');
+                    this.disabled = true;
+
                     try {
                         await updateDoc(doc(db, "consultations", docId), { status: nextStatus });
+                        showToast(`Consultation marked as ${nextStatus}.`, nextStatus === 'Accepted' ? 'success' : 'info');
                     } catch (err) {
                         console.error("Failed to update consultation status:", err);
+                        this.disabled = false;
+                        showToast("Could not update consultation status. Please try again.", 'error');
                     }
+                });
+            });
+
+            document.querySelectorAll('.cancel-booking-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    if (this.disabled) return;
+                    const docId = this.getAttribute('data-id');
+                    await cancelStudentBooking(docId);
                 });
             });
         }
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
-            authDomain: "cs-sync-8a6a0.firebaseapp.com",
-            projectId: "cs-sync-8a6a0",
-            storageBucket: "cs-sync-8a6a0.appspot.com",
-            messagingSenderId: "340561797624",
-            appId: "1:34056179764:web:f417af5001d576882d360d",
-            measurementId: "G-F663CN4012"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const userDocId = toDocSlug(storedEmail || storedUser) || 'current_student';
-        const scopedScheduleKey = `cs_sync_schedule_${encodeURIComponent((storedEmail || storedUser || 'default').trim().toLowerCase())}`;
-
         onSnapshot(doc(db, "users", userDocId), (snap) => {
-            if (!snap.exists()) return;
+            userDocLoaded = true;
+            if (!snap.exists()) {
+                renderTodaySchedule(getScopedLocalSchedule());
+                refreshNotificationDropdown();
+                return;
+            }
             const data = snap.data() || {};
             if (Array.isArray(data.schedule)) {
                 const deduped = deduplicateScheduleItems(data.schedule);
                 localStorage.setItem(scopedScheduleKey, JSON.stringify(deduped));
                 renderTodaySchedule(deduped);
+            } else {
+                renderTodaySchedule(getScopedLocalSchedule());
             }
             if (Array.isArray(data.notifications)) {
                 cloudNotifications = data.notifications;
-                refreshNotificationDropdown();
             }
+            refreshNotificationDropdown();
         }, (err) => {
+            userDocLoaded = true;
             console.warn("Dashboard user snapshot error:", err);
+            renderTodaySchedule(getScopedLocalSchedule());
+            refreshNotificationDropdown();
         });
 
         const consultationsQuery = isFaculty
@@ -572,15 +742,17 @@
             : query(collection(db, "consultations"), where("studentEmail", "==", storedEmail.toLowerCase()));
 
         onSnapshot(consultationsQuery, (snap) => {
+            consultationsLoaded = true;
             latestConsultationItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderConsultations(latestConsultationItems);
             refreshNotificationDropdown();
         }, (err) => {
+            consultationsLoaded = true;
             console.error("Error streaming consultations from Firestore:", err);
             const localConsultations = readJsonStorage('cs_sync_consultations', []);
-            if (Array.isArray(localConsultations) && localConsultations.length > 0) {
-                renderConsultations(localConsultations);
-            }
+            latestConsultationItems = Array.isArray(localConsultations) ? localConsultations : [];
+            renderConsultations(latestConsultationItems);
+            refreshNotificationDropdown();
         });
 
         // Toggle Notification Dropdown
@@ -613,19 +785,27 @@
             refreshNotificationDropdown();
             try {
                 await setDoc(doc(db, "users", userDocId), { notifications: [] }, { merge: true });
+                showToast("All notifications cleared.", 'info');
             } catch (err) {
                 console.warn("Could not clear cloud notifications:", err);
+                showToast("Cleared locally, but could not sync notification clear.", 'error');
             }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        document.getElementById('logoutBtn').addEventListener('click', async function(e) {
             e.preventDefault();
+            try {
+                await signOut(auth);
+            } catch (err) {
+                console.warn("Sign out error:", err);
+            }
             localStorage.removeItem('cs_sync_user');
             localStorage.removeItem('cs_sync_email');
             localStorage.removeItem('cs_sync_role');
             localStorage.removeItem('cs_sync_program');
             localStorage.removeItem('cs_sync_batch');
             localStorage.removeItem('cs_sync_dept');
+            localStorage.removeItem('cs_sync_avatar');
             window.location.replace('index.html');
         });
     </script>

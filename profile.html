@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile | CS-Sync UP Mindanao</title>
+    <script type="module" src="auth-guard.js"></script>
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -24,26 +25,22 @@
 
         <!-- Right Side Icons & Profile Dropdown -->
         <div style="display: flex; align-items: center; gap: 20px; position: relative;">
-            
+
             <!-- Notification Bell Icon -->
             <div style="position: relative;">
-                <button id="notifBtn" style="background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; position: relative;">
+                <button id="notifBtn" type="button" style="background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; position: relative;">
                     <i class="fa-regular fa-bell"></i>
-                    <span style="position: absolute; top: -4px; right: -4px; background: #dc3545; color: white; font-size: 9px; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">3</span>
+                    <span id="notifBadge" style="position: absolute; top: -4px; right: -4px; background: #dc3545; color: white; font-size: 9px; width: 14px; height: 14px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-weight: bold;">0</span>
                 </button>
 
                 <!-- Notifications Dropdown Center -->
-                <div id="notifDropdown" style="display: none; position: absolute; right: 0; top: 36px; width: 340px; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); z-index: 1100; padding: 16px;">
+                <div id="notifDropdown" style="display: none; position: absolute; right: 0; top: 36px; width: 340px; max-width: 90vw; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); z-index: 1100; padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
                         <h4 style="margin: 0; font-size: 14px; color: var(--up-maroon);">Notifications & Invites</h4>
                         <span style="font-size: 11px; color: var(--text-muted); cursor: pointer;" id="clearAllNotifs">Clear all</span>
                     </div>
-                    <div style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
-                        <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; font-size: 12px;">
-                            <strong>Account Updated</strong><br>
-                            Your profile settings were successfully saved.<br>
-                            <span style="font-size: 10px; color: var(--text-muted);">Just now</span>
-                        </div>
+                    <div id="notifListBody" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+                        <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>
                     </div>
                 </div>
             </div>
@@ -60,15 +57,15 @@
                 </div>
 
                 <!-- Profile Settings Drawer Menu -->
-                <div id="profileDropdown" style="display: none; position: absolute; right: 0; top: 46px; width: 240px; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); z-index: 1100; overflow: hidden;">
+                <div id="profileDropdown" style="display: none; position: absolute; right: 0; top: 46px; width: 240px; max-width: 90vw; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); z-index: 1100; overflow: hidden;">
                     <div style="padding: 16px; border-bottom: 1px solid var(--border-color); background: #fdfdfd;">
                         <p id="profileDropdownName" style="margin: 0; font-weight: bold; font-size: 13px; color: #333;">Maria Santos</p>
                         <p id="profileDropdownEmail" style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-muted);">mahalkosiya@up.edu.ph</p>
-                        <span style="display: inline-block; margin-top: 6px; background: #e9ecef; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; color: #495057;">Student • BSCS</span>
+                        <span id="dropdownRoleBadge" style="display: inline-block; margin-top: 6px; background: #e9ecef; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; color: #495057;">Student • BSCS</span>
                     </div>
                     <div style="padding: 6px 0;">
                         <a href="profile.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--up-maroon); font-weight: 600; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-user" style="width: 16px;"></i> My Profile</a>
-                        <a href="settings.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-gear fa-solid" style="width: 16px;"></i> Settings</a>
+                        <a href="settings.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-solid fa-gear" style="width: 16px;"></i> Settings</a>
                         <a href="help.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-circle-question" style="width: 16px;"></i> Help & Support</a>
                     </div>
                     <div style="border-top: 1px solid var(--border-color); padding: 6px 0;">
@@ -88,48 +85,50 @@
         </div>
 
         <div style="background: white; padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
-            
+
             <div style="display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 24px; margin-bottom: 24px;">
                 <!-- Profile Big Avatar Container with Image Support -->
-                <div id="profileBigAvatar" style="width: 72px; height: 72px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 26px; overflow: hidden; position: relative;">
+                <div id="profileBigAvatar" style="width: 72px; height: 72px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 26px; overflow: hidden; position: relative; flex-shrink: 0;">
                     <span id="avatarInitialsText">MS</span>
                     <img id="avatarImgPreview" src="" alt="Profile Photo" style="width: 100%; height: 100%; object-fit: cover; display: none;">
                 </div>
                 <div>
                     <h2 id="profileFullName" style="margin: 0; font-size: 18px; color: #212529;">Maria Santos</h2>
                     <p id="profileEmailDisplay" style="margin: 4px 0 8px 0; font-size: 13px; color: var(--text-muted);">mahalkosiya@up.edu.ph</p>
-                    
+
                     <!-- Hidden file input & Change Photo trigger button -->
                     <input type="file" id="avatarFileInput" accept="image/*" style="display: none;">
-                    <button type="button" onclick="document.getElementById('avatarFileInput').click()" style="padding: 4px 10px; background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 4px; font-size: 11px; font-weight: 600; color: #333; cursor: pointer;">
+                    <button type="button" id="changePhotoBtn" style="padding: 4px 10px; background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 4px; font-size: 11px; font-weight: 600; color: #333; cursor: pointer;">
                         <i class="fa-solid fa-camera" style="margin-right: 4px;"></i> Change Photo
                     </button>
 
                     <div style="margin-top: 8px;">
-                        <span style="background: #e9ecef; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; color: #495057;">Student • BS Computer Science</span>
+                        <span id="profileSummaryBadge" style="background: #e9ecef; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; color: #495057;">Student • BS Computer Science</span>
                     </div>
                 </div>
             </div>
 
+            <div id="profileStatusBanner" style="display: none; margin-bottom: 18px; padding: 10px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;"></div>
+
             <form id="profileForm">
                 <div style="margin-bottom: 18px;">
-                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">FULL NAME</label>
-                    <input type="text" id="editFullName" value="Maria Santos" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
+                    <label for="editFullName" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">FULL NAME</label>
+                    <input type="text" id="editFullName" value="Maria Santos" required style="width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
                 </div>
 
                 <div style="margin-bottom: 18px;">
-                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">UP MAIL ADDRESS</label>
-                    <input type="email" id="editEmail" value="mahalkosiya@up.edu.ph" disabled style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: #e9ecef; color: #495057; cursor: not-allowed;">
+                    <label for="editEmail" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">UP MAIL ADDRESS</label>
+                    <input type="email" id="editEmail" value="mahalkosiya@up.edu.ph" disabled style="width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: #e9ecef; color: #495057; cursor: not-allowed;">
                 </div>
 
                 <div style="margin-bottom: 18px;">
-                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">ACADEMIC PROGRAM</label>
-                    <input type="text" value="BS Computer Science" disabled style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: #e9ecef; color: #495057; cursor: not-allowed;">
+                    <label for="editProgram" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">ACADEMIC PROGRAM</label>
+                    <input type="text" id="editProgram" value="BS Computer Science" disabled style="width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: #e9ecef; color: #495057; cursor: not-allowed;">
                 </div>
 
                 <div style="margin-bottom: 24px;">
-                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">BATCH YEAR</label>
-                    <select id="editBatchYear" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
+                    <label for="editBatchYear" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">BATCH YEAR</label>
+                    <select id="editBatchYear" style="width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
                         <option value="2026 (Freshie)" selected>2026 (Freshie)</option>
                         <option value="2025 (Sophomore)">2025 (Sophomore)</option>
                         <option value="2024 (Junior)">2024 (Junior)</option>
@@ -138,99 +137,366 @@
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; gap: 12px;">
-                    <button type="button" onclick="window.location.href='dashboard.html'" style="padding: 10px 16px; background: none; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">Cancel</button>
-                    <button type="submit" style="padding: 10px 18px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;">Save Changes</button>
+                    <button type="button" id="cancelProfileBtn" style="padding: 10px 16px; background: none; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">Cancel</button>
+                    <button type="submit" id="saveProfileBtn" style="padding: 10px 18px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;">Save Changes</button>
                 </div>
             </form>
         </div>
     </main>
 
-    <!-- Scripts for Profile Logic & Avatar Upload -->
-    <script>
-        const storedUser = localStorage.getItem('cs_sync_user') || 'Maria Santos';
-        const storedEmail =
-            localStorage.getItem('cs_sync_email') ||
-            localStorage.getItem('cs_sync_registered_email') ||
-            'mahalkosiya@up.edu.ph';
-        const storedAvatar = localStorage.getItem('cs_sync_avatar');
+    <!-- Scripts for Profile Logic, Avatar Upload & Firestore Persistence -->
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        if (localStorage.getItem('cs_sync_email')) {
-            localStorage.setItem('cs_sync_registered_email', storedEmail);
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
+            authDomain: "cs-sync-8a6a0.firebaseapp.com",
+            projectId: "cs-sync-8a6a0",
+            storageBucket: "cs-sync-8a6a0.appspot.com",
+            messagingSenderId: "340561797624",
+            appId: "1:34056179764:web:f417af5001d576882d360d",
+            measurementId: "G-F663CN4012"
+        };
+
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let sessionState = {};
+        let storedAvatar = '';
+        let activeNotifUnsub = null;
+
+        function escapeHtml(value = '') {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
-        document.getElementById('userNameDisplay').textContent = storedUser;
-        document.getElementById('profileDropdownName').textContent = storedUser;
-        document.getElementById('profileDropdownEmail').textContent = storedEmail;
-        document.getElementById('profileFullName').textContent = storedUser;
-        document.getElementById('profileEmailDisplay').textContent = storedEmail;
-        document.getElementById('editEmail').value = storedEmail;
-        document.getElementById('editFullName').value = storedUser;
-
-        const initials = storedUser.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-        document.getElementById('navAvatarInitials').textContent = initials;
-        document.getElementById('avatarInitialsText').textContent = initials;
-
-        // Apply saved avatar image if available across both avatars
-        if (storedAvatar) {
-            const imgPreview = document.getElementById('avatarImgPreview');
-            imgPreview.src = storedAvatar;
-            imgPreview.style.display = 'block';
-            document.getElementById('avatarInitialsText').style.display = 'none';
-
-            const navImg = document.getElementById('navAvatarImg');
-            navImg.src = storedAvatar;
-            navImg.style.display = 'block';
-            document.getElementById('navAvatarInitials').style.display = 'none';
+        function toDocSlug(value = '') {
+            return String(value)
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '_')
+                .replace(/^_|_$/g, '');
         }
 
-        // Handle Image Upload selection & conversion to local storage
-        document.getElementById('avatarFileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const base64String = event.target.result;
-                    localStorage.setItem('cs_sync_avatar', base64String);
-                    
-                    const imgPreview = document.getElementById('avatarImgPreview');
-                    imgPreview.src = base64String;
-                    imgPreview.style.display = 'block';
-                    document.getElementById('avatarInitialsText').style.display = 'none';
+        function readSessionState() {
+            const name = localStorage.getItem('cs_sync_user') || 'Maria Santos';
+            const email =
+                localStorage.getItem('cs_sync_email') ||
+                localStorage.getItem('cs_sync_registered_email') ||
+                'mahalkosiya@up.edu.ph';
+            const batch = localStorage.getItem('cs_sync_batch') || '2026 (Freshie)';
+            const program = localStorage.getItem('cs_sync_program') || 'BS Computer Science';
+            const role = (localStorage.getItem('cs_sync_role') || 'student').toLowerCase();
+            const isFaculty = role === 'faculty' || role === 'professor';
+            const avatar = localStorage.getItem('cs_sync_avatar') || '';
 
-                    const navImg = document.getElementById('navAvatarImg');
-                    navImg.src = base64String;
-                    navImg.style.display = 'block';
-                    document.getElementById('navAvatarInitials').style.display = 'none';
-                };
-                reader.readAsDataURL(file);
+            if (localStorage.getItem('cs_sync_email')) {
+                localStorage.setItem('cs_sync_registered_email', email);
             }
-        });
 
-        // Dropdowns toggle handlers
+            const docId = toDocSlug(email || name) || 'current_user';
+            return { name, email, batch, program, role, isFaculty, avatar, docId };
+        }
+
+        function showProfileBanner(message, isError = false) {
+            const el = document.getElementById('profileStatusBanner');
+            if (!el) return;
+            el.style.display = 'block';
+            el.style.background = isError ? '#f8d7da' : '#e8f5e9';
+            el.style.color = isError ? '#842029' : '#1b5e20';
+            el.style.border = `1px solid ${isError ? '#f5c2c7' : '#c8e6c9'}`;
+            el.textContent = message;
+        }
+
+        function applyAvatarVisual(avatarSrc, nameForInitials) {
+            const initials = String(nameForInitials || 'MS')
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean)
+                .map(n => n[0])
+                .join('')
+                .substring(0, 2)
+                .toUpperCase() || 'MS';
+
+            document.getElementById('navAvatarInitials').textContent = initials;
+            document.getElementById('avatarInitialsText').textContent = initials;
+
+            const imgPreview = document.getElementById('avatarImgPreview');
+            const navImg = document.getElementById('navAvatarImg');
+
+            if (avatarSrc) {
+                imgPreview.src = avatarSrc;
+                imgPreview.style.display = 'block';
+                document.getElementById('avatarInitialsText').style.display = 'none';
+
+                navImg.src = avatarSrc;
+                navImg.style.display = 'block';
+                document.getElementById('navAvatarInitials').style.display = 'none';
+            } else {
+                imgPreview.style.display = 'none';
+                document.getElementById('avatarInitialsText').style.display = 'block';
+
+                navImg.style.display = 'none';
+                document.getElementById('navAvatarInitials').style.display = 'block';
+            }
+        }
+
+        function syncProfileUI({ name, email, program, batch, avatar, isFaculty }) {
+            const displayName = name || 'Maria Santos';
+            const displayEmail = email || sessionState.email;
+            const displayProgram = program || sessionState.program;
+            const displayBatch = batch || sessionState.batch;
+
+            document.getElementById('userNameDisplay').textContent = displayName;
+            document.getElementById('profileDropdownName').textContent = displayName;
+            document.getElementById('profileDropdownEmail').textContent = displayEmail;
+            document.getElementById('profileFullName').textContent = displayName;
+            document.getElementById('profileEmailDisplay').textContent = displayEmail;
+            document.getElementById('editEmail').value = displayEmail;
+            document.getElementById('editProgram').value = displayProgram;
+            document.getElementById('editFullName').value = displayName;
+
+            const batchSelect = document.getElementById('editBatchYear');
+            if (batchSelect && displayBatch) {
+                const optionExists = Array.from(batchSelect.options).some(opt => opt.value === displayBatch);
+                if (!optionExists) {
+                    const customOpt = document.createElement('option');
+                    customOpt.value = displayBatch;
+                    customOpt.textContent = displayBatch;
+                    batchSelect.appendChild(customOpt);
+                }
+                batchSelect.value = displayBatch;
+            }
+
+            document.getElementById('dropdownRoleBadge').textContent = isFaculty ? 'Faculty • CS' : 'Student • BSCS';
+            document.getElementById('profileSummaryBadge').textContent = isFaculty
+                ? `Faculty • ${displayProgram}`
+                : `Student • ${displayProgram}`;
+
+            applyAvatarVisual(avatar, displayName);
+        }
+
+        async function loadUserProfileFromFirestore() {
+            try {
+                const snap = await getDoc(doc(db, "users", sessionState.docId));
+                if (!snap.exists()) return;
+                const data = snap.data() || {};
+                const mergedName = String(data.name || data.displayName || sessionState.name).trim();
+                const mergedBatch = String(data.batch || data.batchYear || sessionState.batch).trim();
+                const mergedProgram = String(data.program || sessionState.program).trim();
+                const mergedAvatar = typeof data.avatar === 'string' && data.avatar ? data.avatar : storedAvatar;
+
+                localStorage.setItem('cs_sync_user', mergedName);
+                localStorage.setItem('cs_sync_batch', mergedBatch);
+                if (mergedAvatar) {
+                    storedAvatar = mergedAvatar;
+                    localStorage.setItem('cs_sync_avatar', mergedAvatar);
+                }
+
+                syncProfileUI({
+                    name: mergedName,
+                    email: sessionState.email,
+                    program: mergedProgram,
+                    batch: mergedBatch,
+                    avatar: mergedAvatar,
+                    isFaculty: sessionState.isFaculty
+                });
+            } catch (err) {
+                console.warn("Could not load profile from Firestore:", err);
+            }
+        }
+
+        // Notifications & Profile dropdowns synced with Firestore
         const notifBtn = document.getElementById('notifBtn');
         const notifDropdown = document.getElementById('notifDropdown');
+        const notifBadge = document.getElementById('notifBadge');
+        const notifListBody = document.getElementById('notifListBody');
         const profileTrigger = document.getElementById('profileTrigger');
         const profileDropdown = document.getElementById('profileDropdown');
 
-        notifBtn.addEventListener('click', (e) => { e.stopPropagation(); notifDropdown.style.display = notifDropdown.style.display === 'block' ? 'none' : 'block'; profileDropdown.style.display = 'none'; });
-        profileTrigger.addEventListener('click', (e) => { e.stopPropagation(); profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block'; notifDropdown.style.display = 'none'; });
-        window.addEventListener('click', () => { notifDropdown.style.display = 'none'; profileDropdown.style.display = 'none'; });
+        let cloudNotifications = [];
 
-        // Save Profile Form (Smooth transition without alert popups)
-        document.getElementById('profileForm').addEventListener('submit', function(e) {
+        function renderNotifications() {
+            if (!notifBadge || !notifListBody) return;
+            notifBadge.textContent = String(cloudNotifications.length);
+            notifBadge.style.display = cloudNotifications.length > 0 ? 'flex' : 'none';
+
+            if (cloudNotifications.length === 0) {
+                notifListBody.innerHTML = '<p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>';
+                return;
+            }
+
+            notifListBody.innerHTML = cloudNotifications.map(n => `
+                <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; font-size: 12px;">
+                    <strong>${escapeHtml(n.title || 'Notification')}</strong><br>
+                    ${escapeHtml(n.message || '')}
+                    ${n.timeAgo ? `<span style="font-size: 10px; color: var(--text-muted); display: block; margin-top: 4px;">${escapeHtml(n.timeAgo)}</span>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function startNotificationsListener() {
+            if (typeof activeNotifUnsub === 'function') {
+                activeNotifUnsub();
+                activeNotifUnsub = null;
+            }
+            activeNotifUnsub = onSnapshot(doc(db, "users", sessionState.docId), (snap) => {
+                if (snap.exists() && Array.isArray(snap.data()?.notifications)) {
+                    cloudNotifications = snap.data().notifications;
+                    renderNotifications();
+                }
+            });
+        }
+
+        async function initializeProfilePage() {
+            sessionState = readSessionState();
+            storedAvatar = sessionState.avatar;
+            syncProfileUI(sessionState);
+            await loadUserProfileFromFirestore();
+            startNotificationsListener();
+        }
+
+        initializeProfilePage();
+        window.addEventListener('cssync:auth-ready', initializeProfilePage);
+
+        // Handle Image Upload selection & conversion to local storage + Firestore (if within size safe threshold)
+        document.getElementById('changePhotoBtn').addEventListener('click', () => {
+            document.getElementById('avatarFileInput').click();
+        });
+
+        document.getElementById('avatarFileInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const base64String = String(event.target.result || '');
+                storedAvatar = base64String;
+                localStorage.setItem('cs_sync_avatar', base64String);
+
+                const activeName = document.getElementById('editFullName').value.trim() || sessionState.name;
+                applyAvatarVisual(base64String, activeName);
+
+                // Firestore single-field/document size limit is ~1MB; save compact avatars to Firestore
+                if (base64String.length < 700000) {
+                    try {
+                        await setDoc(doc(db, "users", sessionState.docId), {
+                            avatar: base64String,
+                            updatedAt: new Date().toISOString()
+                        }, { merge: true });
+                        showProfileBanner('Profile photo updated and saved to Firestore.');
+                    } catch (err) {
+                        console.warn("Could not persist avatar to Firestore:", err);
+                    }
+                } else {
+                    showProfileBanner('Profile photo applied locally (image is too large for Firestore sync).');
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        notifBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notifDropdown.style.display = notifDropdown.style.display === 'block' ? 'none' : 'block';
+            profileDropdown.style.display = 'none';
+        });
+
+        profileTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+            notifDropdown.style.display = 'none';
+        });
+
+        document.getElementById('clearAllNotifs').addEventListener('click', async () => {
+            cloudNotifications = [];
+            renderNotifications();
+            try {
+                await setDoc(doc(db, "users", sessionState.docId), { notifications: [] }, { merge: true });
+            } catch (err) {
+                console.warn("Could not clear notifications:", err);
+            }
+        });
+
+        window.addEventListener('click', (e) => {
+            if (notifDropdown && !notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+                notifDropdown.style.display = 'none';
+            }
+            if (profileDropdown && !profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.style.display = 'none';
+            }
+        });
+
+        document.getElementById('cancelProfileBtn').addEventListener('click', () => {
+            window.location.href = 'dashboard.html';
+        });
+
+        // Save Profile Form to Firestore + localStorage
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const saveBtn = document.getElementById('saveProfileBtn');
             const newName = document.getElementById('editFullName').value.trim();
-            if(newName) {
+            const newBatch = document.getElementById('editBatchYear').value;
+
+            if (!newName) {
+                showProfileBanner('Please enter your full name.', true);
+                return;
+            }
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            try {
+                const payload = {
+                    name: newName,
+                    email: sessionState.email,
+                    program: sessionState.program,
+                    batch: newBatch,
+                    role: sessionState.isFaculty ? 'faculty' : 'student',
+                    updatedAt: new Date().toISOString()
+                };
+
+                if (storedAvatar && storedAvatar.length < 700000) {
+                    payload.avatar = storedAvatar;
+                }
+
+                await setDoc(doc(db, "users", sessionState.docId), payload, { merge: true });
+
                 localStorage.setItem('cs_sync_user', newName);
-                window.location.href = 'dashboard.html';
+                localStorage.setItem('cs_sync_batch', newBatch);
+
+                showProfileBanner('Profile saved to Firestore! Redirecting to dashboard...');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 400);
+            } catch (err) {
+                console.error("Error saving profile to Firestore:", err);
+                showProfileBanner('Failed to save profile to Firestore. Please try again.', true);
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Changes';
             }
         });
 
         // Log out action
-        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
             e.preventDefault();
+            try {
+                await signOut(auth);
+            } catch (err) {
+                console.warn("Sign out error:", err);
+            }
             localStorage.removeItem('cs_sync_user');
             localStorage.removeItem('cs_sync_email');
+            localStorage.removeItem('cs_sync_role');
+            localStorage.removeItem('cs_sync_program');
+            localStorage.removeItem('cs_sync_batch');
+            localStorage.removeItem('cs_sync_dept');
             localStorage.removeItem('cs_sync_avatar');
             window.location.replace('index.html');
         });

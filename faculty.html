@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Faculty Directory & Booking | CS-Sync UP Mindanao</title>
+    <script type="module" src="auth-guard.js"></script>
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="dashboard-body" style="background: var(--bg-color, #f4f6f8); margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+    <!-- In-Page Toast Container -->
+    <div id="toastContainer" style="position: fixed; top: 76px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; max-width: 360px; pointer-events: none;"></div>
 
     <!-- Top Navigation Bar matching Dashboard design -->
     <header style="background: white; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 12px 32px; position: sticky; top: 0; z-index: 1000;">
@@ -24,7 +28,7 @@
 
         <!-- Right Side Icons & Profile Dropdown -->
         <div style="display: flex; align-items: center; gap: 20px; position: relative;">
-            
+
             <!-- Notification Bell Icon -->
             <div style="position: relative;">
                 <button id="notifBtn" type="button" style="background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; position: relative;">
@@ -39,7 +43,7 @@
                         <span style="font-size: 11px; color: var(--text-muted); cursor: pointer;" id="clearAllNotifs">Clear all</span>
                     </div>
                     <div id="notifListBody" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
-                        <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>
+                        <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">Loading notifications...</p>
                     </div>
                 </div>
             </div>
@@ -61,7 +65,7 @@
                     </div>
                     <div style="padding: 6px 0;">
                         <a href="profile.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-user" style="width: 16px;"></i> My Profile</a>
-                        <a href="settings.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-gear fa-solid" style="width: 16px;"></i> Settings</a>
+                        <a href="settings.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-solid fa-gear" style="width: 16px;"></i> Settings</a>
                         <a href="help.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-circle-question" style="width: 16px;"></i> Help & Support</a>
                     </div>
                     <div style="border-top: 1px solid var(--border-color); padding: 6px 0;">
@@ -81,10 +85,13 @@
                     <h2 style="margin: 0; font-size: 20px; color: var(--up-maroon);">Consultation Requests & Schedule Queue</h2>
                     <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">Review incoming student consultation bookings in real time.</p>
                 </div>
-                <span id="facultyQueueCountBadge" style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; color: #333;">0 Requests</span>
+                <span id="facultyQueueCountBadge" style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; color: #333;">Loading...</span>
             </div>
             <div id="facultyRequestsList" style="display: flex; flex-direction: column; gap: 12px;">
-                <p style="font-size: 13px; color: var(--text-muted); font-style: italic; margin: 8px 0;">Listening for live consultation requests...</p>
+                <div style="padding: 24px; border: 1px dashed var(--border-color); border-radius: 8px; text-align: center; color: var(--text-muted); font-size: 13px;">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 18px; color: var(--up-maroon); margin-bottom: 8px; display: block;"></i>
+                    Loading consultation requests from Firestore...
+                </div>
             </div>
         </div>
     </div>
@@ -104,86 +111,28 @@
                 </select>
                 <button id="availableNowBtn" type="button" class="available-toggle-btn" style="padding: 10px 16px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Available now</button>
             </div>
-            <p id="facultyCountLabel" class="faculty-count" style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">4 faculty members</p>
+            <p id="facultyCountLabel" class="faculty-count" style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Loading faculty members...</p>
         </div>
 
-        <!-- Faculty Cards Grid -->
+        <!-- Dynamic Faculty Cards Grid (Populated from Firestore users where role == "faculty") -->
         <div id="facultyCardsGrid" class="faculty-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
-
-            <!-- Faculty Card 0: Juan Dela Cruz -->
-            <div class="faculty-card faculty-profile-trigger" data-prof="delacruz" data-dept="Computer Science" data-available="true" style="background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.1s, border-color 0.1s;">
-                <div class="faculty-top" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <div class="faculty-avatar-box jd-badge" style="width: 40px; height: 40px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">JD</div>
-                    <div>
-                        <h3 style="font-size: 16px; margin: 0;">Juan Dela Cruz</h3>
-                        <span class="status-badge available" style="font-size: 11px; color: green; font-weight: 600;">Available (View Slots)</span>
-                    </div>
-                </div>
-                <p class="faculty-title" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Faculty • Computer Science</p>
-                <div class="faculty-courses" style="display: flex; gap: 6px;">
-                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CMSC 3</span>
-                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CMSC 18</span>
-                </div>
+            <div style="grid-column: 1 / -1; background: white; padding: 28px; border-radius: 8px; border: 1px solid var(--border-color); text-align: center; color: var(--text-muted); font-size: 13px;">
+                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 20px; color: var(--up-maroon); margin-bottom: 8px; display: block;"></i>
+                Loading faculty directory from Firestore...
             </div>
-            
-            <!-- Faculty Card 1: Prof. Adrian Villanueva -->
-            <div class="faculty-card faculty-profile-trigger" data-prof="villanueva" data-dept="Algorithms & Theory" data-available="true" style="background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.1s, border-color 0.1s;">
-                <div class="faculty-top" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <div class="faculty-avatar-box av-badge" style="width: 40px; height: 40px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">AV</div>
-                    <div>
-                        <h3 style="font-size: 16px; margin: 0;">Prof. Adrian Villanueva</h3>
-                        <span class="status-badge available" style="font-size: 11px; color: green; font-weight: 600;">Available (View Slots)</span>
-                    </div>
-                </div>
-                <p class="faculty-title" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Associate Professor • Algorithms & Theory</p>
-                <div class="faculty-courses" style="display: flex; gap: 6px;">
-                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 150</span>
-                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 153</span>
-                </div>
-            </div>
-
-            <!-- Faculty Card 2: Dr. Edgardo Felizardo -->
-            <div class="faculty-card faculty-profile-trigger" data-prof="felizardo" data-dept="Artificial Intelligence" data-available="true" style="background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.1s, border-color 0.1s;">
-                <div class="faculty-top" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <div class="faculty-avatar-box df-badge" style="width: 40px; height: 40px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">DF</div>
-                    <div>
-                        <h3 style="font-size: 16px; margin: 0;">Dr. Edgardo Felizardo</h3>
-                        <span class="status-badge available" style="font-size: 11px; color: green; font-weight: 600;">Available (View Slots)</span>
-                    </div>
-                </div>
-                <p class="faculty-title" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Assistant Professor • Artificial Intelligence</p>
-                <div class="faculty-courses" style="display: flex; gap: 6px;">
-                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 180</span>
-                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 198</span>
-                </div>
-            </div>
-
-            <!-- Faculty Card 3: Prof. Carlos Mendoza -->
-            <div class="faculty-card faculty-profile-trigger" data-prof="mendoza" data-dept="Software Engineering" data-available="false" style="background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.1s, border-color 0.1s;">
-                <div class="faculty-top" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <div class="faculty-avatar-box cm-badge" style="width: 40px; height: 40px; background: #6c757d; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">CM</div>
-                    <div>
-                        <h3 style="font-size: 16px; margin: 0;">Prof. Carlos Mendoza</h3>
-                        <span class="status-badge in-class" style="font-size: 11px; color: #856404; font-weight: 600;">Limited Slots (View Slots)</span>
-                    </div>
-                </div>
-                <p class="faculty-title" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Senior Lecturer • Software Engineering</p>
-                <div class="faculty-courses" style="display: flex; gap: 6px;">
-                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 191</span>
-                    <span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">CS 192</span>
-                </div>
-            </div>
-
         </div>
 
         <!-- Student Live Consultation Bookings Tracker -->
         <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 24px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <h3 style="margin: 0; font-size: 16px; color: var(--up-maroon);">My Consultation Bookings</h3>
-                <span id="studentBookingsCount" style="font-size: 12px; color: var(--text-muted);">0 bookings</span>
+                <span id="studentBookingsCount" style="font-size: 12px; color: var(--text-muted);">Loading...</span>
             </div>
             <div id="studentBookingsList" style="display: flex; flex-direction: column; gap: 10px;">
-                <p style="font-size: 12px; color: var(--text-muted); font-style: italic; margin: 4px 0;">No consultation requests submitted yet.</p>
+                <div style="padding: 18px; border: 1px dashed var(--border-color); border-radius: 6px; text-align: center; color: var(--text-muted); font-size: 12px;">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--up-maroon); margin-right: 6px;"></i>
+                    Loading your consultation bookings...
+                </div>
             </div>
         </div>
     </div>
@@ -192,10 +141,10 @@
     <div id="slotView" class="slot-container" style="display: none; max-width: 900px; margin: 32px auto; background: white; padding: 24px; border-radius: 8px; border: 1px solid var(--border-color);">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <div id="slotViewAvatar" style="width: 44px; height: 44px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">DF</div>
+                <div id="slotViewAvatar" style="width: 44px; height: 44px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">FC</div>
                 <div>
-                    <h3 id="slotViewName" style="margin: 0; font-size: 16px;">Dr. Edgardo Felizardo</h3>
-                    <p id="slotViewTitle" style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-muted);">Associate Professor, BSCS</p>
+                    <h3 id="slotViewName" style="margin: 0; font-size: 16px;">Faculty Member</h3>
+                    <p id="slotViewTitle" style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-muted);">Faculty • Computer Science</p>
                 </div>
             </div>
             <button id="backToDirectory" type="button" style="background: none; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">← Back to Directory</button>
@@ -236,20 +185,20 @@
                 <span class="close-modal" id="closeModal" style="font-size: 24px; cursor: pointer; color: var(--text-muted);">&times;</span>
             </div>
             <div class="faculty-profile-banner" style="display: flex; align-items: center; gap: 12px; background: var(--bg-color); padding: 12px; border-radius: 6px; margin-bottom: 12px;">
-                <div id="modalAvatar" style="width: 36px; height: 36px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">DF</div>
+                <div id="modalAvatar" style="width: 36px; height: 36px; background: var(--up-maroon); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">FC</div>
                 <div>
-                    <h4 id="modalProfName" style="font-size: 14px; margin: 0;">Dr. Edgardo Felizardo</h4>
-                    <p id="modalProfTitle" style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">Associate Professor, BSCS</p>
+                    <h4 id="modalProfName" style="font-size: 14px; margin: 0;">Faculty Member</h4>
+                    <p id="modalProfTitle" style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">Faculty • Computer Science</p>
                 </div>
             </div>
             <p class="amber-notice" style="font-size: 12px; color: #856404; background-color: #fff3cd; padding: 8px; border-radius: 4px; margin-bottom: 16px;">Slots in Amber are exclusive consultation blocks.</p>
-            
+
             <form class="booking-form">
                 <div class="form-group" style="margin-bottom: 14px;">
                     <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">RELATED COURSE</label>
                     <select id="modalCourseSelect" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
-                        <option>CS 198 - Special Problem</option>
-                        <option>CS 180 - Introduction to AI</option>
+                        <option>CMSC 3 - Web Design & Development</option>
+                        <option>CMSC 18 - Computer Programming 3</option>
                     </select>
                 </div>
 
@@ -259,7 +208,7 @@
                 </div>
 
                 <div class="selected-slot-info" style="display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 10px; border-radius: 6px; font-size: 12px; margin: 16px 0; border: 1px solid var(--border-color);">
-                    <span>📅 <span id="modalSelectedProfName">Dr. Edgardo Felizardo</span> • <strong id="modalSelectedSlotTime">Tue 10:00 AM</strong></span>
+                    <span>📅 <span id="modalSelectedProfName">Faculty Member</span> • <strong id="modalSelectedSlotTime">Tue 10:00 AM</strong></span>
                     <span class="exclusive-pill" style="background: #ffecb5; color: #664d03; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Exclusive slot</span>
                 </div>
 
@@ -271,9 +220,10 @@
         </div>
     </div>
 
-    <!-- Scripts for Dynamic Professor Routing & Live Firestore Consultation Booking -->
+    <!-- Scripts for Dynamic Firestore Faculty Directory & Live Consultation Booking -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import {
             getFirestore,
             collection,
@@ -282,8 +232,10 @@
             setDoc,
             updateDoc,
             addDoc,
+            arrayUnion,
             onSnapshot,
             query,
+            where,
             orderBy,
             serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -317,6 +269,59 @@
                 .replace(/^_|_$/g, '');
         }
 
+        function getInitials(label = '') {
+            return String(label)
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean)
+                .map(part => part[0])
+                .join('')
+                .substring(0, 2)
+                .toUpperCase() || 'FC';
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const palette = {
+                success: { bg: '#d1e7dd', color: '#0f5132', border: '#badbcc', icon: 'fa-circle-check' },
+                error: { bg: '#f8d7da', color: '#842029', border: '#f5c2c7', icon: 'fa-circle-exclamation' },
+                info: { bg: '#fff3cd', color: '#664d03', border: '#ffecb5', icon: 'fa-circle-info' }
+            }[type] || { bg: '#fff3cd', color: '#664d03', border: '#ffecb5', icon: 'fa-circle-info' };
+
+            const toast = document.createElement('div');
+            toast.style.cssText = `pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 8px; background: ${palette.bg}; color: ${palette.color}; border: 1px solid ${palette.border}; box-shadow: 0 6px 18px rgba(0,0,0,0.12); font-size: 12px; font-weight: 600; transition: opacity 0.25s ease, transform 0.25s ease;`;
+            toast.innerHTML = `
+                <i class="fa-solid ${palette.icon}" style="font-size: 14px; flex-shrink: 0;"></i>
+                <span style="flex: 1; line-height: 1.4;">${escapeHtml(message)}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-6px)';
+                setTimeout(() => toast.remove(), 260);
+            }, 3600);
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
+            authDomain: "cs-sync-8a6a0.firebaseapp.com",
+            projectId: "cs-sync-8a6a0",
+            storageBucket: "cs-sync-8a6a0.firebasestorage.app",
+            messagingSenderId: "34056179764",
+            appId: "1:34056179764:web:f417af5001d576882d360d",
+            measurementId: "G-F663CN4012"
+        };
+
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const consultationsRef = collection(db, "consultations");
+        const usersRef = collection(db, "users");
+
         const notifBtn = document.getElementById('notifBtn');
         const notifDropdown = document.getElementById('notifDropdown');
         const notifBadge = document.getElementById('notifBadge');
@@ -326,12 +331,90 @@
 
         let clearedNotificationIds = new Set();
         let latestConsultations = [];
+        let consultationsLoaded = false;
+        let facultyLoaded = false;
+        const cancellingBookingIds = new Set();
 
         function getStatusColors(status = '') {
-            const norm = String(status).toLowerCase();
+            const norm = String(status).trim().toLowerCase();
             if (norm === 'accepted') return { bg: '#d1e7dd', color: '#0f5132' };
-            if (norm === 'declined') return { bg: '#f8d7da', color: '#842029' };
+            if (norm === 'declined' || norm === 'cancelled' || norm === 'withdrawn') {
+                return { bg: '#f8d7da', color: '#842029' };
+            }
             return { bg: '#fff3cd', color: '#664d03' };
+        }
+
+        async function notifyFacultyOfCancellation(booking) {
+            const targets = new Set();
+            [booking.facultyUid, booking.facultyEmail, booking.facultyName].forEach((val) => {
+                const raw = String(val || '').trim().toLowerCase();
+                if (!raw) return;
+                const slug = toDocSlug(raw);
+                if (slug) targets.add(slug);
+                if (raw.includes('@')) {
+                    const localSlug = toDocSlug(raw.split('@')[0]);
+                    if (localSlug) targets.add(localSlug);
+                }
+            });
+
+            const studentLabel = storedUser || storedEmail || 'A student';
+            const slotLabel = booking.slot || booking.time || 'requested slot';
+            const courseLabel = booking.course || 'Consultation';
+            const notifPayload = {
+                id: `cancel_${booking.id}_${Date.now()}`,
+                title: 'Consultation Cancelled',
+                message: `${studentLabel} withdrew their consultation request (${courseLabel} • ${slotLabel}).`,
+                timeAgo: 'Just now',
+                hasActions: false
+            };
+
+            for (const facultyDocId of targets) {
+                try {
+                    await setDoc(doc(db, "users", facultyDocId), {
+                        notifications: arrayUnion(notifPayload)
+                    }, { merge: true });
+                } catch (err) {
+                    console.warn(`Could not notify faculty doc ${facultyDocId}:`, err);
+                }
+            }
+        }
+
+        async function cancelStudentBooking(docId, cardEl) {
+            const target = latestConsultations.find(item => String(item.id) === String(docId));
+            if (!docId || !target || cancellingBookingIds.has(String(docId))) return;
+
+            const currentStatus = String(target.status || 'Pending').trim().toLowerCase();
+            if (!['pending', 'accepted'].includes(currentStatus)) return;
+
+            cancellingBookingIds.add(String(docId));
+            renderStudentBookings(latestConsultations);
+
+            try {
+                await updateDoc(doc(db, "consultations", String(docId)), {
+                    status: 'Cancelled',
+                    cancelledAt: new Date().toISOString(),
+                    cancelledBy: storedEmail || storedUser || 'Student',
+                    updatedAt: new Date().toISOString()
+                });
+                await notifyFacultyOfCancellation(target);
+                showToast(`Booking with ${target.facultyName || 'faculty'} (${target.slot || ''}) has been cancelled.`, 'info');
+            } catch (err) {
+                console.error("Failed to cancel booking:", err);
+                showToast("Could not cancel booking right now. Please try again.", 'error');
+                if (cardEl) {
+                    let errNote = cardEl.querySelector('.booking-cancel-error');
+                    if (!errNote) {
+                        errNote = document.createElement('p');
+                        errNote.className = 'booking-cancel-error';
+                        errNote.style.cssText = 'margin: 6px 0 0 0; font-size: 11px; color: #842029; font-weight: 600;';
+                        cardEl.appendChild(errNote);
+                    }
+                    errNote.textContent = 'Could not cancel booking right now. Please try again.';
+                }
+            } finally {
+                cancellingBookingIds.delete(String(docId));
+                renderStudentBookings(latestConsultations);
+            }
         }
 
         function renderNotificationsFromConsultations(items) {
@@ -375,70 +458,226 @@
         document.getElementById('clearAllNotifs').addEventListener('click', function() {
             latestConsultations.forEach(c => clearedNotificationIds.add(c.id));
             renderNotificationsFromConsultations(latestConsultations);
+            showToast("Cleared notifications in dropdown.", 'info');
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        document.getElementById('logoutBtn').addEventListener('click', async function(e) {
             e.preventDefault();
+            try {
+                await signOut(auth);
+            } catch (err) {
+                console.warn("Sign out error:", err);
+            }
             localStorage.removeItem('cs_sync_user');
             localStorage.removeItem('cs_sync_email');
             localStorage.removeItem('cs_sync_role');
             localStorage.removeItem('cs_sync_program');
             localStorage.removeItem('cs_sync_batch');
             localStorage.removeItem('cs_sync_dept');
+            localStorage.removeItem('cs_sync_avatar');
             window.location.replace('index.html');
         });
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
-            authDomain: "cs-sync-8a6a0.firebaseapp.com",
-            projectId: "cs-sync-8a6a0",
-            storageBucket: "cs-sync-8a6a0.firebasestorage.app",
-            messagingSenderId: "34056179764",
-            appId: "1:34056179764:web:f417af5001d576882d360d",
-            measurementId: "G-F663CN4012"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const consultationsRef = collection(db, "consultations");
-
-        const facultyData = {
-            'delacruz': {
-                name: 'Juan Dela Cruz',
-                email: 'prof.jdelacruz@up.edu.ph',
-                title: 'Faculty • Computer Science',
-                initials: 'JD',
-                courses: ['CMSC 3 - Web Design & Development', 'CMSC 18 - Computer Organization']
-            },
-            'villanueva': {
-                name: 'Prof. Adrian Villanueva',
-                email: 'avillanueva@up.edu.ph',
-                title: 'Associate Professor • Algorithms & Theory',
-                initials: 'AV',
-                courses: ['CS 150 - Design and Analysis of Algorithms', 'CS 153 - Automata and Computability']
-            },
-            'felizardo': {
-                name: 'Dr. Edgardo Felizardo',
-                email: 'efelizardo@up.edu.ph',
-                title: 'Assistant Professor • Artificial Intelligence',
-                initials: 'DF',
-                courses: ['CS 180 - Introduction to AI', 'CS 198 - Special Problem']
-            },
-            'mendoza': {
-                name: 'Prof. Carlos Mendoza',
-                email: 'cmendoza@up.edu.ph',
-                title: 'Senior Lecturer • Software Engineering',
-                initials: 'CM',
-                courses: ['CS 191 - Software Engineering I', 'CS 192 - Software Engineering II']
-            }
-        };
 
         const directoryView = document.getElementById('directoryView');
         const slotView = document.getElementById('slotView');
         const facultyQueueView = document.getElementById('facultyQueueView');
+        const facultyCardsGrid = document.getElementById('facultyCardsGrid');
+        const countLabel = document.getElementById('facultyCountLabel');
+        const searchInput = document.getElementById('facultySearchInput');
+        const deptFilter = document.getElementById('facultyDeptFilter');
+        const availableBtn = document.getElementById('availableNowBtn');
 
-        let currentSelectedProf = facultyData['delacruz'];
+        let facultyRecords = [];
+        let onlyAvailable = false;
+        let currentSelectedProf = null;
         let currentSelectedSlot = 'Tue 10:00 AM';
+
+        function normalizeFacultyDoc(docSnap) {
+            const data = docSnap.data() || {};
+            const name = String(data.fullName || data.name || data.displayName || data.email || 'Faculty Member').trim();
+            const email = String(data.email || '').trim();
+            const dept = String(data.department || data.dept || 'Computer Science').trim();
+            const roleTitle = String(data.title || data.rank || `Faculty • ${dept}`).trim();
+            const initials = String(data.initials || getInitials(name)).trim().toUpperCase();
+            const available = typeof data.available === 'boolean'
+                ? data.available
+                : String(data.availability || '').toLowerCase() !== 'limited';
+
+            const courses = Array.isArray(data.courses) && data.courses.length > 0
+                ? data.courses.map(c => String(c).trim()).filter(Boolean)
+                : ['CMSC 3 - Web Design & Development', 'CMSC 18 - Computer Programming 3'];
+
+            return {
+                id: docSnap.id,
+                name,
+                email,
+                dept,
+                title: roleTitle,
+                initials,
+                available,
+                courses
+            };
+        }
+
+        function attachFacultyCardListeners() {
+            const backToDirectory = document.getElementById('backToDirectory');
+
+            document.querySelectorAll('.faculty-profile-trigger').forEach(card => {
+                card.onclick = function() {
+                    const docId = this.getAttribute('data-id');
+                    const chosen = facultyRecords.find(f => f.id === docId);
+                    if (!chosen) return;
+
+                    currentSelectedProf = chosen;
+                    document.getElementById('slotViewAvatar').textContent = chosen.initials;
+                    document.getElementById('slotViewName').textContent = chosen.name;
+                    document.getElementById('slotViewTitle').textContent = chosen.title;
+
+                    updateSlotButtonAvailability(latestConsultations);
+                    directoryView.style.display = 'none';
+                    slotView.style.display = 'block';
+                };
+            });
+
+            if (backToDirectory) {
+                backToDirectory.onclick = () => {
+                    slotView.style.display = 'none';
+                    directoryView.style.display = 'block';
+                };
+            }
+        }
+
+        function renderFacultyCards() {
+            if (!facultyCardsGrid) return;
+
+            if (!facultyLoaded) {
+                if (countLabel) countLabel.textContent = 'Loading faculty members...';
+                facultyCardsGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; background: white; padding: 28px; border-radius: 8px; border: 1px solid var(--border-color); text-align: center; color: var(--text-muted); font-size: 13px;">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 20px; color: var(--up-maroon); margin-bottom: 8px; display: block;"></i>
+                        Loading faculty directory from Firestore...
+                    </div>
+                `;
+                return;
+            }
+
+            const qText = (searchInput?.value || '').trim().toLowerCase();
+            const selectedDept = deptFilter?.value || 'all';
+            const hasActiveFilter = Boolean(qText) || selectedDept !== 'all' || onlyAvailable;
+
+            const filtered = facultyRecords.filter(fac => {
+                const matchesSearch = !qText || `${fac.name} ${fac.title} ${fac.dept} ${fac.courses.join(' ')}`.toLowerCase().includes(qText);
+                const matchesDept = selectedDept === 'all' || fac.dept.toLowerCase() === selectedDept.toLowerCase();
+                const matchesAvail = !onlyAvailable || fac.available;
+                return matchesSearch && matchesDept && matchesAvail;
+            });
+
+            if (countLabel) {
+                countLabel.textContent = `${filtered.length} ${filtered.length === 1 ? 'faculty member' : 'faculty members'}`;
+            }
+
+            if (filtered.length === 0) {
+                facultyCardsGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; background: white; padding: 28px; border-radius: 8px; border: 1px dashed var(--border-color); text-align: center; color: var(--text-muted); font-size: 13px;">
+                        <i class="fa-regular fa-address-book" style="font-size: 22px; color: #adb5bd; margin-bottom: 8px; display: block;"></i>
+                        <p style="margin: 0 0 10px 0;">${hasActiveFilter ? 'No faculty members match your current search or filter.' : 'No faculty members are listed in the directory yet.'}</p>
+                        ${hasActiveFilter ? `<button id="resetFacultyFiltersBtn" type="button" style="padding: 6px 12px; background: white; color: var(--up-maroon); border: 1px solid var(--up-maroon); border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">Reset Filters</button>` : ''}
+                    </div>
+                `;
+
+                const resetBtn = document.getElementById('resetFacultyFiltersBtn');
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', () => {
+                        if (searchInput) searchInput.value = '';
+                        if (deptFilter) deptFilter.value = 'all';
+                        if (onlyAvailable && availableBtn) {
+                            onlyAvailable = false;
+                            availableBtn.style.background = 'var(--up-maroon)';
+                            availableBtn.textContent = 'Available now';
+                        }
+                        renderFacultyCards();
+                    });
+                }
+                return;
+            }
+
+            facultyCardsGrid.innerHTML = filtered.map((fac, idx) => {
+                const statusClass = fac.available ? 'available' : 'in-class';
+                const statusColor = fac.available ? 'green' : '#856404';
+                const statusText = fac.available ? 'Available (View Slots)' : 'Limited Slots (View Slots)';
+                const avatarBg = fac.available ? 'var(--up-maroon)' : '#6c757d';
+                const courseTags = fac.courses.slice(0, 3).map(course => {
+                    const shortCode = course.split('-')[0].trim();
+                    return `<span class="course-tag" style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${escapeHtml(shortCode)}</span>`;
+                }).join('');
+
+                return `
+                    <div class="faculty-card faculty-profile-trigger" data-id="${escapeHtml(fac.id)}" data-index="${idx}" data-dept="${escapeHtml(fac.dept)}" data-available="${fac.available}" style="background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.1s, border-color 0.1s;">
+                        <div class="faculty-top" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div class="faculty-avatar-box" style="width: 40px; height: 40px; background: ${avatarBg}; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">${escapeHtml(fac.initials)}</div>
+                            <div>
+                                <h3 style="font-size: 16px; margin: 0;">${escapeHtml(fac.name)}</h3>
+                                <span class="status-badge ${statusClass}" style="font-size: 11px; color: ${statusColor}; font-weight: 600;">${statusText}</span>
+                            </div>
+                        </div>
+                        <p class="faculty-title" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">${escapeHtml(fac.title)}</p>
+                        <div class="faculty-courses" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            ${courseTags}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            attachFacultyCardListeners();
+        }
+
+        function subscribeToFacultyUsers() {
+            const lowerMap = new Map();
+            const exactMap = new Map();
+            let lowerReady = false;
+            let exactReady = false;
+
+            const syncFaculty = () => {
+                if (lowerReady || exactReady) facultyLoaded = true;
+                const merged = new Map();
+                lowerMap.forEach((v, k) => merged.set(k, v));
+                exactMap.forEach((v, k) => merged.set(k, v));
+
+                facultyRecords = Array.from(merged.values()).filter(u => {
+                    const r = String(u.role || '').trim().toLowerCase();
+                    return r === 'faculty' || r === 'professor';
+                }).map(u => normalizeFacultyDoc({ id: u.id, data: () => u }));
+
+                if (!currentSelectedProf && facultyRecords.length > 0) {
+                    currentSelectedProf = facultyRecords[0];
+                }
+
+                renderFacultyCards();
+                updateSlotButtonAvailability(latestConsultations);
+            };
+
+            onSnapshot(query(usersRef, where("role", "==", "faculty")), (snap) => {
+                lowerReady = true;
+                lowerMap.clear();
+                snap.forEach(d => lowerMap.set(d.id, { id: d.id, ...d.data() }));
+                syncFaculty();
+            }, (err) => {
+                lowerReady = true;
+                console.warn("Faculty role query notice:", err);
+                syncFaculty();
+            });
+
+            onSnapshot(query(usersRef, where("role", "==", "Faculty")), (snap) => {
+                exactReady = true;
+                exactMap.clear();
+                snap.forEach(d => exactMap.set(d.id, { id: d.id, ...d.data() }));
+                syncFaculty();
+            }, (err) => {
+                exactReady = true;
+                console.warn("Capitalized Faculty role query notice:", err);
+                syncFaculty();
+            });
+        }
 
         async function blockAcceptedConsultationInUserSchedules(record) {
             const parts = String(record.slot || '').trim().split(/\s+/);
@@ -454,6 +693,8 @@
             };
 
             const candidateIds = [
+                record.studentUid,
+                record.facultyUid,
                 toDocSlug(record.studentEmail || record.studentName),
                 toDocSlug(record.facultyEmail || record.facultyName)
             ].filter(Boolean);
@@ -486,9 +727,10 @@
                 if (nextStatus === 'Accepted' && record) {
                     await blockAcceptedConsultationInUserSchedules(record);
                 }
+                showToast(`Consultation marked as ${nextStatus}.`, nextStatus === 'Accepted' ? 'success' : 'info');
             } catch (err) {
                 console.error("Failed to update consultation status:", err);
-                alert("Could not update consultation status. Check console.");
+                showToast("Could not update consultation status. Please try again.", 'error');
             }
         }
 
@@ -496,6 +738,17 @@
             const listEl = document.getElementById('facultyRequestsList');
             const badgeEl = document.getElementById('facultyQueueCountBadge');
             if (!listEl || !badgeEl) return;
+
+            if (!consultationsLoaded) {
+                badgeEl.textContent = 'Loading...';
+                listEl.innerHTML = `
+                    <div style="padding: 24px; border: 1px dashed var(--border-color); border-radius: 8px; text-align: center; color: var(--text-muted); font-size: 13px;">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 18px; color: var(--up-maroon); margin-bottom: 8px; display: block;"></i>
+                        Loading consultation requests from Firestore...
+                    </div>
+                `;
+                return;
+            }
 
             const userLower = String(storedUser || '').trim().toLowerCase();
             const emailLower = String(storedEmail || '').trim().toLowerCase();
@@ -510,7 +763,12 @@
             badgeEl.textContent = `${queueItems.length} ${queueItems.length === 1 ? 'Request' : 'Requests'}`;
 
             if (queueItems.length === 0) {
-                listEl.innerHTML = '<p style="font-size: 13px; color: var(--text-muted); margin: 8px 0;">No student consultation requests yet.</p>';
+                listEl.innerHTML = `
+                    <div style="padding: 28px; border: 1px dashed var(--border-color); border-radius: 8px; text-align: center; color: var(--text-muted); font-size: 13px;">
+                        <i class="fa-regular fa-calendar-check" style="font-size: 22px; color: #adb5bd; margin-bottom: 8px; display: block;"></i>
+                        No student consultation requests in your queue right now.
+                    </div>
+                `;
                 return;
             }
 
@@ -556,7 +814,7 @@
 
         function updateSlotButtonAvailability(items) {
             const slotBtn = document.getElementById('tue10SlotBtn');
-            if (!slotBtn) return;
+            if (!slotBtn || !currentSelectedProf) return;
 
             const slotTime = slotBtn.getAttribute('data-time') || 'Tue 10:00 AM';
             const booked = items.find(c =>
@@ -587,6 +845,17 @@
             const countEl = document.getElementById('studentBookingsCount');
             if (!listEl || !countEl) return;
 
+            if (!consultationsLoaded) {
+                countEl.textContent = 'Loading...';
+                listEl.innerHTML = `
+                    <div style="padding: 18px; border: 1px dashed var(--border-color); border-radius: 6px; text-align: center; color: var(--text-muted); font-size: 12px;">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--up-maroon); margin-right: 6px;"></i>
+                        Loading your consultation bookings...
+                    </div>
+                `;
+                return;
+            }
+
             const userLower = String(storedUser || '').trim().toLowerCase();
             const emailLower = String(storedEmail || '').trim().toLowerCase();
 
@@ -599,27 +868,54 @@
             countEl.textContent = `${mine.length} ${mine.length === 1 ? 'booking' : 'bookings'}`;
 
             if (mine.length === 0) {
-                listEl.innerHTML = '<p style="font-size: 12px; color: var(--text-muted); font-style: italic; margin: 4px 0;">No consultation requests submitted yet.</p>';
+                listEl.innerHTML = `
+                    <div style="padding: 20px; border: 1px dashed var(--border-color); border-radius: 6px; text-align: center; color: var(--text-muted); font-size: 12px;">
+                        <i class="fa-regular fa-clock" style="font-size: 18px; color: #adb5bd; margin-bottom: 6px; display: block;"></i>
+                        No consultation requests submitted yet. Select a faculty card above to book an available slot.
+                    </div>
+                `;
                 return;
             }
 
             listEl.innerHTML = mine.map(c => {
-                const colors = getStatusColors(c.status);
+                const status = c.status || 'Pending';
+                const normalizedStatus = String(status).trim().toLowerCase();
+                const colors = getStatusColors(status);
+                const canCancel = Boolean(c.id) && ['pending', 'accepted'].includes(normalizedStatus);
+                const isCancelling = cancellingBookingIds.has(String(c.id || ''));
+
                 return `
-                    <div style="border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; background: #fafafa; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <div class="student-booking-card" data-booking-id="${escapeHtml(c.id || '')}" style="border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; background: #fafafa; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
                         <div>
                             <div style="font-size: 13px; font-weight: 700; color: #222;">${escapeHtml(c.facultyName || 'Faculty')} • ${escapeHtml(c.slot || '')}</div>
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">${escapeHtml(c.course || '')} — ${escapeHtml(c.reason || '')}</div>
                         </div>
-                        <span style="background: ${colors.bg}; color: ${colors.color}; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px;">${escapeHtml(c.status || 'Pending')}</span>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span style="background: ${colors.bg}; color: ${colors.color}; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px;">${escapeHtml(status)}</span>
+                            ${canCancel ? `
+                                <button type="button" class="cancel-student-booking-btn" data-id="${escapeHtml(c.id)}" ${isCancelling ? 'disabled' : ''} style="padding: 4px 10px; background: #fff5f5; color: #842029; border: 1px solid #f5c2c7; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: ${isCancelling ? 'not-allowed' : 'pointer'}; opacity: ${isCancelling ? '0.65' : '1'};">
+                                    ${isCancelling ? 'Cancelling...' : 'Cancel Booking'}
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
                 `;
             }).join('');
+
+            listEl.querySelectorAll('.cancel-student-booking-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    if (this.disabled) return;
+                    const docId = this.getAttribute('data-id');
+                    const cardEl = this.closest('.student-booking-card');
+                    await cancelStudentBooking(docId, cardEl);
+                });
+            });
         }
 
         onSnapshot(
             query(consultationsRef, orderBy("createdAt", "desc")),
             (snap) => {
+                consultationsLoaded = true;
                 latestConsultations = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderNotificationsFromConsultations(latestConsultations);
                 if (isFaculty) {
@@ -630,7 +926,14 @@
                 }
             },
             (err) => {
+                consultationsLoaded = true;
                 console.warn("Consultations onSnapshot error:", err);
+                renderNotificationsFromConsultations([]);
+                if (isFaculty) {
+                    renderFacultyQueue([]);
+                } else {
+                    renderStudentBookings([]);
+                }
             }
         );
 
@@ -644,71 +947,18 @@
             if (facultyQueueView) facultyQueueView.style.display = 'none';
             if (directoryView) directoryView.style.display = 'block';
 
-            const searchInput = document.getElementById('facultySearchInput');
-            const deptFilter = document.getElementById('facultyDeptFilter');
-            const availableBtn = document.getElementById('availableNowBtn');
-            const countLabel = document.getElementById('facultyCountLabel');
-            const cards = Array.from(document.querySelectorAll('.faculty-card'));
-            let onlyAvailable = false;
-
-            function applyFacultyFilters() {
-                const qText = (searchInput?.value || '').trim().toLowerCase();
-                const selectedDept = deptFilter?.value || 'all';
-                let visibleCount = 0;
-
-                cards.forEach(card => {
-                    const cardText = card.textContent.toLowerCase();
-                    const cardDept = card.getAttribute('data-dept') || '';
-                    const isAvail = card.getAttribute('data-available') === 'true';
-
-                    const matchesSearch = !qText || cardText.includes(qText);
-                    const matchesDept = selectedDept === 'all' || cardDept === selectedDept;
-                    const matchesAvail = !onlyAvailable || isAvail;
-
-                    const show = matchesSearch && matchesDept && matchesAvail;
-                    card.style.display = show ? 'block' : 'none';
-                    if (show) visibleCount++;
-                });
-
-                if (countLabel) {
-                    countLabel.textContent = `${visibleCount} ${visibleCount === 1 ? 'faculty member' : 'faculty members'}`;
-                }
-            }
-
-            if (searchInput) searchInput.addEventListener('input', applyFacultyFilters);
-            if (deptFilter) deptFilter.addEventListener('change', applyFacultyFilters);
+            if (searchInput) searchInput.addEventListener('input', renderFacultyCards);
+            if (deptFilter) deptFilter.addEventListener('change', renderFacultyCards);
             if (availableBtn) {
                 availableBtn.addEventListener('click', () => {
                     onlyAvailable = !onlyAvailable;
                     availableBtn.style.background = onlyAvailable ? '#198754' : 'var(--up-maroon)';
                     availableBtn.textContent = onlyAvailable ? 'Showing Available' : 'Available now';
-                    applyFacultyFilters();
+                    renderFacultyCards();
                 });
             }
 
-            const backToDirectory = document.getElementById('backToDirectory');
-
-            document.querySelectorAll('.faculty-profile-trigger').forEach(card => {
-                card.onclick = function() {
-                    const profKey = this.getAttribute('data-prof');
-                    currentSelectedProf = facultyData[profKey] || facultyData['delacruz'];
-
-                    document.getElementById('slotViewAvatar').textContent = currentSelectedProf.initials;
-                    document.getElementById('slotViewName').textContent = currentSelectedProf.name;
-                    document.getElementById('slotViewTitle').textContent = currentSelectedProf.title;
-
-                    updateSlotButtonAvailability(latestConsultations);
-                    directoryView.style.display = 'none';
-                    slotView.style.display = 'block';
-                };
-            });
-
-            if (backToDirectory) {
-                backToDirectory.onclick = () => {
-                    slotView.style.display = 'none';
-                    directoryView.style.display = 'block';
-                };
-            }
+            subscribeToFacultyUsers();
 
             const openBookingBtns = document.querySelectorAll('.openBookingFromSlot');
             const closeModal = document.getElementById('closeModal');
@@ -718,7 +968,7 @@
 
             openBookingBtns.forEach(btn => {
                 btn.onclick = () => {
-                    if (btn.disabled) return;
+                    if (btn.disabled || !currentSelectedProf) return;
                     currentSelectedSlot = btn.getAttribute('data-time') || 'Tue 10:00 AM';
                     document.getElementById('modalAvatar').textContent = currentSelectedProf.initials;
                     document.getElementById('modalProfName').textContent = currentSelectedProf.name;
@@ -739,6 +989,8 @@
             if (bookingForm) {
                 bookingForm.onsubmit = async (e) => {
                     e.preventDefault();
+                    if (!currentSelectedProf) return;
+
                     const course = document.getElementById('modalCourseSelect').value;
                     const reason = document.getElementById('consultationReasonInput').value.trim();
 
@@ -749,7 +1001,7 @@
                     );
 
                     if (alreadyActive) {
-                        alert(`This slot (${currentSelectedSlot}) is already booked or pending with ${currentSelectedProf.name}.`);
+                        showToast(`This slot (${currentSelectedSlot}) is already booked or pending with ${currentSelectedProf.name}.`, 'info');
                         return;
                     }
 
@@ -761,9 +1013,11 @@
                     try {
                         await addDoc(consultationsRef, {
                             studentName: storedUser,
-                            studentEmail: storedEmail,
+                            studentEmail: storedEmail.toLowerCase(),
+                            studentUid: auth.currentUser?.uid || null,
                             facultyName: currentSelectedProf.name,
-                            facultyEmail: currentSelectedProf.email,
+                            facultyEmail: (currentSelectedProf.email || '').toLowerCase(),
+                            facultyUid: currentSelectedProf.id || null,
                             course: course,
                             reason: reason,
                             slot: currentSelectedSlot,
@@ -771,13 +1025,13 @@
                             createdAt: serverTimestamp()
                         });
 
-                        alert(`✅ Consultation request submitted to ${currentSelectedProf.name}!`);
+                        showToast(`Consultation request submitted to ${currentSelectedProf.name}!`, 'success');
                         bookingModal.style.display = 'none';
                         slotView.style.display = 'none';
                         directoryView.style.display = 'block';
                     } catch (err) {
                         console.error("Error submitting consultation:", err);
-                        alert("Failed to submit consultation request. Check Firestore rules/console.");
+                        showToast("Failed to submit consultation request. Please try again.", 'error');
                     } finally {
                         if (submitRequestBtn) {
                             submitRequestBtn.disabled = false;

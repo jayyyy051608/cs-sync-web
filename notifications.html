@@ -4,15 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notifications & Updates | CS-Sync UP Mindanao</title>
+    <script type="module" src="auth-guard.js"></script>
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="dashboard-body">
+
+    <!-- In-Page Toast Container -->
+    <div id="toastContainer" style="position: fixed; top: 76px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; max-width: 360px; pointer-events: none;"></div>
 
     <!-- Top Navigation Bar -->
     <header class="top-navbar">
         <div class="nav-left">
-            <button class="menu-btn">☰</button>
+            <button type="button" class="menu-btn">☰</button>
             <span class="brand-title">Notifications & Updates</span>
         </div>
         <nav class="nav-center">
@@ -33,82 +38,498 @@
                 <span>Calendar</span>
             </a>
         </nav>
-        <div class="nav-right">
+        <div class="nav-right" style="display: flex; align-items: center; gap: 12px;">
             <a href="notifications.html" class="nav-item active" style="text-decoration: none; display: flex; align-items: center; gap: 4px;">
                 <span class="notification-icon">🔔</span>
+                <span id="headerNotifCount" style="font-size: 11px; font-weight: 700;"></span>
             </a>
             <div class="user-avatar-circle" id="userNameDisplay">P</div>
+            <button type="button" id="logoutBtn" style="padding: 6px 12px; background: #fff5f5; color: #dc3545; border: 1px solid #f1aeb5; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                Log Out
+            </button>
         </div>
     </header>
 
     <!-- Main Notifications Container -->
     <div class="notifications-container" style="max-width: 800px; margin: 24px auto; background: white; padding: 24px; border-radius: 8px; border: 1px solid var(--border-color);">
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
-            <h2 style="font-size: 18px; margin: 0;">Updates and Invites</h2>
-            <div style="display: flex; gap: 8px; font-size: 12px;">
-                <button style="background: var(--up-maroon); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">All Notifications</button>
-                <button style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 4px; cursor: pointer;">Appointments</button>
-                <button style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 4px; cursor: pointer;">Groups</button>
-                <button style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 4px; cursor: pointer;">System</button>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <h2 style="font-size: 18px; margin: 0;">Updates and Invites</h2>
+                <button type="button" id="enablePushBtn" style="padding: 5px 10px; background: #fff8e7; color: #664d03; border: 1px solid #ffecb5; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid fa-bell"></i> <span id="pushBtnLabel">Enable Push</span>
+                </button>
+            </div>
+            <div id="filterTabs" style="display: flex; gap: 8px; font-size: 12px; flex-wrap: wrap;">
+                <button type="button" class="notif-filter-btn active-filter" data-filter="all" style="background: var(--up-maroon); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600;">All Notifications</button>
+                <button type="button" class="notif-filter-btn" data-filter="appointments" style="background: #f8f9fa; color: #333; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 4px; cursor: pointer;">Appointments</button>
+                <button type="button" class="notif-filter-btn" data-filter="groups" style="background: #f8f9fa; color: #333; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 4px; cursor: pointer;">Groups</button>
+                <button type="button" class="notif-filter-btn" data-filter="system" style="background: #f8f9fa; color: #333; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 4px; cursor: pointer;">System</button>
             </div>
         </div>
 
         <!-- Notification List -->
-        <div class="notification-list" style="display: flex; flex-direction: column; gap: 16px;">
-            
-            <!-- Item 1: Appointment Accepted -->
-            <div style="padding: 14px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <strong style="font-size: 14px; color: #155724;">Appointment Accepted</strong>
-                    <span style="font-size: 11px; color: var(--text-muted);">2 hours ago</span>
-                </div>
-                <p style="font-size: 13px; margin: 0; color: #333;">Dr. Felizardo accepted your consultation request for <strong>Tue 10:00 AM</strong>.</p>
+        <div id="notificationList" class="notification-list" style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="padding: 24px; border: 1px dashed var(--border-color); border-radius: 6px; background: #fafafa; text-align: center; font-size: 13px; color: var(--text-muted);">
+                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 18px; color: var(--up-maroon); margin-bottom: 8px; display: block;"></i>
+                Loading notifications from Firestore...
             </div>
-
-            <!-- Item 2: New Group Overlap Invite -->
-            <div style="padding: 14px; border: 1px solid #ffecb5; border-radius: 6px; background: #fffdf5;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <strong style="font-size: 14px; color: #664d03;">New Group Overlap Invite</strong>
-                    <span style="font-size: 11px; color: var(--text-muted);">5 hours ago</span>
-                </div>
-                <p style="font-size: 13px; margin: 0 0 10px 0; color: #333;">Juan wants to add you to the group overlap for <strong>Final Project CMSC 3</strong>.</p>
-                <div style="display: flex; gap: 8px;">
-                    <button onclick="alert('✅ Invitation accepted!')" style="padding: 6px 12px; background: var(--up-maroon); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600;">Accept</button>
-                    <button onclick="alert('❌ Invitation declined.')" style="padding: 6px 12px; background: none; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; cursor: pointer;">Decline</button>
-                </div>
-            </div>
-
-            <!-- Item 3: Appointment Declined -->
-            <div style="padding: 14px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <strong style="font-size: 14px; color: #842029;">Appointment Declined</strong>
-                    <span style="font-size: 11px; color: var(--text-muted);">Yesterday</span>
-                </div>
-                <p style="font-size: 13px; margin: 0; color: #333;">Prof. Villanueva declined your request. <br><strong>Reason:</strong> Schedule conflict</p>
-            </div>
-
-            <!-- Item 4: Reminder -->
-            <div style="padding: 14px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <strong style="font-size: 14px; color: #084298;">Reminder</strong>
-                    <span style="font-size: 11px; color: var(--text-muted);">Yesterday</span>
-                </div>
-                <p style="font-size: 13px; margin: 0; color: #333;">Your consultation with Dr. Felizardo is tomorrow at <strong>10:00 AM</strong>.</p>
-            </div>
-
-            <!-- Item 5: Group Meeting Confirmed -->
-            <div style="padding: 14px; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <strong style="font-size: 14px; color: #155724;">Group Meeting Confirmed</strong>
-                    <span style="font-size: 11px; color: var(--text-muted);">2 days ago</span>
-                </div>
-                <p style="font-size: 13px; margin: 0; color: #333;">All members confirmed for Friday 1:00 PM group meeting.</p>
-            </div>
-
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
+            authDomain: "cs-sync-8a6a0.firebaseapp.com",
+            projectId: "cs-sync-8a6a0",
+            storageBucket: "cs-sync-8a6a0.appspot.com",
+            messagingSenderId: "340561797624",
+            appId: "1:34056179764:web:f417af5001d576882d360d",
+            measurementId: "G-F663CN4012"
+        };
+
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        function toDocSlug(value = '') {
+            return String(value)
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '_')
+                .replace(/^_|_$/g, '');
+        }
+
+        function getSessionIdentity() {
+            const name = (localStorage.getItem('cs_sync_user') || '').trim();
+            const email = (localStorage.getItem('cs_sync_email') || localStorage.getItem('cs_sync_registered_email') || '').trim().toLowerCase();
+            const docId = toDocSlug(email || name) || 'default_user';
+            return { name, email, docId };
+        }
+
+        let session = getSessionIdentity();
+        let activeUnsub = null;
+        let seenNotificationIds = new Set();
+        let hasInitialSnapshot = false;
+
+        function refreshAvatarBadge() {
+            const avatarEl = document.getElementById('userNameDisplay');
+            if (avatarEl && session.name) {
+                avatarEl.textContent = session.name
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .map(n => n[0])
+                    .join('')
+                    .substring(0, 2)
+                    .toUpperCase() || 'P';
+            }
+        }
+
+        refreshAvatarBadge();
+
+        let notifications = [];
+        let notificationsLoaded = false;
+        let activeFilter = 'all';
+        const processingIds = new Set();
+
+        function escapeHtml(value = '') {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const palette = {
+                success: { bg: '#d1e7dd', color: '#0f5132', border: '#badbcc', icon: 'fa-circle-check' },
+                error: { bg: '#f8d7da', color: '#842029', border: '#f5c2c7', icon: 'fa-circle-exclamation' },
+                info: { bg: '#fff3cd', color: '#664d03', border: '#ffecb5', icon: 'fa-circle-info' }
+            }[type] || { bg: '#fff3cd', color: '#664d03', border: '#ffecb5', icon: 'fa-circle-info' };
+
+            const toast = document.createElement('div');
+            toast.style.cssText = `pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 8px; background: ${palette.bg}; color: ${palette.color}; border: 1px solid ${palette.border}; box-shadow: 0 6px 18px rgba(0,0,0,0.12); font-size: 12px; font-weight: 600; transition: opacity 0.25s ease, transform 0.25s ease;`;
+            toast.innerHTML = `
+                <i class="fa-solid ${palette.icon}" style="font-size: 14px; flex-shrink: 0;"></i>
+                <span style="flex: 1; line-height: 1.4;">${escapeHtml(message)}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-6px)';
+                setTimeout(() => toast.remove(), 260);
+            }, 3600);
+        }
+
+        function syncPushButtonLabel() {
+            const labelEl = document.getElementById('pushBtnLabel');
+            const btnEl = document.getElementById('enablePushBtn');
+            if (!labelEl || !btnEl) return;
+
+            if (!('Notification' in window)) {
+                labelEl.textContent = 'Push Unsupported';
+                btnEl.disabled = true;
+                return;
+            }
+            if (Notification.permission === 'granted') {
+                labelEl.textContent = 'Push Enabled';
+                btnEl.style.background = '#d1e7dd';
+                btnEl.style.color = '#0f5132';
+                btnEl.style.borderColor = '#badbcc';
+            } else if (Notification.permission === 'denied') {
+                labelEl.textContent = 'Push Blocked';
+            } else {
+                labelEl.textContent = 'Enable Push';
+            }
+        }
+
+        function sendBrowserPushAlert(item = {}) {
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+            const n = new Notification(item.title || 'New CS-Sync Request', {
+                body: item.message || 'You have a new request or invite on CS-Sync.',
+                tag: String(item.id || `cssync-${Date.now()}`),
+                renotify: true
+            });
+
+            n.onclick = () => {
+                window.focus();
+                n.close();
+            };
+        }
+
+        async function sendRequestEmailNotification({ toEmail, toName = '', subject, message, requestType = 'request' }) {
+            if (!toEmail) return { sent: false, reason: 'missing_email' };
+
+            const endpointUrl = '/api/notify-request';
+            try {
+                const res = await fetch(endpointUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: toEmail,
+                        recipientName: toName,
+                        subject: subject || `CS-Sync Update: ${requestType}`,
+                        text: message,
+                        requestType
+                    })
+                });
+                return { sent: res.ok, status: res.status };
+            } catch (err) {
+                console.warn('Email notification endpoint not reachable:', err);
+                return { sent: false, reason: 'endpoint_unreachable' };
+            }
+        }
+
+        window.sendRequestEmailNotification = sendRequestEmailNotification;
+
+        document.getElementById('enablePushBtn')?.addEventListener('click', async () => {
+            if (!('Notification' in window)) {
+                showToast('Browser push notifications are not supported in this browser.', 'error');
+                return;
+            }
+            if (Notification.permission === 'granted') {
+                showToast('Browser push notifications are already enabled.', 'success');
+                syncPushButtonLabel();
+                return;
+            }
+            const permission = await Notification.requestPermission();
+            syncPushButtonLabel();
+            if (permission === 'granted') {
+                showToast('Browser push notifications enabled for new requests.', 'success');
+            } else {
+                showToast('Push notification permission was not granted.', 'info');
+            }
+        });
+
+        function classifyNotification(item = {}) {
+            const explicitCat = String(item.category || item.type || '').trim().toLowerCase();
+            if (['appointments', 'appointment', 'consultation', 'consultations'].includes(explicitCat)) {
+                return 'appointments';
+            }
+            if (['groups', 'group', 'overlap', 'invite'].includes(explicitCat)) {
+                return 'groups';
+            }
+            if (['system', 'reminder', 'alert', 'account'].includes(explicitCat)) {
+                return 'system';
+            }
+
+            const text = `${item.title || ''} ${item.message || ''}`.toLowerCase();
+            if (/\b(group|overlap|member|team)\b/.test(text)) return 'groups';
+            if (/\b(consultation|appointment|slot|accepted|declined|professor|prof\.?|dr\.?)\b/.test(text)) return 'appointments';
+            return 'system';
+        }
+
+        function getTitleColor(item = {}) {
+            const status = String(item.status || '').toLowerCase();
+            if (status === 'accepted' || /accepted|confirmed/i.test(item.title || '')) return '#155724';
+            if (status === 'declined' || /declined/i.test(item.title || '')) return '#842029';
+            if (item.hasActions) return '#664d03';
+            return '#084298';
+        }
+
+        function updateFilterTabStyles() {
+            document.querySelectorAll('.notif-filter-btn').forEach(btn => {
+                const isSelected = btn.getAttribute('data-filter') === activeFilter;
+                btn.style.background = isSelected ? 'var(--up-maroon)' : '#f8f9fa';
+                btn.style.color = isSelected ? 'white' : '#333';
+                btn.style.border = isSelected ? 'none' : '1px solid var(--border-color)';
+                btn.style.fontWeight = isSelected ? '600' : '400';
+            });
+        }
+
+        function renderNotifications() {
+            const listEl = document.getElementById('notificationList');
+            const headerCountEl = document.getElementById('headerNotifCount');
+            if (!listEl) return;
+
+            if (!notificationsLoaded) {
+                if (headerCountEl) headerCountEl.textContent = '';
+                listEl.innerHTML = `
+                    <div style="padding: 24px; border: 1px dashed var(--border-color); border-radius: 6px; background: #fafafa; text-align: center; font-size: 13px; color: var(--text-muted);">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 18px; color: var(--up-maroon); margin-bottom: 8px; display: block;"></i>
+                        Loading notifications from Firestore...
+                    </div>
+                `;
+                return;
+            }
+
+            if (headerCountEl) {
+                const actionableOrPending = notifications.filter(n => Boolean(n.hasActions)).length;
+                headerCountEl.textContent = actionableOrPending > 0 ? String(actionableOrPending) : '';
+            }
+
+            const filtered = notifications.filter(item => {
+                if (activeFilter === 'all') return true;
+                return classifyNotification(item) === activeFilter;
+            });
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `
+                    <div style="padding: 24px; border: 1px dashed var(--border-color); border-radius: 6px; background: #fafafa; text-align: center; font-size: 13px; color: var(--text-muted);">
+                        <i class="fa-regular fa-bell-slash" style="font-size: 20px; color: #adb5bd; margin-bottom: 8px; display: block;"></i>
+                        <p style="margin: 0 0 10px 0;">No ${activeFilter === 'all' ? '' : `${escapeHtml(activeFilter)} `}notifications found.</p>
+                        ${activeFilter !== 'all' ? `<button id="resetNotifFilterBtn" type="button" style="padding: 6px 12px; background: white; color: var(--up-maroon); border: 1px solid var(--up-maroon); border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer;">Show All Notifications</button>` : ''}
+                    </div>
+                `;
+                const resetBtn = document.getElementById('resetNotifFilterBtn');
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', () => {
+                        activeFilter = 'all';
+                        updateFilterTabStyles();
+                        renderNotifications();
+                    });
+                }
+                return;
+            }
+
+            listEl.innerHTML = filtered.map((item, idx) => {
+                const itemId = String(item.id || `notif_${idx}`);
+                const title = item.title || 'Notification';
+                const message = item.message || '';
+                const timeAgo = item.timeAgo || '';
+                const showActions = Boolean(item.hasActions);
+                const isBusy = processingIds.has(itemId);
+                const statusBadgeText = item.status && !showActions ? String(item.status) : '';
+
+                const cardBorder = showActions ? '1px solid #ffecb5' : '1px solid var(--border-color)';
+                const cardBg = showActions ? '#fffdf5' : '#fff';
+
+                return `
+                    <div data-notif-id="${escapeHtml(itemId)}" style="padding: 14px; border: ${cardBorder}; border-radius: 6px; background: ${cardBg};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 4px;">
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <strong style="font-size: 14px; color: ${getTitleColor(item)};">${escapeHtml(title)}</strong>
+                                ${statusBadgeText ? `<span style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: ${statusBadgeText.toLowerCase() === 'accepted' ? '#d1e7dd' : '#f8d7da'}; color: ${statusBadgeText.toLowerCase() === 'accepted' ? '#0f5132' : '#842029'};">${escapeHtml(statusBadgeText)}</span>` : ''}
+                            </div>
+                            <span style="font-size: 11px; color: var(--text-muted); white-space: nowrap;">${escapeHtml(timeAgo)}</span>
+                        </div>
+                        <p style="font-size: 13px; margin: 0 ${showActions ? '0 10px 0' : '0'}; color: #333;">${escapeHtml(message)}</p>
+                        ${showActions ? `
+                            <div style="display: flex; gap: 8px;">
+                                <button type="button" class="invite-action-btn" data-id="${escapeHtml(itemId)}" data-decision="Accepted" ${isBusy ? 'disabled' : ''} style="padding: 6px 12px; background: var(--up-maroon); color: white; border: none; border-radius: 4px; font-size: 12px; cursor: ${isBusy ? 'not-allowed' : 'pointer'}; font-weight: 600; opacity: ${isBusy ? '0.6' : '1'};">Accept</button>
+                                <button type="button" class="invite-action-btn" data-id="${escapeHtml(itemId)}" data-decision="Declined" ${isBusy ? 'disabled' : ''} style="padding: 6px 12px; background: none; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; cursor: ${isBusy ? 'not-allowed' : 'pointer'}; opacity: ${isBusy ? '0.6' : '1'};">Decline</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            listEl.querySelectorAll('.invite-action-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (btn.disabled) return;
+                    const notifId = btn.getAttribute('data-id');
+                    const decision = btn.getAttribute('data-decision');
+                    await handleInviteDecision(notifId, decision);
+                });
+            });
+        }
+
+        async function applySideEffectsForInvite(item, decision) {
+            const memberIdentifier = session.email || session.name || session.docId;
+            const groupId = item.groupId || item.targetGroupId || '';
+
+            if (groupId && decision === 'Accepted') {
+                try {
+                    await setDoc(doc(db, "groups", String(groupId)), {
+                        members: arrayUnion(memberIdentifier)
+                    }, { merge: true });
+                } catch (err) {
+                    console.warn("Could not add member to group:", err);
+                }
+            }
+
+            const consultationId = item.consultationId || item.relatedConsultationId || '';
+            if (consultationId) {
+                try {
+                    await updateDoc(doc(db, "consultations", String(consultationId)), {
+                        status: decision,
+                        updatedAt: new Date().toISOString()
+                    });
+                } catch (err) {
+                    console.warn("Could not update related consultation:", err);
+                }
+            }
+
+            const senderEmail = item.senderEmail || item.requesterEmail || '';
+            if (senderEmail) {
+                await sendRequestEmailNotification({
+                    toEmail: senderEmail,
+                    toName: item.senderName || item.requesterName || '',
+                    subject: `CS-Sync Request ${decision}: ${item.title || 'Update'}`,
+                    message: `${session.name || memberIdentifier} marked "${item.title || 'Request'}" as ${decision}.`,
+                    requestType: classifyNotification(item)
+                });
+            }
+        }
+
+        async function handleInviteDecision(notifId, decision) {
+            const index = notifications.findIndex((n, i) => String(n.id || `notif_${i}`) === String(notifId));
+            if (index === -1 || processingIds.has(notifId)) return;
+
+            processingIds.add(notifId);
+            const original = { ...notifications[index] };
+
+            const updatedList = notifications.map((n, i) => {
+                const currentId = String(n.id || `notif_${i}`);
+                if (currentId !== String(notifId)) return n;
+                return {
+                    ...n,
+                    id: currentId,
+                    hasActions: false,
+                    status: decision,
+                    respondedAt: new Date().toISOString()
+                };
+            });
+
+            notifications = updatedList;
+            renderNotifications();
+
+            try {
+                await applySideEffectsForInvite(original, decision);
+                await setDoc(doc(db, "users", session.docId), {
+                    notifications: updatedList
+                }, { merge: true });
+                showToast(`Invite ${decision.toLowerCase()}.`, decision === 'Accepted' ? 'success' : 'info');
+            } catch (err) {
+                console.error("Failed to save invite decision:", err);
+                notifications[index] = original;
+                renderNotifications();
+                showToast("Could not update invite in Firestore. Please try again.", 'error');
+            } finally {
+                processingIds.delete(notifId);
+            }
+        }
+
+        document.querySelectorAll('.notif-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                activeFilter = btn.getAttribute('data-filter') || 'all';
+                updateFilterTabStyles();
+                renderNotifications();
+            });
+        });
+
+        document.getElementById('logoutBtn')?.addEventListener('click', async function(e) {
+            e.preventDefault();
+            try {
+                await signOut(auth);
+            } catch (err) {
+                console.warn("Sign out error:", err);
+            }
+            [
+                'cs_sync_user',
+                'cs_sync_email',
+                'cs_sync_role',
+                'cs_sync_program',
+                'cs_sync_batch',
+                'cs_sync_dept',
+                'cs_sync_avatar'
+            ].forEach((key) => localStorage.removeItem(key));
+            window.location.replace('index.html');
+        });
+
+        function startNotificationsListener() {
+            if (typeof activeUnsub === 'function') {
+                activeUnsub();
+                activeUnsub = null;
+            }
+            session = getSessionIdentity();
+            seenNotificationIds = new Set();
+            hasInitialSnapshot = false;
+            refreshAvatarBadge();
+            syncPushButtonLabel();
+
+            activeUnsub = onSnapshot(doc(db, "users", session.docId), (snap) => {
+                notificationsLoaded = true;
+                const incoming = snap.exists() && Array.isArray(snap.data()?.notifications)
+                    ? snap.data().notifications
+                    : [];
+
+                if (!hasInitialSnapshot) {
+                    incoming.forEach((n, idx) => seenNotificationIds.add(String(n.id || `notif_${idx}`)));
+                    hasInitialSnapshot = true;
+                } else {
+                    incoming.forEach((n, idx) => {
+                        const nid = String(n.id || `notif_${idx}`);
+                        if (!seenNotificationIds.has(nid)) {
+                            seenNotificationIds.add(nid);
+                            if (n.hasActions || String(n.status || '').toLowerCase() === 'pending') {
+                                sendBrowserPushAlert(n);
+                                showToast(n.title || 'New request received', 'info');
+                            }
+                        }
+                    });
+                }
+
+                notifications = incoming;
+                renderNotifications();
+            }, (err) => {
+                notificationsLoaded = true;
+                console.error("Failed to stream user notifications:", err);
+                showToast("Unable to load notifications from Firestore.", 'error');
+                const listEl = document.getElementById('notificationList');
+                if (listEl) {
+                    listEl.innerHTML = `
+                        <div style="padding: 16px; border: 1px solid #f5c2c7; border-radius: 6px; background: #f8d7da; color: #842029; font-size: 13px;">
+                            Unable to load notifications from Firestore.
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        startNotificationsListener();
+        window.addEventListener('cssync:auth-ready', startNotificationsListener);
+    </script>
 </body>
 </html>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Help & Support | CS-Sync UP Mindanao</title>
+    <script type="module" src="auth-guard.js"></script>
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -22,8 +23,11 @@
             </nav>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
             <a href="dashboard.html" style="font-size: 13px; color: var(--up-maroon); text-decoration: none; font-weight: 600;"><i class="fa-solid fa-arrow-left" style="margin-right: 4px;"></i> Back to Dashboard</a>
+            <button type="button" id="logoutBtn" style="padding: 6px 12px; background: #fff5f5; color: #dc3545; border: 1px solid #f1aeb5; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-right-from-bracket"></i> Log Out
+            </button>
         </div>
     </header>
 
@@ -66,21 +70,73 @@
         </div>
     </main>
 
+    <!-- Logout Handler -->
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
+            authDomain: "cs-sync-8a6a0.firebaseapp.com",
+            projectId: "cs-sync-8a6a0",
+            storageBucket: "cs-sync-8a6a0.appspot.com",
+            messagingSenderId: "340561797624",
+            appId: "1:34056179764:web:f417af5001d576882d360d",
+            measurementId: "G-F663CN4012"
+        };
+
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        document.getElementById('logoutBtn')?.addEventListener('click', async function(e) {
+            e.preventDefault();
+            try {
+                await signOut(auth);
+            } catch (err) {
+                console.warn("Sign out error:", err);
+            }
+            [
+                'cs_sync_user',
+                'cs_sync_email',
+                'cs_sync_role',
+                'cs_sync_program',
+                'cs_sync_batch',
+                'cs_sync_dept',
+                'cs_sync_avatar'
+            ].forEach((key) => localStorage.removeItem(key));
+            window.location.replace('index.html');
+        });
+    </script>
+
     <!-- Global Theme Script -->
     <script>
-        const currentTheme = localStorage.getItem('cs_sync_theme');
-        if (currentTheme === 'dark' || (currentTheme === 'device' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.body.style.background = '#121212';
-            document.body.style.color = '#e0e0e0';
-            
-            window.addEventListener('DOMContentLoaded', () => {
-                document.querySelectorAll('header, div[style*="background: white"], div[style*="background: #fff"]').forEach(el => {
-                    el.style.background = '#1e1e1e';
-                    el.style.color = '#e0e0e0';
-                    el.style.borderColor = '#333';
-                });
+        function applyHelpTheme() {
+            const currentTheme = localStorage.getItem('cs_sync_theme') || 'device';
+            const isDark = currentTheme === 'dark' || (currentTheme === 'device' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+            document.body.style.background = isDark ? '#121212' : 'var(--bg-color, #f4f6f8)';
+            document.body.style.color = isDark ? '#e0e0e0' : '#212529';
+
+            document.querySelectorAll('header, main > div:last-child > div').forEach(el => {
+                el.style.background = isDark ? '#1e1e1e' : 'white';
+                el.style.color = isDark ? '#e0e0e0' : '#212529';
+                el.style.borderColor = isDark ? '#333' : 'var(--border-color)';
+            });
+
+            document.querySelectorAll('h1').forEach(h => {
+                h.style.color = isDark ? '#f1f3f5' : '#212529';
+            });
+
+            document.querySelectorAll('p').forEach(p => {
+                if (p.style.color === 'rgb(51, 51, 51)' || p.style.color === '#333') {
+                    p.style.color = isDark ? '#e0e0e0' : '#333';
+                }
             });
         }
+
+        window.addEventListener('DOMContentLoaded', applyHelpTheme);
+        window.addEventListener('cssync:auth-ready', applyHelpTheme);
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyHelpTheme);
     </script>
 </body>
 </html>

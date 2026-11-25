@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group Overlap | CS-Sync UP Mindanao</title>
+    <script type="module" src="auth-guard.js"></script>
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -44,9 +45,7 @@
                         <h4 style="margin: 0; font-size: 14px; color: var(--up-maroon);">Notifications & Invites</h4>
                         <span style="font-size: 11px; color: var(--text-muted); cursor: pointer;" id="clearAllNotifs">Clear all</span>
                     </div>
-                    <div id="notifListBody" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
-                        <!-- Rendered dynamically -->
-                    </div>
+                    <div id="notifListBody" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;"></div>
                 </div>
             </div>
 
@@ -79,25 +78,15 @@
         </div>
     </header>
 
-    <!-- Student-Only Access Guard -->
-    <script>
-        (function () {
-            const role = (localStorage.getItem('cs_sync_role') || 'student').toLowerCase();
-            if (role === 'faculty' || role === 'professor') {
-                document.write(`
-                    <div style="max-width: 520px; margin: 72px auto; background: white; padding: 32px; border-radius: 12px; border: 1px solid var(--border-color, #dee2e6); text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.05);">
-                        <div style="width: 48px; height: 48px; margin: 0 auto 14px auto; border-radius: 50%; background: #f8d7da; color: #842029; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-                            <i class="fa-solid fa-lock"></i>
-                        </div>
-                        <h2 style="margin: 0 0 8px 0; font-size: 20px; color: var(--up-maroon, #7b1113);">Access Restricted</h2>
-                        <p style="margin: 0 0 20px 0; font-size: 14px; color: #495057;">Only student account can access it.</p>
-                        <a href="dashboard.html" style="display: inline-block; padding: 10px 18px; background: var(--up-maroon, #7b1113); color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600;">Back to Dashboard</a>
-                    </div>
-                `);
-                window.__BLOCK_NON_STUDENT__ = true;
-            }
-        })();
-    </script>
+    <!-- Student-Only Restricted Notice (Shown if role is faculty/professor) -->
+    <div id="nonStudentNotice" style="display: none; max-width: 520px; margin: 72px auto; background: white; padding: 32px; border-radius: 12px; border: 1px solid var(--border-color, #dee2e6); text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.05);">
+        <div style="width: 48px; height: 48px; margin: 0 auto 14px auto; border-radius: 50%; background: #f8d7da; color: #842029; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+            <i class="fa-solid fa-lock"></i>
+        </div>
+        <h2 style="margin: 0 0 8px 0; font-size: 20px; color: var(--up-maroon, #7b1113);">Access Restricted</h2>
+        <p style="margin: 0 0 20px 0; font-size: 14px; color: #495057;">Only student account can access it.</p>
+        <a href="dashboard.html" style="display: inline-block; padding: 10px 18px; background: var(--up-maroon, #7b1113); color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600;">Back to Dashboard</a>
+    </div>
 
     <!-- Main Container for Overlap Tool -->
     <div id="overlapMainWrapper" class="overlap-container" style="max-width: 1100px; margin: 24px auto; display: grid; grid-template-columns: 320px 1fr; gap: 20px; padding: 0 16px;">
@@ -117,27 +106,32 @@
                     <h4 style="font-size: 13px; color: var(--text-muted); margin: 0;">My Project Groups</h4>
                     <button id="addNewGroupBtn" type="button" style="background: none; border: none; color: var(--up-maroon); font-size: 12px; font-weight: 600; cursor: pointer;">+ New Group</button>
                 </div>
-                <div id="myGroupsList" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto;">
-                    <!-- Rendered dynamically -->
+
+                <!-- Inline New Group Input -->
+                <div id="newGroupInlineBox" style="display: none; gap: 6px; margin-bottom: 10px;">
+                    <input type="text" id="newGroupInlineInput" placeholder="e.g. CMSC 56 Study Team" style="flex: 1; padding: 7px 9px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; box-sizing: border-box;">
+                    <button id="saveNewGroupInlineBtn" type="button" style="padding: 7px 10px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">Create</button>
                 </div>
+
+                <div id="myGroupsList" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto;"></div>
             </div>
 
             <!-- Active Teammates Box -->
             <div class="teammates-box" style="border-top: 1px solid var(--border-color); padding-top: 16px;">
-                <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Active Teammates (<span id="teammateCount">0</span>)</h4>
-                <div id="teammateChipsContainer" class="teammate-chips" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px;">
-                    <span style="font-size: 12px; color: var(--text-muted); font-style: italic;">Loading cloud teammates...</span>
-                </div>
+                <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Active Teammates (<span id="teammateCount">1</span>)</h4>
+                <div id="teammateChipsContainer" class="teammate-chips" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px;"></div>
                 <button id="addMemberBtn" type="button" class="add-member-btn" style="padding: 4px 10px; border-radius: 12px; font-size: 12px; background: none; border: 1px dashed var(--up-maroon); color: var(--up-maroon); cursor: pointer;">Add Teammate +</button>
             </div>
 
             <div id="idealWindowBanner" class="ideal-window-banner" style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; display: flex; gap: 10px; align-items: flex-start;">
                 <span class="banner-icon" style="font-size: 16px;">👥</span>
                 <div>
-                    <h5 id="idealWindowTitle" style="font-size: 13px; color: #333; margin: 0 0 4px 0;">Add a Student Teammate</h5>
-                    <p id="idealWindowText" style="font-size: 12px; color: var(--text-muted); margin: 0;">Add at least one student to compare group free windows.</p>
+                    <h5 id="idealWindowTitle" style="font-size: 13px; color: #333; margin: 0 0 4px 0;">Solo Schedule View</h5>
+                    <p id="idealWindowText" style="font-size: 12px; color: var(--text-muted); margin: 0;">Add a student teammate to compare group free windows.</p>
                 </div>
             </div>
+
+            <div id="overlapStatusBanner" style="display: none; font-size: 12px; padding: 8px 10px; border-radius: 6px;"></div>
 
             <button id="openConfirmModalBtn" type="button" class="confirm-meeting-btn" style="width: 100%; padding: 12px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer;">Confirm Group Meeting</button>
         </aside>
@@ -151,9 +145,7 @@
                     <span style="font-size: 13px; font-weight: 700; color: #664d03;"><i class="fa-solid fa-envelope-open-text" style="margin-right: 6px;"></i> Pending Group & Meeting Invites</span>
                     <span id="overlapInviteCount" style="font-size: 11px; font-weight: 700; background: #ffc107; color: #212529; padding: 2px 8px; border-radius: 999px;">0</span>
                 </div>
-                <div id="overlapInvitesList" style="display: flex; flex-direction: column; gap: 8px;">
-                    <!-- Populated dynamically -->
-                </div>
+                <div id="overlapInvitesList" style="display: flex; flex-direction: column; gap: 8px;"></div>
             </div>
 
             <div>
@@ -172,7 +164,6 @@
                         <span>Thu</span>
                         <span>Fri</span>
                     </div>
-                    <!-- Rendered dynamically by renderAvailabilityMatrix() -->
                 </div>
             </div>
         </main>
@@ -186,9 +177,7 @@
                 <h4 id="modalSlotTitle" style="margin: 0; font-size: 15px; color: var(--up-maroon);">Availability Breakdown</h4>
                 <span onclick="closeSlotModal()" style="font-size: 22px; cursor: pointer; color: var(--text-muted);">&times;</span>
             </div>
-            <div id="modalSlotBody" style="font-size: 13px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
-                <!-- Populated dynamically -->
-            </div>
+            <div id="modalSlotBody" style="font-size: 13px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;"></div>
             <button onclick="closeSlotModal()" type="button" style="width: 100%; padding: 8px; background: #e9ecef; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; color: #495057;">Close</button>
         </div>
     </div>
@@ -230,6 +219,8 @@
                     <button type="button" id="registerStudentBtn" style="padding: 8px 12px; background: #198754; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px;">Register Student & Add to Group</button>
                 </div>
             </div>
+
+            <div id="teammateModalFeedback" style="display: none; font-size: 12px; color: #842029; background: #f8d7da; border: 1px solid #f5c2c7; border-radius: 6px; padding: 8px 10px; margin-bottom: 12px;"></div>
 
             <div style="display: flex; justify-content: flex-end; gap: 12px;">
                 <button type="button" id="cancelAddModalBtn" style="padding: 10px 16px; background: none; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">Cancel</button>
@@ -295,6 +286,8 @@
                 <textarea id="meetingAgendaTextarea" rows="3" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: none; box-sizing: border-box;">Project Sprint Alignment and milestone tracking...</textarea>
             </div>
 
+            <div id="meetingModalFeedback" style="display: none; font-size: 12px; color: #842029; background: #f8d7da; border: 1px solid #f5c2c7; border-radius: 6px; padding: 8px 10px; margin-bottom: 12px;"></div>
+
             <div style="display: flex; justify-content: flex-end; gap: 12px;">
                 <button type="button" id="cancelModalBtn" style="padding: 10px 16px; background: none; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">Cancel</button>
                 <button type="button" id="confirmInviteBtn" style="padding: 10px 16px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;">Confirm Invite</button>
@@ -303,7 +296,8 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         function detectUserRole(name = '', email = '') {
@@ -355,6 +349,16 @@
                 .replace(/^_|_$/g, '');
         }
 
+        function showPageStatus(message, isError = false) {
+            const el = document.getElementById('overlapStatusBanner');
+            if (!el) return;
+            el.style.display = 'block';
+            el.style.background = isError ? '#f8d7da' : '#e8f5e9';
+            el.style.color = isError ? '#842029' : '#1b5e20';
+            el.style.border = `1px solid ${isError ? '#f5c2c7' : '#c8e6c9'}`;
+            el.textContent = message;
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
             authDomain: "cs-sync-8a6a0.firebaseapp.com",
@@ -365,7 +369,8 @@
             measurementId: "G-F663CN4012"
         };
 
-        const app = initializeApp(firebaseConfig);
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
         let notifications = [];
@@ -484,11 +489,13 @@
             }
             const remaining = notifications.filter(item => item.id !== notif.id);
             await persistNotificationsToCloud(remaining);
+            showPageStatus(`Accepted invite for "${notif.groupName || 'Group'}".`, false);
         }
 
         async function handleDeclineInvite(notifId) {
             const remaining = notifications.filter(item => item.id !== notifId);
             await persistNotificationsToCloud(remaining);
+            showPageStatus('Invite declined.', false);
         }
 
         function renderOverlapInvitesPrompt() {
@@ -645,25 +652,67 @@
             await persistNotificationsToCloud([]);
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        document.getElementById('logoutBtn').addEventListener('click', async function(e) {
             e.preventDefault();
+            try {
+                await signOut(auth);
+            } catch (err) {
+                console.warn("Sign out error:", err);
+            }
             localStorage.removeItem('cs_sync_user');
             localStorage.removeItem('cs_sync_email');
             localStorage.removeItem('cs_sync_role');
             localStorage.removeItem('cs_sync_program');
             localStorage.removeItem('cs_sync_batch');
             localStorage.removeItem('cs_sync_dept');
+            localStorage.removeItem('cs_sync_avatar');
             window.location.replace('index.html');
         });
 
         const overlapMainWrapper = document.getElementById('overlapMainWrapper');
-        if (window.__BLOCK_NON_STUDENT__ || isFaculty) {
-            if (overlapMainWrapper) overlapMainWrapper.style.display = 'none';
+        const nonStudentNotice = document.getElementById('nonStudentNotice');
+
+        function applyRoleGate() {
+            const currentRole = (localStorage.getItem('cs_sync_role') || storedRole).toLowerCase();
+            const blocked = currentRole === 'faculty' || currentRole === 'professor';
+            if (overlapMainWrapper) overlapMainWrapper.style.display = blocked ? 'none' : 'grid';
+            if (nonStudentNotice) nonStudentNotice.style.display = blocked ? 'block' : 'none';
+            return blocked;
+        }
+
+        window.addEventListener('cssync:auth-ready', applyRoleGate);
+
+        if (applyRoleGate()) {
+            // Non-student view active
         } else {
-            let currentGroupName = "Final Project CMSC 3";
-            let activeTeammates = [];
+            const DEFAULT_GROUPS = ["Final Project CMSC 3", "CS 198 Thesis Group", "Discrete Structures Study Group"];
+            const SAVED_GROUPS_KEY = `cs_sync_groups_${toDocSlug(storedEmail || storedUser)}`;
+
+            function readPersistedGroups() {
+                try {
+                    const raw = localStorage.getItem(SAVED_GROUPS_KEY);
+                    const parsed = raw ? JSON.parse(raw) : [];
+                    return Array.from(new Set([...DEFAULT_GROUPS, ...(Array.isArray(parsed) ? parsed : [])]));
+                } catch (_) {
+                    return [...DEFAULT_GROUPS];
+                }
+            }
+
+            function writePersistedGroups(list) {
+                try {
+                    localStorage.setItem(SAVED_GROUPS_KEY, JSON.stringify(list));
+                } catch (_) {}
+            }
+
+            let myGroups = readPersistedGroups();
+            let currentGroupName = localStorage.getItem('cs_sync_active_group') || myGroups[0];
+            if (!myGroups.includes(currentGroupName)) {
+                myGroups.push(currentGroupName);
+                writePersistedGroups(myGroups);
+            }
+
+            let activeTeammates = [storedUser];
             let acceptedConsultations = [];
-            let myGroups = ["Final Project CMSC 3", "CS 198 Thesis Group", "Discrete Structures Study Group"];
             let unsubscribeGroupListener = null;
 
             const matrixTimes = [
@@ -674,6 +723,18 @@
             ];
             const matrixDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
             const SLOT_DURATION_MINUTES = 60;
+
+            function setActiveGroup(name) {
+                const clean = String(name || '').trim() || 'Final Project CMSC 3';
+                currentGroupName = clean;
+                localStorage.setItem('cs_sync_active_group', clean);
+                if (!myGroups.includes(clean)) {
+                    myGroups.push(clean);
+                    writePersistedGroups(myGroups);
+                }
+                document.getElementById('groupNameInput').value = clean;
+                document.getElementById('confirmGroupNameDisplay').textContent = clean;
+            }
 
             function getPrimaryLocalScheduleKey() {
                 return storedEmail
@@ -739,12 +800,7 @@
             window.__joinGroupFromInvite = async function(groupTitle) {
                 const cleanTitle = String(groupTitle || '').trim();
                 if (!cleanTitle) return;
-                if (!myGroups.includes(cleanTitle)) {
-                    myGroups.push(cleanTitle);
-                }
-                currentGroupName = cleanTitle;
-                document.getElementById('groupNameInput').value = cleanTitle;
-                document.getElementById('confirmGroupNameDisplay').textContent = cleanTitle;
+                setActiveGroup(cleanTitle);
                 renderGroupsList();
                 await addTeammateNameToGroup(storedUser, false);
                 subscribeToGroupRealtime();
@@ -976,9 +1032,6 @@
             }
 
             function getBestFreeSlot() {
-                if (!hasAddedTeammate()) {
-                    return { day: 'Fri', time: '01:00 PM', isFree: false };
-                }
                 for (const time of matrixTimes) {
                     for (const day of matrixDays) {
                         if (activeTeammates.every(m => !isMemberBusyAtSlot(m, day, time))) {
@@ -1009,7 +1062,7 @@
                     const cellsHtml = matrixDays.map((day) => {
                         const busyCount = activeTeammates.filter((member) => isMemberBusyAtSlot(member, day, time)).length;
                         const isSlotFree = busyCount === 0;
-                        if (addedTeammatePresent && isSlotFree) {
+                        if (isSlotFree) {
                             allFreeSlots.push(`${day} ${time}`);
                         }
 
@@ -1039,9 +1092,11 @@
                         banner.style.background = '#f8f9fa';
                         banner.style.borderColor = 'var(--border-color)';
                         bannerTitle.style.color = '#333';
-                        bannerTitle.textContent = 'Add a Student Teammate';
+                        bannerTitle.textContent = 'Solo Schedule View';
                         idealText.style.color = 'var(--text-muted)';
-                        idealText.textContent = 'Add at least one student to check group free overlap.';
+                        idealText.innerHTML = allFreeSlots.length > 0
+                            ? `Your earliest free window: <strong>${escapeHtml(allFreeSlots[0])}</strong>. Add a teammate to compare overlap.`
+                            : 'Add a student teammate to compare group free windows.';
                     } else if (allFreeSlots.length > 0) {
                         banner.style.background = '#e8f5e9';
                         banner.style.borderColor = '#c8e6c9';
@@ -1127,6 +1182,30 @@
                 );
             }
 
+            function startMemberGroupsListener() {
+                onSnapshot(collection(db, "groups"), (snap) => {
+                    const userLower = storedUser.trim().toLowerCase();
+                    const emailLower = storedEmail.trim().toLowerCase();
+                    let changed = false;
+
+                    snap.forEach((docSnap) => {
+                        const data = docSnap.data() || {};
+                        const mates = Array.isArray(data.teammates) ? data.teammates.map(m => String(m).trim().toLowerCase()) : [];
+                        if (data.groupName && (mates.includes(userLower) || mates.includes(emailLower))) {
+                            if (!myGroups.includes(data.groupName)) {
+                                myGroups.push(data.groupName);
+                                changed = true;
+                            }
+                        }
+                    });
+
+                    if (changed) {
+                        writePersistedGroups(myGroups);
+                        renderGroupsList();
+                    }
+                });
+            }
+
             async function loadRegisteredStudents() {
                 const localList = getLocalStudentCache();
                 const docs = [];
@@ -1159,6 +1238,8 @@
             }
 
             const groupNameInput = document.getElementById('groupNameInput');
+            const newGroupInlineBox = document.getElementById('newGroupInlineBox');
+            const newGroupInlineInput = document.getElementById('newGroupInlineInput');
 
             function renderGroupsList() {
                 const listContainer = document.getElementById('myGroupsList');
@@ -1174,9 +1255,7 @@
                         <span style="font-size: 10px; background: ${isActive ? 'var(--up-maroon)' : '#e9ecef'}; color: ${isActive ? 'white' : '#6c757d'}; padding: 2px 6px; border-radius: 10px;">${isActive ? 'Active' : 'Switch'}</span>
                     `;
                     item.onclick = () => {
-                        currentGroupName = group;
-                        groupNameInput.value = group;
-                        document.getElementById('confirmGroupNameDisplay').textContent = group;
+                        setActiveGroup(group);
                         renderGroupsList();
                         subscribeToGroupRealtime();
                     };
@@ -1184,44 +1263,57 @@
                 });
             }
 
+            function commitNewGroup(name) {
+                const formattedName = String(name || '').trim();
+                if (!formattedName) return;
+                setActiveGroup(formattedName);
+                newGroupInlineInput.value = '';
+                newGroupInlineBox.style.display = 'none';
+                renderGroupsList();
+                subscribeToGroupRealtime();
+                showPageStatus(`Switched to "${formattedName}".`, false);
+            }
+
             document.getElementById('addNewGroupBtn').addEventListener('click', () => {
-                const newName = prompt("Enter new project group name:");
-                if (newName && newName.trim() !== '') {
-                    const formattedName = newName.trim();
-                    if (!myGroups.includes(formattedName)) {
-                        myGroups.push(formattedName);
-                    }
-                    currentGroupName = formattedName;
-                    groupNameInput.value = formattedName;
-                    document.getElementById('confirmGroupNameDisplay').textContent = formattedName;
-                    renderGroupsList();
-                    subscribeToGroupRealtime();
+                const opening = newGroupInlineBox.style.display !== 'flex';
+                newGroupInlineBox.style.display = opening ? 'flex' : 'none';
+                if (opening) newGroupInlineInput.focus();
+            });
+
+            document.getElementById('saveNewGroupInlineBtn').addEventListener('click', () => {
+                commitNewGroup(newGroupInlineInput.value);
+            });
+
+            newGroupInlineInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    commitNewGroup(newGroupInlineInput.value);
                 }
             });
 
             groupNameInput.addEventListener('input', function(e) {
-                currentGroupName = e.target.value.trim() || 'Untitled Group';
-                document.getElementById('confirmGroupNameDisplay').textContent = currentGroupName;
-                if (!myGroups.includes(currentGroupName)) {
-                    myGroups.push(currentGroupName);
+                const val = e.target.value.trim() || 'Untitled Group';
+                currentGroupName = val;
+                localStorage.setItem('cs_sync_active_group', val);
+                document.getElementById('confirmGroupNameDisplay').textContent = val;
+                if (!myGroups.includes(val)) {
+                    myGroups.push(val);
+                    writePersistedGroups(myGroups);
                 }
                 renderGroupsList();
                 subscribeToGroupRealtime();
             });
 
             function renderTeammatesUI(teammatesList) {
-                activeTeammates = Array.isArray(teammatesList) ? teammatesList : [];
+                activeTeammates = Array.isArray(teammatesList) && teammatesList.length > 0
+                    ? teammatesList
+                    : [storedUser];
                 const container = document.getElementById('teammateChipsContainer');
                 const countDisplay = document.getElementById('teammateCount');
 
                 countDisplay.textContent = activeTeammates.length;
                 populateStudentSelect();
                 renderAvailabilityMatrix();
-
-                if (activeTeammates.length === 0) {
-                    container.innerHTML = '<span style="font-size: 12px; color: var(--text-muted); font-style: italic;">No cloud teammates synced yet.</span>';
-                    return;
-                }
 
                 container.innerHTML = '';
                 activeTeammates.forEach((name) => {
@@ -1246,6 +1338,7 @@
                     unsubscribeGroupListener = null;
                 }
 
+                renderTeammatesUI([storedUser]);
                 const groupId = getGroupDocId(currentGroupName);
                 const groupRef = doc(db, "groups", groupId);
 
@@ -1253,7 +1346,7 @@
                     groupRef,
                     async (groupSnap) => {
                         if (groupSnap.exists()) {
-                            renderTeammatesUI(groupSnap.data().teammates || []);
+                            renderTeammatesUI(groupSnap.data().teammates || [storedUser]);
                         } else {
                             try {
                                 await setDoc(groupRef, { groupName: currentGroupName, teammates: [storedUser] }, { merge: true });
@@ -1265,6 +1358,7 @@
                     },
                     (err) => {
                         console.warn("Realtime group listener error:", err);
+                        renderTeammatesUI([storedUser]);
                     }
                 );
             }
@@ -1273,9 +1367,12 @@
                 const groupId = getGroupDocId(currentGroupName);
                 const groupRef = doc(db, "groups", groupId);
                 try {
+                    const next = activeTeammates.filter(m => m !== name);
+                    renderTeammatesUI(next.length > 0 ? next : [storedUser]);
                     await updateDoc(groupRef, { teammates: arrayRemove(name) });
                 } catch (err) {
                     console.error("Error removing teammate:", err);
+                    showPageStatus("Could not update cloud group.", true);
                 }
             }
 
@@ -1303,9 +1400,20 @@
             const teammateNameInput = document.getElementById('teammateNameInput');
             const directoryStudentSelect = document.getElementById('directoryStudentSelect');
             const newStudentPanel = document.getElementById('newStudentPanel');
+            const teammateModalFeedback = document.getElementById('teammateModalFeedback');
+
+            function showTeammateError(msg = '') {
+                if (!msg) {
+                    teammateModalFeedback.style.display = 'none';
+                    return;
+                }
+                teammateModalFeedback.textContent = msg;
+                teammateModalFeedback.style.display = 'block';
+            }
 
             document.getElementById('addMemberBtn').addEventListener('click', async () => {
                 teammateNameInput.value = '';
+                showTeammateError('');
                 populateStudentSelect();
                 addTeammateModal.style.display = 'flex';
                 directoryStudentSelect.focus();
@@ -1314,6 +1422,7 @@
             directoryStudentSelect.addEventListener('change', () => {
                 if (directoryStudentSelect.value) {
                     teammateNameInput.value = directoryStudentSelect.value;
+                    showTeammateError('');
                 }
             });
 
@@ -1328,10 +1437,11 @@
                 const batch = document.getElementById('newStudentBatch').value.trim() || '2026';
 
                 if (!fullName) {
-                    alert('Please enter the new student\'s full name.');
+                    showTeammateError('Please enter the new student\'s full name.');
                     return;
                 }
 
+                showTeammateError('');
                 const studentDocId = toDocSlug(email || fullName) || `student_${Date.now()}`;
                 const studentPayload = {
                     fullName,
@@ -1352,6 +1462,7 @@
                 saveLocalStudentCache([...filtered, studentPayload]);
 
                 await addTeammateNameToGroup(fullName, true);
+                showPageStatus(`Registered & added ${fullName} to "${currentGroupName}".`, false);
                 document.getElementById('newStudentFullName').value = '';
                 document.getElementById('newStudentEmail').value = '';
                 document.getElementById('newStudentBatch').value = '';
@@ -1364,8 +1475,12 @@
 
             document.getElementById('saveTeammateBtn').onclick = async function() {
                 const searchName = teammateNameInput.value.trim() || directoryStudentSelect.value.trim();
-                if (!searchName) { alert('Please select or enter a teammate name.'); return; }
+                if (!searchName) {
+                    showTeammateError('Please select or enter a teammate name.');
+                    return;
+                }
 
+                showTeammateError('');
                 try {
                     const userQuery = query(collection(db, "users"), where("fullName", "==", searchName));
                     const userSnap = await getDocs(userQuery);
@@ -1381,18 +1496,20 @@
                     }
 
                     await addTeammateNameToGroup(searchName, true);
+                    showPageStatus(`Added ${searchName} to "${currentGroupName}".`, false);
                     addTeammateModal.style.display = 'none';
                 } catch (error) {
                     console.error("Cloud sync error:", error);
-                    alert("Error updating cloud group. Check console.");
+                    showTeammateError("Error updating cloud group. Please check your connection.");
                 }
             };
 
-            document.getElementById('confirmGroupNameDisplay').textContent = currentGroupName;
+            setActiveGroup(currentGroupName);
             renderGroupsList();
             await syncCurrentUserScheduleToCloud();
             startUsersRealtimeListener();
             startConsultationsRealtimeListener();
+            startMemberGroupsListener();
             subscribeToGroupRealtime();
 
             window.addEventListener('storage', (e) => {
@@ -1420,10 +1537,6 @@
                     `;
                 });
 
-                if (activeTeammates.length === 0) {
-                    html = '<p style="color: var(--text-muted); text-align: center; font-style: italic; margin: 10px 0;">No active teammates in this group yet.</p>';
-                }
-
                 body.innerHTML = html;
                 modal.style.display = 'flex';
             };
@@ -1439,6 +1552,7 @@
             const confirmInviteBtn = document.getElementById('confirmInviteBtn');
             const meetingDaySelect = document.getElementById('meetingDaySelect');
             const meetingTimeSelect = document.getElementById('meetingTimeSelect');
+            const meetingModalFeedback = document.getElementById('meetingModalFeedback');
 
             function refreshMeetingModalSlotPreview() {
                 const added = hasAddedTeammate();
@@ -1475,7 +1589,7 @@
 
                 if (statusBadge) {
                     if (!added) {
-                        statusBadge.textContent = 'Add a teammate first to verify overlap';
+                        statusBadge.textContent = 'Solo slot check — add a teammate for group overlap';
                         statusBadge.style.background = '#e9ecef';
                         statusBadge.style.color = '#495057';
                     } else if (slotConflicts.length === 0) {
@@ -1495,6 +1609,7 @@
 
             if (openModalBtn) {
                 openModalBtn.onclick = () => {
+                    meetingModalFeedback.style.display = 'none';
                     const best = getBestFreeSlot();
                     if (meetingDaySelect && matrixDays.includes(best.day)) {
                         meetingDaySelect.value = best.day;
@@ -1510,6 +1625,7 @@
             if (cancelModalBtn) cancelModalBtn.onclick = () => meetingModal.style.display = 'none';
             if (confirmInviteBtn) {
                 confirmInviteBtn.onclick = async () => {
+                    meetingModalFeedback.style.display = 'none';
                     const selectedDay = meetingDaySelect?.value || getBestFreeSlot().day;
                     const selectedTime = meetingTimeSelect?.value || getBestFreeSlot().time;
                     const endTime = formatEndHour(selectedTime);
@@ -1537,6 +1653,8 @@
                     const userDocId = getPrimaryCurrentUserDocId();
 
                     try {
+                        localStorage.setItem('cs_sync_active_group', currentGroupName);
+
                         await setDoc(doc(db, "groups", groupId), {
                             groupId,
                             groupName: currentGroupName,
@@ -1572,12 +1690,12 @@
                         localStorage.setItem(primaryKey, JSON.stringify(updatedLocal));
                         window.dispatchEvent(new StorageEvent('storage', { key: primaryKey }));
 
-                        alert(`🎉 Group meeting invite successfully sent for "${currentGroupName}" (${fullDay}, ${formattedTime})!`);
                         meetingModal.style.display = 'none';
                         window.location.href = 'calendar.html';
                     } catch (err) {
                         console.error("Failed to save group meeting to Firestore:", err);
-                        alert("Could not sync meeting to Firestore. Please try again.");
+                        meetingModalFeedback.textContent = "Could not sync meeting to Firestore. Please try again.";
+                        meetingModalFeedback.style.display = 'block';
                     }
                 };
             }
