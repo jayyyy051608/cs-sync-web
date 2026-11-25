@@ -68,7 +68,7 @@
                     </div>
                     <div style="padding: 6px 0;">
                         <a href="profile.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--up-maroon); font-weight: 600; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-user" style="width: 16px;"></i> My Profile</a>
-                        <a href="settings.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-gear fa-regular" style="width: 16px;"></i> Settings</a>
+                        <a href="settings.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-gear fa-solid" style="width: 16px;"></i> Settings</a>
                         <a href="help.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-circle-question" style="width: 16px;"></i> Help & Support</a>
                     </div>
                     <div style="border-top: 1px solid var(--border-color); padding: 6px 0;">
@@ -148,14 +148,22 @@
     <!-- Scripts for Profile Logic & Avatar Upload -->
     <script>
         const storedUser = localStorage.getItem('cs_sync_user') || 'Maria Santos';
-        const storedEmail = localStorage.getItem('cs_sync_email') || 'mahalkosiya@up.edu.ph';
+        const storedEmail =
+            localStorage.getItem('cs_sync_email') ||
+            localStorage.getItem('cs_sync_registered_email') ||
+            'mahalkosiya@up.edu.ph';
         const storedAvatar = localStorage.getItem('cs_sync_avatar');
-        
+
+        if (localStorage.getItem('cs_sync_email')) {
+            localStorage.setItem('cs_sync_registered_email', storedEmail);
+        }
+
         document.getElementById('userNameDisplay').textContent = storedUser;
         document.getElementById('profileDropdownName').textContent = storedUser;
         document.getElementById('profileDropdownEmail').textContent = storedEmail;
         document.getElementById('profileFullName').textContent = storedUser;
         document.getElementById('profileEmailDisplay').textContent = storedEmail;
+        document.getElementById('editEmail').value = storedEmail;
         document.getElementById('editFullName').value = storedUser;
 
         const initials = storedUser.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();

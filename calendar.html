@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 <body class="dashboard-body" style="background: var(--bg-color, #f4f6f8); margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
 
@@ -17,19 +18,19 @@
             <nav style="display: flex; gap: 24px;">
                 <a href="dashboard.html" style="color: var(--text-muted, #6c757d); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-house"></i> Home</a>
                 <a href="overlap.html" style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-users"></i> Overlap</a>
-                <a href="database.html" style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-graduation-cap"></i> Faculty</a>
+                <a href="faculty.html" style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-graduation-cap"></i> Faculty</a>
                 <a href="calendar.html" style="color: var(--up-maroon); font-weight: 600; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-regular fa-calendar"></i> Calendar</a>
             </nav>
         </div>
 
         <!-- Right Side Icons & Profile Dropdown -->
         <div style="display: flex; align-items: center; gap: 20px; position: relative;">
-            
+
             <!-- Notification Bell Icon -->
             <div style="position: relative;">
-                <button id="notifBtn" style="background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; position: relative;">
+                <button id="notifBtn" type="button" style="background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; position: relative;">
                     <i class="fa-regular fa-bell"></i>
-                    <span style="position: absolute; top: -4px; right: -4px; background: #dc3545; color: white; font-size: 9px; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">3</span>
+                    <span id="notifBadge" style="position: absolute; top: -4px; right: -4px; background: #dc3545; color: white; font-size: 9px; width: 14px; height: 14px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-weight: bold;">0</span>
                 </button>
 
                 <!-- Notifications Dropdown Center -->
@@ -38,11 +39,8 @@
                         <h4 style="margin: 0; font-size: 14px; color: var(--up-maroon);">Notifications & Invites</h4>
                         <span style="font-size: 11px; color: var(--text-muted); cursor: pointer;" id="clearAllNotifs">Clear all</span>
                     </div>
-                    <div style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
-                        <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; font-size: 12px;">
-                            <strong>Reminder</strong><br>
-                            No pending schedule conflicts detected for this week.
-                        </div>
+                    <div id="notifListBody" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+                        <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>
                     </div>
                 </div>
             </div>
@@ -60,11 +58,11 @@
                     <div style="padding: 16px; border-bottom: 1px solid var(--border-color); background: #fdfdfd;">
                         <p id="profileDropdownName" style="margin: 0; font-weight: bold; font-size: 13px; color: #333;">Maria Santos</p>
                         <p id="profileDropdownEmail" style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-muted);">mahalkosiya@up.edu.ph</p>
-                        <span style="display: inline-block; margin-top: 6px; background: #e9ecef; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; color: #495057;">Student • BSCS</span>
+                        <span id="roleBadge" style="display: inline-block; margin-top: 6px; background: #e9ecef; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; color: #495057;">Student • BSCS</span>
                     </div>
                     <div style="padding: 6px 0;">
                         <a href="profile.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-user" style="width: 16px;"></i> My Profile</a>
-                        <a href="settings.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-gear fa-regular" style="width: 16px;"></i> Settings</a>
+                        <a href="settings.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-gear fa-solid" style="width: 16px;"></i> Settings</a>
                         <a href="help.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-circle-question" style="width: 16px;"></i> Help & Support</a>
                     </div>
                     <div style="border-top: 1px solid var(--border-color); padding: 6px 0;">
@@ -78,27 +76,31 @@
 
     <!-- Main Content: Calendar & Schedule -->
     <main style="max-width: 1200px; margin: 32px auto; padding: 0 20px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
             <div>
                 <h1 style="margin: 0; font-size: 24px; color: #212529;">My Calendar & Schedule</h1>
-                <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">Unified schedule and dynamic view controller.</p>
+                <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">Unified schedule, OCR image scanner, and dynamic view controller.</p>
             </div>
-            
-            <!-- View Mode Choices & Action -->
-            <div style="display: flex; gap: 10px; align-items: center;">
+
+            <!-- View Mode Choices & Actions -->
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <div style="background: white; border: 1px solid var(--border-color); border-radius: 6px; display: flex; overflow: hidden; font-size: 12px;">
-                    <button class="view-btn" data-view="today" style="padding: 6px 12px; background: none; border: none; cursor: pointer; border-right: 1px solid var(--border-color);">Today</button>
-                    <button class="view-btn" data-view="schedule" style="padding: 6px 12px; background: none; border: none; cursor: pointer; border-right: 1px solid var(--border-color);">Schedule</button>
-                    <button class="view-btn" data-view="day" style="padding: 6px 12px; background: none; border: none; cursor: pointer; border-right: 1px solid var(--border-color);">Day</button>
-                    <button class="view-btn active-view" data-view="week" style="padding: 6px 12px; background: var(--up-maroon); color: white; border: none; cursor: pointer; border-right: 1px solid var(--border-color); font-weight: 600;">Week</button>
-                    <button class="view-btn" data-view="month" style="padding: 6px 12px; background: none; border: none; cursor: pointer;">Month</button>
+                    <button type="button" class="view-btn" data-view="today" style="padding: 6px 12px; background: none; border: none; cursor: pointer; border-right: 1px solid var(--border-color);">Today</button>
+                    <button type="button" class="view-btn" data-view="schedule" style="padding: 6px 12px; background: none; border: none; cursor: pointer; border-right: 1px solid var(--border-color);">Schedule</button>
+                    <button type="button" class="view-btn" data-view="day" style="padding: 6px 12px; background: none; border: none; cursor: pointer; border-right: 1px solid var(--border-color);">Day</button>
+                    <button type="button" class="view-btn active-view" data-view="week" style="padding: 6px 12px; background: var(--up-maroon); color: white; border: none; cursor: pointer; border-right: 1px solid var(--border-color); font-weight: 600;">Week</button>
+                    <button type="button" class="view-btn" data-view="month" style="padding: 6px 12px; background: none; border: none; cursor: pointer;">Month</button>
                 </div>
-                <button id="addEventBtn" style="padding: 8px 14px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600;">+ Add Event</button>
+                <input type="file" id="scanImageInput" accept="image/*" style="display: none;">
+                <button id="scanImageBtn" type="button" style="padding: 8px 14px; background: white; color: var(--up-maroon); border: 1px solid var(--up-maroon); border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-camera"></i> Scan Schedule Image
+                </button>
+                <button id="addEventBtn" type="button" style="padding: 8px 14px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600;">+ Add Event</button>
             </div>
         </div>
 
         <!-- Schedule Layer Controls Panel -->
-        <div style="background: white; padding: 16px 24px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; gap: 24px; align-items: center; font-size: 13px;">
+        <div style="background: white; padding: 16px 24px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; gap: 24px; align-items: center; font-size: 13px; flex-wrap: wrap;">
             <span style="font-weight: bold; color: var(--up-maroon);">Schedule Layers:</span>
             <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" checked id="layerClasses" style="accent-color: var(--up-maroon);"> Personal Classes</label>
             <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;"><input type="checkbox" checked id="layerMeetings" style="accent-color: var(--up-maroon);"> Synced Group Meetings</label>
@@ -108,8 +110,8 @@
         <!-- Dynamic Timetable Matrix Grid Box -->
         <div style="background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
-                <span id="currentViewLabel" style="font-weight: 600; font-size: 14px; color: #333;">Week View • November 2026</span>
-                <span id="activeGroupSyncStatus" style="font-size: 12px; color: #2e7d32; font-weight: 600;">⚡ Connected to Cloud Groups</span>
+                <span id="currentViewLabel" style="font-weight: 600; font-size: 14px; color: #333;">Week View • Mon–Sun, November 2026</span>
+                <span id="activeGroupSyncStatus" style="font-size: 12px; color: #2e7d32; font-weight: 600;">⚡ Live Firestore Sync Active</span>
             </div>
 
             <!-- Scrollable Calendar Grid Container -->
@@ -121,14 +123,53 @@
         </div>
     </main>
 
-    <!-- Comprehensive Add Event Modal with Scrollable Selectors -->
+    <!-- Tesseract OCR Review & Verification Modal -->
+    <div id="ocrReviewModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 1200; padding: 16px;">
+        <div style="background: white; width: 100%; max-width: 760px; max-height: 90vh; overflow-y: auto; padding: 24px; border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                <div>
+                    <h3 style="margin: 0; font-size: 17px; color: var(--up-maroon);">Review Scanned Schedule</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-muted);">Check and edit detected schedule blocks before adding them to your calendar.</p>
+                </div>
+                <span id="closeOcrModal" style="font-size: 24px; cursor: pointer; color: var(--text-muted);">&times;</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 180px 1fr; gap: 16px; margin-bottom: 18px; background: #f8f9fa; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                <img id="ocrImagePreview" src="" alt="Uploaded schedule preview" style="width: 100%; height: 120px; object-fit: contain; background: white; border-radius: 6px; border: 1px solid var(--border-color);">
+                <div style="display: flex; flex-direction: column; justify-content: center; gap: 8px;">
+                    <div id="ocrStatusText" style="font-size: 13px; font-weight: 600; color: #333;">Preparing OCR scanner...</div>
+                    <div style="width: 100%; height: 8px; background: #e9ecef; border-radius: 999px; overflow: hidden;">
+                        <div id="ocrProgressBar" style="width: 0%; height: 100%; background: var(--up-maroon); transition: width 0.2s ease;"></div>
+                    </div>
+                    <details style="font-size: 11px; color: var(--text-muted);">
+                        <summary style="cursor: pointer; font-weight: 600;">View raw extracted OCR text</summary>
+                        <pre id="ocrRawTextOutput" style="white-space: pre-wrap; max-height: 110px; overflow-y: auto; background: white; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); margin-top: 6px; color: #212529;"></pre>
+                    </details>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 12px; font-weight: bold; color: var(--text-muted);">DETECTED SCHEDULE ITEMS</span>
+                <button type="button" id="addOcrRowBtn" style="padding: 5px 10px; background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 5px; font-size: 12px; cursor: pointer; font-weight: 600;">+ Add Row</button>
+            </div>
+
+            <div id="ocrRowsContainer" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px;"></div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+                <button type="button" id="cancelOcrBtn" style="padding: 8px 14px; background: none; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-size: 13px;">Cancel</button>
+                <button type="button" id="confirmOcrSaveBtn" style="padding: 8px 16px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;">Confirm & Add to Schedule</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create / Edit Schedule Block Modal -->
     <div id="eventModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;">
-        <div style="background: white; width: 450px; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+        <div style="background: white; width: 450px; max-width: 95%; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h3 style="margin: 0; font-size: 16px; color: var(--up-maroon);">Create Schedule Block</h3>
+                <h3 id="eventModalTitle" style="margin: 0; font-size: 16px; color: var(--up-maroon);">Create Schedule Block</h3>
                 <span id="closeModal" style="font-size: 24px; cursor: pointer; color: var(--text-muted);">&times;</span>
             </div>
-            
+
             <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px;">
                 <div>
                     <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 4px;">EVENT NAME</label>
@@ -150,6 +191,7 @@
                             <option>04:00 PM</option>
                             <option>05:00 PM</option>
                             <option>06:00 PM</option>
+                            <option>07:00 PM</option>
                         </select>
                     </div>
                     <div>
@@ -182,10 +224,10 @@
         </div>
     </div>
 
-    <!-- Scripts for Dynamic Grid Rendering and View Switching -->
+    <!-- Scripts for Live Firestore Sync, Schedule Editing, Grid Rendering, View Switching, Accepted Consultations & Tesseract OCR -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
@@ -193,7 +235,7 @@
             projectId: "cs-sync-8a6a0",
             storageBucket: "cs-sync-8a6a0.appspot.com",
             messagingSenderId: "340561797624",
-            appId: "1:340561797624:web:f417af5001d576882d360d",
+            appId: "1:34056179764:web:f417af5001d576882d360d",
             measurementId: "G-F663CN4012"
         };
 
@@ -201,75 +243,790 @@
         const db = getFirestore(app);
 
         let teamCount = 1;
-        async function fetchGroupSyncMeetings() {
-            try {
-                const groupRef = doc(db, "groups", "project_cmsc_3");
-                const groupSnap = await getDoc(groupRef);
-                if (groupSnap.exists()) {
-                    const data = groupSnap.data();
-                    teamCount = data.teammates ? data.teammates.length : 1;
-                }
-            } catch (err) {
-                console.error("Error fetching group sync:", err);
+        let currentView = 'week';
+        let editingScheduleIndex = null;
+        let syncedGroupMeetings = [];
+        let acceptedConsultations = [];
+        let studentAcceptedConsultations = [];
+        let facultyAcceptedConsultations = [];
+        let cloudNotifications = [];
+        const DEFAULT_BLOCK_MINUTES = 60;
+
+        function escapeHtml(value = '') {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function toDocSlug(value = '') {
+            return String(value)
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '_')
+                .replace(/^_|_$/g, '');
+        }
+
+        function detectUserRole(name = '', email = '') {
+            const cleanName = String(name).trim().toLowerCase();
+            const cleanEmail = String(email).trim().toLowerCase();
+            const localPart = cleanEmail.split('@')[0] || '';
+            const facultyTitleRegex = /\b(prof\.?|professor|dr\.?|assoc\.?\s*prof\.?|asst\.?\s*prof\.?|instructor|lecturer|engr\.?|sir|ma'?am)\b/i;
+            const facultyHandleKeywords = ['prof', 'faculty', 'chair', 'dean', 'instructor', 'lecturer'];
+            if (facultyTitleRegex.test(cleanName) || facultyHandleKeywords.some(k => localPart.includes(k))) {
+                return 'faculty';
+            }
+            return 'student';
+        }
+
+        function getSessionIdentity() {
+            const name = (localStorage.getItem('cs_sync_user') || 'Maria Santos').trim();
+            const email = (localStorage.getItem('cs_sync_email') || 'mahalkosiya@up.edu.ph').trim();
+            const rawRole = (localStorage.getItem('cs_sync_role') || '').trim().toLowerCase();
+            const role = rawRole || detectUserRole(name, email);
+            localStorage.setItem('cs_sync_role', role);
+            const isFaculty = role === 'faculty' || role === 'professor';
+            return { name, email, role, isFaculty };
+        }
+
+        function syncHeaderIdentity() {
+            const session = getSessionIdentity();
+            document.getElementById('userNameDisplay').textContent = session.name;
+            document.getElementById('profileDropdownName').textContent = session.name;
+            document.getElementById('profileDropdownEmail').textContent = session.email;
+            document.getElementById('userAvatar').textContent = session.name
+                .split(' ')
+                .filter(Boolean)
+                .map(n => n[0])
+                .join('')
+                .substring(0, 2)
+                .toUpperCase() || 'MS';
+            const roleBadge = document.getElementById('roleBadge');
+            if (roleBadge) {
+                roleBadge.textContent = session.isFaculty ? 'Faculty • CS' : 'Student • BSCS';
             }
         }
 
+        function getUserDocId() {
+            const session = getSessionIdentity();
+            return toDocSlug(session.email || session.name) || 'default_user';
+        }
+
+        function getActiveScheduleStorageKey() {
+            const session = getSessionIdentity();
+            const identity = (session.email || session.name || 'default').trim().toLowerCase();
+            return `cs_sync_schedule_${encodeURIComponent(identity)}`;
+        }
+
+        function inferSubjectTag(title = '', notes = '', location = '') {
+            const text = `${title} ${notes} ${location}`.toLowerCase();
+            if (/\b(cmsc|cs\s*\d+|data structures|algorithms|programming|computing|software|database)\b/.test(text)) {
+                return 'CMSC';
+            }
+            if (/\b(pe\s*\d*|physical fitness|athletics|badminton|volleyball|basketball|fitness|dance|exercise)\b/.test(text)) {
+                return 'PE';
+            }
+            if (/\b(sas\s*\d*|ge\s*\d*|ethics|history|sts|arts|purposive|mathematics in the modern world|mmw|nstp|cwts|self and society)\b/.test(text)) {
+                return 'GE';
+            }
+            return 'General';
+        }
+
+        function normalizeDayShort(dayStr = '') {
+            const d = String(dayStr || '').trim().toLowerCase();
+            if (d.startsWith('mon') || d === 'm') return 'Mon';
+            if (d.startsWith('tue') || d === 't') return 'Tue';
+            if (d.startsWith('wed') || d === 'w') return 'Wed';
+            if (d.startsWith('thu') || d === 'th') return 'Thu';
+            if (d.startsWith('fri') || d === 'f') return 'Fri';
+            if (d.startsWith('sat') || d === 's') return 'Sat';
+            if (d.startsWith('sun')) return 'Sun';
+            return 'Mon';
+        }
+
+        function normalizeDayFull(dayStr = '') {
+            const d = String(dayStr || '').trim().toLowerCase();
+            if (d.startsWith('mon') || d === 'm') return 'Monday';
+            if (d.startsWith('tue') || d === 't') return 'Tuesday';
+            if (d.startsWith('wed') || d === 'w') return 'Wednesday';
+            if (d.startsWith('thu') || d === 'th') return 'Thursday';
+            if (d.startsWith('fri') || d === 'f') return 'Friday';
+            if (d.startsWith('sat') || d === 's') return 'Saturday';
+            if (d.startsWith('sun')) return 'Sunday';
+            return 'Monday';
+        }
+
+        function sanitizeOcrHourString(raw = '') {
+            return String(raw).replace(/\b([789])0:([0-5]\d)\b/g, (_, hDigit, mins) => `${parseInt(hDigit, 10)}:${mins}`);
+        }
+
+        function formatSingleClockToken(rawToken = '') {
+            const cleaned = sanitizeOcrHourString(rawToken);
+            const match = cleaned.trim().match(/\b(\d{1,2})[:.](\d{2})\s*(AM|PM)?\b/i);
+            if (match) {
+                let hourNum = parseInt(match[1], 10);
+                const mm = match[2];
+                let period = (match[3] || '').toUpperCase();
+                if (!period) {
+                    period = (hourNum >= 1 && hourNum <= 6) ? 'PM' : 'AM';
+                }
+                if (hourNum === 0) hourNum = 12;
+                const hh = String(hourNum).padStart(2, '0');
+                return `${hh}:${mm} ${period}`;
+            }
+            const hourOnly = cleaned.trim().match(/\b(\d{1,2})\s*(AM|PM)\b/i);
+            if (hourOnly) {
+                let hourNum = parseInt(hourOnly[1], 10);
+                if (hourNum === 0) hourNum = 12;
+                const hh = String(hourNum).padStart(2, '0');
+                return `${hh}:00 ${hourOnly[2].toUpperCase()}`;
+            }
+            return null;
+        }
+
+        function formatNormalizedTime(rawTime = '') {
+            const cleaned = sanitizeOcrHourString(rawTime);
+            const parts = cleaned.trim().split(/\s*(?:-|–|—|to)\s*/i);
+            const startFormatted = formatSingleClockToken(parts[0] || cleaned);
+            if (!startFormatted) return '09:00 AM';
+            if (parts[1]) {
+                const endFormatted = formatSingleClockToken(parts[1]);
+                if (endFormatted) {
+                    return `${startFormatted} - ${endFormatted}`;
+                }
+            }
+            return startFormatted;
+        }
+
+        function buildScheduleDedupeKey(item = {}) {
+            const titleKey = String(item.title || '')
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, ' ');
+            const dayKey = normalizeDayShort(item.day || 'Mon').toLowerCase();
+            const startMins = parseScheduleItemRange(item)?.start ?? formatNormalizedTime(item.time || '09:00 AM').toLowerCase();
+            return `${titleKey}__${dayKey}__${startMins}`;
+        }
+
+        function deduplicateScheduleItems(items = []) {
+            const seen = new Set();
+            const result = [];
+            for (const raw of (Array.isArray(items) ? items : [])) {
+                if (!raw || !String(raw.title || '').trim()) continue;
+                const normalizedItem = {
+                    ...raw,
+                    title: String(raw.title).trim(),
+                    day: normalizeDayFull(raw.day || 'Monday'),
+                    time: formatNormalizedTime(raw.time || '09:00 AM'),
+                    location: String(raw.location || '').trim(),
+                    notes: String(raw.notes || '').trim(),
+                    subjectTag: raw.subjectTag || inferSubjectTag(raw.title, raw.notes, raw.location)
+                };
+                const key = buildScheduleDedupeKey(normalizedItem);
+                if (seen.has(key)) continue;
+                seen.add(key);
+                result.push(normalizedItem);
+            }
+            return result;
+        }
+
+        function readCustomSchedule() {
+            try {
+                const userKey = getActiveScheduleStorageKey();
+                const userRaw = localStorage.getItem(userKey);
+                if (userRaw !== null) {
+                    const parsed = JSON.parse(userRaw);
+                    return Array.isArray(parsed) ? deduplicateScheduleItems(parsed) : [];
+                }
+                const legacyRaw = localStorage.getItem('cs_sync_schedule');
+                const legacyParsed = legacyRaw ? JSON.parse(legacyRaw) : [];
+                return Array.isArray(legacyParsed) ? deduplicateScheduleItems(legacyParsed) : [];
+            } catch (_) {
+                return [];
+            }
+        }
+
+        async function saveScheduleToFirestore(items) {
+            const safeList = deduplicateScheduleItems(items);
+            const docId = getUserDocId();
+            const session = getSessionIdentity();
+
+            try {
+                await setDoc(doc(db, "users", docId), {
+                    fullName: session.name,
+                    email: session.email,
+                    role: session.role,
+                    schedule: safeList,
+                    scheduleUpdatedAt: new Date().toISOString()
+                }, { merge: true });
+            } catch (err) {
+                console.warn("Could not sync schedule to Firestore users doc:", err);
+            }
+        }
+
+        function writeCustomSchedule(items) {
+            const safeList = deduplicateScheduleItems(items);
+            localStorage.setItem(getActiveScheduleStorageKey(), JSON.stringify(safeList));
+            void saveScheduleToFirestore(safeList);
+        }
+
+        function removeCustomScheduleItem(index) {
+            const existing = readCustomSchedule();
+            if (index < 0 || index >= existing.length) return;
+            const updated = existing.filter((_, idx) => idx !== index);
+            writeCustomSchedule(updated);
+            renderCalendarView(currentView);
+        }
+
+        function openEditScheduleItem(index) {
+            const existing = readCustomSchedule();
+            const item = existing[index];
+            if (!item) return;
+
+            editingScheduleIndex = index;
+            document.getElementById('eventModalTitle').textContent = 'Edit Schedule Block';
+            document.getElementById('saveEventBtn').textContent = 'Update Event';
+            document.getElementById('inputName').value = item.title || '';
+
+            const timeSelect = document.getElementById('inputTime');
+            const normalizedTime = formatNormalizedTime(item.time || '09:00 AM');
+            const startToken = normalizedTime.split(' - ')[0];
+            const matchingOption = Array.from(timeSelect.options).find(opt => opt.value === startToken || opt.value === item.time);
+            timeSelect.value = matchingOption ? matchingOption.value : '09:00 AM';
+
+            document.getElementById('inputWhen').value = normalizeDayFull(item.day || 'Monday');
+            document.getElementById('inputWhere').value = item.location || '';
+            document.getElementById('inputNotes').value = item.notes || '';
+            document.getElementById('eventModal').style.display = 'flex';
+        }
+
+        function upsertScheduleItemFromModal({ name, time, day, location, notes }) {
+            const existing = readCustomSchedule();
+            const subjectTag = inferSubjectTag(name, notes, location);
+            if (typeof editingScheduleIndex === 'number' && editingScheduleIndex >= 0 && editingScheduleIndex < existing.length) {
+                const prev = existing[editingScheduleIndex] || {};
+                existing[editingScheduleIndex] = {
+                    ...prev,
+                    title: name,
+                    time,
+                    day,
+                    location,
+                    notes,
+                    subjectTag,
+                    updatedAt: new Date().toISOString()
+                };
+            } else {
+                existing.push({ title: name, time, day, location, notes, subjectTag });
+            }
+            writeCustomSchedule(existing);
+            renderCalendarView(currentView);
+        }
+
+        async function syncScheduleFromCloud() {
+            const docId = getUserDocId();
+            try {
+                const snap = await getDoc(doc(db, "users", docId));
+                if (snap.exists()) {
+                    const data = snap.data() || {};
+                    if (Array.isArray(data.schedule)) {
+                        const cloudDeduped = deduplicateScheduleItems(data.schedule);
+                        const localItems = readCustomSchedule();
+                        if (cloudDeduped.length > 0 || localItems.length === 0) {
+                            localStorage.setItem(getActiveScheduleStorageKey(), JSON.stringify(cloudDeduped));
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Could not load user schedule from Firestore:", err);
+            }
+        }
+
+        function subscribeToUserScheduleLive() {
+            const docId = getUserDocId();
+            const userRef = doc(db, "users", docId);
+            return onSnapshot(
+                userRef,
+                (snap) => {
+                    if (!snap.exists()) return;
+                    const data = snap.data() || {};
+                    if (Array.isArray(data.schedule)) {
+                        const cloudDeduped = deduplicateScheduleItems(data.schedule);
+                        localStorage.setItem(getActiveScheduleStorageKey(), JSON.stringify(cloudDeduped));
+                        renderCalendarView(currentView);
+                    }
+                },
+                (err) => {
+                    console.warn("Live user schedule listener notice:", err);
+                }
+            );
+        }
+
+        function renderCalendarNotifications() {
+            const listBody = document.getElementById('notifListBody');
+            const badge = document.getElementById('notifBadge');
+            if (!listBody || !badge) return;
+
+            badge.textContent = String(cloudNotifications.length);
+            badge.style.display = cloudNotifications.length > 0 ? 'flex' : 'none';
+
+            if (cloudNotifications.length === 0) {
+                listBody.innerHTML = '<p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>';
+                return;
+            }
+
+            listBody.innerHTML = cloudNotifications.map(n => `
+                <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; font-size: 12px;">
+                    <strong>${escapeHtml(n.title || 'Notification')}</strong><br>
+                    ${escapeHtml(n.message || '')}
+                    ${n.hasActions ? `
+                        <div style="margin-top: 6px; display: flex; gap: 8px;">
+                            <button type="button" class="cal-notif-accept" data-id="${escapeHtml(n.id)}" style="padding: 2px 8px; background: var(--up-maroon); color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer;">Accept</button>
+                            <button type="button" class="cal-notif-decline" data-id="${escapeHtml(n.id)}" style="padding: 2px 8px; background: #e9ecef; border: none; border-radius: 4px; font-size: 10px; cursor: pointer;">Decline</button>
+                        </div>
+                    ` : ''}
+                    ${n.timeAgo ? `<span style="font-size: 10px; color: var(--text-muted); display: block; margin-top: 4px;">${escapeHtml(n.timeAgo)}</span>` : ''}
+                </div>
+            `).join('');
+
+            listBody.querySelectorAll('.cal-notif-accept').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    const target = cloudNotifications.find(x => x.id === id);
+                    const nextList = cloudNotifications.filter(x => x.id !== id);
+                    cloudNotifications = nextList;
+                    renderCalendarNotifications();
+                    await setDoc(doc(db, "users", getUserDocId()), { notifications: nextList }, { merge: true });
+                    if (target?.groupName) {
+                        const slug = toDocSlug(target.groupName) || 'final_project_cmsc_3';
+                        localStorage.setItem('cs_sync_active_group', target.groupName);
+                        await setDoc(doc(db, "groups", slug), { groupName: target.groupName }, { merge: true });
+                    }
+                });
+            });
+
+            listBody.querySelectorAll('.cal-notif-decline').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    const nextList = cloudNotifications.filter(x => x.id !== id);
+                    cloudNotifications = nextList;
+                    renderCalendarNotifications();
+                    await setDoc(doc(db, "users", getUserDocId()), { notifications: nextList }, { merge: true });
+                });
+            });
+        }
+
+        function subscribeToCalendarNotificationsLive() {
+            const userRef = doc(db, "users", getUserDocId());
+            return onSnapshot(userRef, (snap) => {
+                if (!snap.exists()) return;
+                const data = snap.data() || {};
+                if (Array.isArray(data.notifications)) {
+                    cloudNotifications = data.notifications;
+                    renderCalendarNotifications();
+                }
+            }, (err) => {
+                console.warn("Calendar notifications listener error:", err);
+            });
+        }
+
+        window.clearAllCalendarNotifications = async function() {
+            cloudNotifications = [];
+            renderCalendarNotifications();
+            try {
+                await setDoc(doc(db, "users", getUserDocId()), { notifications: [] }, { merge: true });
+            } catch (err) {
+                console.warn("Could not clear notifications in Firestore:", err);
+            }
+        };
+
+        function parseClockToMinutes(token = '') {
+            const cleaned = sanitizeOcrHourString(token);
+            const match = String(cleaned).trim().match(/\b(\d{1,2})(?:[:.](\d{2}))?\s*(AM|PM)?\b/i);
+            if (!match) return null;
+            let hour = parseInt(match[1], 10);
+            const minute = match[2] ? parseInt(match[2], 10) : 0;
+            const period = (match[3] || '').toUpperCase();
+
+            if (period === 'PM' && hour < 12) hour += 12;
+            if (period === 'AM' && hour === 12) hour = 0;
+            if (!period && hour >= 1 && hour <= 6) {
+                hour += 12;
+            }
+            return hour * 60 + minute;
+        }
+
+        function parseScheduleItemRange(item = {}) {
+            const rawTime = String(item.time || '').trim();
+            const parts = rawTime.split(/\s*(?:-|–|—|to)\s*/i);
+            const startMins = parseClockToMinutes(parts[0] || rawTime);
+            if (startMins === null) return null;
+
+            let endMins = parts[1] ? parseClockToMinutes(parts[1]) : null;
+            if (endMins === null || endMins <= startMins) {
+                endMins = startMins + DEFAULT_BLOCK_MINUTES;
+            }
+            return { start: startMins, end: endMins };
+        }
+
+        function getRowSlotRange(slotTimeStr, durationMinutes = DEFAULT_BLOCK_MINUTES) {
+            const start = parseClockToMinutes(slotTimeStr);
+            if (start === null) return null;
+            return { start, end: start + durationMinutes };
+        }
+
+        function rangesOverlap(a, b) {
+            if (!a || !b) return false;
+            return a.start < b.end && a.end > b.start;
+        }
+
+        function parseConsultationSlot(slotStr = '') {
+            const raw = String(slotStr || '').trim();
+            const dayMatch = raw.match(/\b(mon|monday|tue|tues|tuesday|wed|weds|wednesday|thu|thur|thurs|thursday|fri|friday|sat|saturday|sun|sunday)\b/i);
+            const day = dayMatch ? normalizeDayShort(dayMatch[1]) : 'Mon';
+
+            const timeMatch = raw.match(/\b(\d{1,2}(?:[:.]\d{2})?\s*(?:AM|PM)(?:\s*(?:-|–|—|to)\s*\d{1,2}(?:[:.]\d{2})?\s*(?:AM|PM))?)\b/i);
+            const time = timeMatch ? formatNormalizedTime(timeMatch[1]) : '01:00 PM';
+
+            return { day, time };
+        }
+
+        function mapConsultationDocToItem(docId, data = {}) {
+            const parsed = parseConsultationSlot(data.slot || data.time || '');
+            const counterpart = data.facultyName || data.studentName || 'Faculty';
+            return {
+                id: docId,
+                title: `Consultation: ${data.course || counterpart}`,
+                day: data.day ? normalizeDayShort(data.day) : parsed.day,
+                time: data.time ? formatNormalizedTime(data.time) : parsed.time,
+                location: data.location || counterpart,
+                notes: data.reason || 'Accepted consultation',
+                isConsultation: true
+            };
+        }
+
+        function refreshAcceptedConsultations() {
+            const merged = new Map();
+            [...studentAcceptedConsultations, ...facultyAcceptedConsultations].forEach(item => {
+                merged.set(item.id, item);
+            });
+            acceptedConsultations = Array.from(merged.values());
+            renderCalendarView(currentView);
+        }
+
+        function subscribeToAcceptedConsultationsLive() {
+            const session = getSessionIdentity();
+            const email = session.email.trim().toLowerCase();
+            const userName = session.name.trim();
+            const colRef = collection(db, "consultations");
+            const unsubs = [];
+
+            if (email) {
+                const qStudent = query(colRef, where("studentEmail", "==", email), where("status", "==", "Accepted"));
+                unsubs.push(onSnapshot(
+                    qStudent,
+                    (snap) => {
+                        studentAcceptedConsultations = snap.docs.map(d => mapConsultationDocToItem(d.id, d.data()));
+                        refreshAcceptedConsultations();
+                    },
+                    (err) => console.warn("Student consultation listener notice:", err)
+                ));
+            }
+
+            if (userName) {
+                const qFaculty = query(colRef, where("facultyName", "==", userName), where("status", "==", "Accepted"));
+                unsubs.push(onSnapshot(
+                    qFaculty,
+                    (snap) => {
+                        facultyAcceptedConsultations = snap.docs.map(d => mapConsultationDocToItem(d.id, d.data()));
+                        refreshAcceptedConsultations();
+                    },
+                    (err) => console.warn("Faculty consultation listener notice:", err)
+                ));
+            }
+
+            return () => unsubs.forEach(fn => fn());
+        }
+
+        function resolveActiveGroupSlug() {
+            const savedGroup = localStorage.getItem('cs_sync_active_group') || 'Final Project CMSC 3';
+            return toDocSlug(savedGroup) || 'final_project_cmsc_3';
+        }
+
+        function extractGroupMeetingsFromDoc(groupId, data = {}) {
+            const count = Array.isArray(data.teammates) ? data.teammates.length : 1;
+            const rawMeetings = Array.isArray(data.meetings) && data.meetings.length > 0
+                ? data.meetings
+                : (data.nextMeeting ? [data.nextMeeting] : []);
+
+            const parsedMeetings = rawMeetings
+                .filter(m => m && (m.day || m.time || m.title))
+                .map((m, idx) => ({
+                    id: m.id || `${groupId}_mtg_${idx}`,
+                    title: m.title || `${data.groupName || 'Final Project CMSC 3'} Sync`,
+                    day: normalizeDayShort(m.day || 'Fri'),
+                    time: formatNormalizedTime(m.time || '01:00 PM'),
+                    location: m.location || 'Online / Discord',
+                    notes: m.notes || 'Synced group meeting',
+                    type: 'group_meeting',
+                    isGroupMeeting: true,
+                    teammateCount: Array.isArray(m.teammates) && m.teammates.length > 0 ? m.teammates.length : count
+                }));
+
+            return { count, parsedMeetings };
+        }
+
+        function subscribeToGroupSyncLive() {
+            const activeSlug = resolveActiveGroupSlug();
+            const slugCandidates = Array.from(new Set([activeSlug, 'final_project_cmsc_3', 'project_cmsc_3']));
+            const statusEl = document.getElementById('activeGroupSyncStatus');
+            const meetingsByDoc = new Map();
+
+            const rebuildGroupMeetings = () => {
+                const merged = new Map();
+                let latestCount = 1;
+                slugCandidates.forEach(slug => {
+                    const entry = meetingsByDoc.get(slug);
+                    if (!entry) return;
+                    if (entry.count > latestCount) latestCount = entry.count;
+                    entry.parsedMeetings.forEach(m => {
+                        merged.set(m.id, m);
+                    });
+                });
+                teamCount = latestCount;
+                syncedGroupMeetings = Array.from(merged.values());
+                renderCalendarView(currentView);
+            };
+
+            if (statusEl) {
+                statusEl.textContent = `⚡ Live Sync (${activeSlug})`;
+            }
+
+            const unsubs = slugCandidates.map(slug =>
+                onSnapshot(
+                    doc(db, "groups", slug),
+                    (groupSnap) => {
+                        if (!groupSnap.exists()) {
+                            meetingsByDoc.delete(slug);
+                        } else {
+                            meetingsByDoc.set(slug, extractGroupMeetingsFromDoc(slug, groupSnap.data() || {}));
+                        }
+                        rebuildGroupMeetings();
+                    },
+                    (err) => {
+                        console.warn(`Live group sync listener notice (${slug}):`, err);
+                    }
+                )
+            );
+
+            return () => unsubs.forEach(fn => fn());
+        }
+
+        function getCombinedCalendarItems() {
+            const showClasses = document.getElementById('layerClasses')?.checked !== false;
+            const showMeetings = document.getElementById('layerMeetings')?.checked !== false;
+            const showFaculty = document.getElementById('layerFaculty')?.checked !== false;
+
+            const customList = readCustomSchedule();
+            const personalItems = showClasses
+                ? customList
+                    .filter(item => item?.type !== 'group_meeting')
+                    .map((item) => {
+                        const originalIdx = customList.indexOf(item);
+                        return { ...item, customIndex: originalIdx };
+                    })
+                : [];
+            const consultationItems = showFaculty ? acceptedConsultations : [];
+            const meetingItems = showMeetings
+                ? [
+                    ...syncedGroupMeetings,
+                    ...customList.filter(item => item?.type === 'group_meeting').map((m, idx) => ({
+                        ...m,
+                        id: m.id || `local_group_mtg_${idx}`,
+                        type: 'group_meeting',
+                        isGroupMeeting: true,
+                        teammateCount: Array.isArray(m.teammates) && m.teammates.length > 0 ? m.teammates.length : teamCount
+                    }))
+                ]
+                : [];
+
+            return [...personalItems, ...consultationItems, ...meetingItems];
+        }
+
+        window.readCustomSchedule = readCustomSchedule;
+        window.writeCustomSchedule = writeCustomSchedule;
+        window.removeCustomScheduleItem = removeCustomScheduleItem;
+        window.openEditScheduleItem = openEditScheduleItem;
+        window.upsertScheduleItemFromModal = upsertScheduleItemFromModal;
+        window.syncScheduleFromCloud = syncScheduleFromCloud;
+
         window.addEventListener('DOMContentLoaded', async () => {
-            await fetchGroupSyncMeetings();
+            syncHeaderIdentity();
+            await syncScheduleFromCloud();
+            subscribeToGroupSyncLive();
+            subscribeToUserScheduleLive();
+            subscribeToAcceptedConsultationsLive();
+            subscribeToCalendarNotificationsLive();
             renderCalendarView('week');
         });
 
-        // Dynamic Grid Render Engine based on view mode
-        window.renderCalendarView = function(viewType) {
+        ['layerClasses', 'layerMeetings', 'layerFaculty'].forEach(id => {
+            const checkbox = document.getElementById(id);
+            if (checkbox) {
+                checkbox.addEventListener('change', () => renderCalendarView(currentView));
+            }
+        });
+
+        window.renderCalendarView = function(viewType = currentView) {
+            currentView = viewType;
             const container = document.getElementById('calendarGridContainer');
             const viewLabel = document.getElementById('currentViewLabel');
-            
+            const customItems = getCombinedCalendarItems();
+            const showMeetings = document.getElementById('layerMeetings')?.checked !== false;
+
             if (viewType === 'week') {
                 viewLabel.textContent = 'Week View • Mon–Sun, November 2026';
                 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                const colTemplate = `100px repeat(7, 1fr)`;
-                
-                let html = `
+                const colTemplate = '100px repeat(7, 1fr)';
+                const timeSlots = ['07:00 AM', '08:00 AM', '10:00 AM', '01:00 PM', '03:00 PM', '05:00 PM', '07:00 PM'];
+
+                const headerRow = `
                     <div style="display: grid; grid-template-columns: ${colTemplate}; font-weight: bold; font-size: 13px; text-align: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); color: var(--text-muted);">
                         <span>Time</span>
                         ${days.map(d => `<span>${d}</span>`).join('')}
                     </div>
                 `;
 
-                ['08:00 AM', '10:00 AM', '01:00 PM', '03:00 PM', '05:00 PM', '07:00 PM'].forEach((t, index) => {
-                    let syncCell = (index === 2) ? `<span style="background: #c3e6cb; color: #155724; padding: 12px; border-radius: 4px; font-weight: bold; border: 2px solid #28a745; cursor: pointer; font-size: 11px;">🚀 Final Project Sync (${teamCount})</span>` : '';
-                    
-                    html += `
-                        <div style="display: grid; grid-template-columns: ${colTemplate}; gap: 6px; align-items: center; font-size: 12px; text-align: center; min-height: 55px;">
-                            <span style="font-weight: 600; color: var(--text-muted); text-align: left;">${t}</span>
-                            ${days.map((d, i) => (syncCell && d === 'Fri') ? syncCell : `<span style="background: #f8f9fa; border: 1px dashed var(--border-color); padding: 12px; border-radius: 4px; color: var(--text-muted); cursor: pointer;">-</span>`).join('')}
+                const bodyRows = timeSlots.map((t, idx) => {
+                    const nextSlot = timeSlots[idx + 1];
+                    const slotStart = parseClockToMinutes(t);
+                    const nextStart = nextSlot ? parseClockToMinutes(nextSlot) : (slotStart !== null ? slotStart + 120 : null);
+                    const slotDuration = (slotStart !== null && nextStart !== null && nextStart > slotStart)
+                        ? (nextStart - slotStart)
+                        : DEFAULT_BLOCK_MINUTES;
+                    const slotRange = getRowSlotRange(t, slotDuration);
+                    const isSyncSlot = t === '01:00 PM';
+
+                    const cells = days.map((d) => {
+                        const matched = customItems.filter(item => {
+                            const itemDay = normalizeDayShort(item.day);
+                            if (itemDay !== d) return false;
+                            const itemRange = parseScheduleItemRange(item);
+                            return rangesOverlap(slotRange, itemRange);
+                        });
+
+                        const hasExplicitGroupMeeting = matched.some(m => m.isGroupMeeting || m.type === 'group_meeting');
+                        const showDefaultSyncSlot = showMeetings && isSyncSlot && d === 'Fri' && !hasExplicitGroupMeeting;
+
+                        if (matched.length > 0 || showDefaultSyncSlot) {
+                            const cards = [];
+                            if (showDefaultSyncSlot) {
+                                cards.push(`<div style="background: #c3e6cb; color: #155724; padding: 10px 8px; border-radius: 4px; font-weight: bold; border: 2px solid #28a745; font-size: 11px;">🚀 Final Project Sync (${teamCount})</div>`);
+                            }
+                            matched.forEach(m => {
+                                const isMtg = Boolean(m.isGroupMeeting || m.type === 'group_meeting');
+                                const cardStyle = isMtg
+                                    ? 'background: #c3e6cb; color: #155724; border: 2px solid #28a745;'
+                                    : (m.isConsultation
+                                        ? 'background: #e7f1ff; color: #084298; border: 1px solid #9ec5fe;'
+                                        : 'background: #f8d7da; color: #7b1113; border: 1px solid #f1aeb5;');
+                                const canEditDelete = !m.isConsultation && !isMtg && typeof m.customIndex === 'number' && m.customIndex >= 0;
+                                const actionControls = canEditDelete
+                                    ? `
+                                        <div style="position:absolute; top:3px; right:4px; display:flex; gap:2px; align-items:center;">
+                                            <button type="button" onclick="window.openEditScheduleItem(${m.customIndex})" title="Edit block" style="background:none; border:none; color:inherit; font-weight:bold; cursor:pointer; font-size:11px; line-height:1; padding:0 2px;"><i class="fa-solid fa-pen"></i></button>
+                                            <button type="button" onclick="window.removeCustomScheduleItem(${m.customIndex})" title="Delete block" style="background:none; border:none; color:inherit; font-weight:bold; cursor:pointer; font-size:12px; line-height:1; padding:0 2px;">&times;</button>
+                                        </div>
+                                    `
+                                    : '';
+                                const prefix = isMtg ? '🚀 ' : (m.isConsultation ? '🤝 ' : '');
+                                const countSuffix = isMtg && m.teammateCount ? ` (${m.teammateCount})` : '';
+                                cards.push(`
+                                    <div title="${escapeHtml(m.location || '')}" style="position:relative; ${cardStyle} padding: 8px 30px 8px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; line-height: 1.3;">
+                                        ${actionControls}
+                                        <div>${prefix}${escapeHtml(m.title)}${countSuffix}</div>
+                                        ${m.time ? `<div style="font-size: 9px; font-weight: 600; opacity: 0.9;">${escapeHtml(m.time)}</div>` : ''}
+                                        ${m.location ? `<div style="font-size: 10px; font-weight: 400; opacity: 0.85;">${escapeHtml(m.location)}</div>` : ''}
+                                    </div>
+                                `);
+                            });
+                            return `<div style="display: flex; flex-direction: column; gap: 4px;">${cards.join('')}</div>`;
+                        }
+
+                        return `<div style="background: #f8f9fa; border: 1px dashed var(--border-color); padding: 12px 8px; border-radius: 4px; color: var(--text-muted); min-height: 44px; display: flex; align-items: center; justify-content: center;">-</div>`;
+                    }).join('');
+
+                    return `
+                        <div style="display: grid; grid-template-columns: ${colTemplate}; gap: 6px; align-items: stretch; font-size: 12px; text-align: center; min-height: 55px;">
+                            <span style="font-weight: 600; color: var(--text-muted); text-align: left; display: flex; align-items: center;">${t}</span>
+                            ${cells}
                         </div>
                     `;
-                });
-                container.innerHTML = html;
+                }).join('');
+
+                container.innerHTML = headerRow + bodyRows;
 
             } else if (viewType === 'schedule') {
                 viewLabel.textContent = 'Schedule List View • Scrollable';
+                const customRowsHtml = customItems.map(item => {
+                    const isMtg = Boolean(item.isGroupMeeting || item.type === 'group_meeting');
+                    const rowStyle = isMtg
+                        ? 'background: #e8f5e9; border: 1px solid #c8e6c9;'
+                        : (item.isConsultation
+                            ? 'background: #f0f7ff; border: 1px solid #b6d4fe;'
+                            : 'background: #fff5f5; border: 1px solid #f1aeb5;');
+                    const badgeColor = isMtg ? '#2e7d32' : (item.isConsultation ? '#084298' : 'var(--up-maroon)');
+                    const canEditDelete = !item.isConsultation && !isMtg && typeof item.customIndex === 'number' && item.customIndex >= 0;
+                    const actionBtns = canEditDelete
+                        ? `
+                            <span style="display:inline-flex; gap:6px; margin-left:8px;">
+                                <button type="button" onclick="window.openEditScheduleItem(${item.customIndex})" style="background: var(--up-maroon); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer;">Edit</button>
+                                <button type="button" onclick="window.removeCustomScheduleItem(${item.customIndex})" style="background: #dc3545; color: white; border: none; border-radius: 4px; padding: 2px 7px; font-size: 11px; cursor: pointer;">Delete</button>
+                            </span>
+                        `
+                        : '';
+                    return `
+                        <div style="display: grid; grid-template-columns: 150px 1.5fr 1fr 1.5fr; align-items: center; padding: 10px; ${rowStyle} border-radius: 6px;">
+                            <span style="font-weight: 600; color: ${badgeColor};">${escapeHtml(item.day || 'Mon')} ${escapeHtml(item.time || '')}</span>
+                            <span><strong>${escapeHtml(item.title || 'Schedule Block')}</strong></span>
+                            <span>${escapeHtml(item.location || 'TBA')}</span>
+                            <span style="color: #495057; font-size: 12px; display: flex; justify-content: space-between; align-items: center;"><span>${escapeHtml(item.notes || 'Added via CS-Sync')}</span>${actionBtns}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                const hasSyncedGroupRows = syncedGroupMeetings.length > 0;
+                const syncRowHtml = (showMeetings && !hasSyncedGroupRows) ? `
+                    <div style="display: grid; grid-template-columns: 150px 1.5fr 1fr 1.5fr; align-items: center; padding: 10px; background: #e8f5e9; border-radius: 6px; border: 1px solid #c8e6c9;">
+                        <span style="font-weight: 600; color: #2e7d32;">Fri 01:00 PM</span>
+                        <span><strong>Final Project Sync (${teamCount} Teammates)</strong></span>
+                        <span>Online / Discord</span>
+                        <span style="color: #1b5e20; font-size: 12px;">Review milestone integration.</span>
+                    </div>
+                ` : '';
+
                 container.innerHTML = `
                     <div style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 13px; padding-right: 4px;">
-                        <div style="display: grid; grid-template-columns: 120px 1.5fr 1fr 1.5fr; font-weight: bold; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); color: var(--text-muted); position: sticky; top: 0; background: white;">
+                        <div style="display: grid; grid-template-columns: 150px 1.5fr 1fr 1.5fr; font-weight: bold; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); color: var(--text-muted); position: sticky; top: 0; background: white;">
                             <span>Time & Date</span><span>Event</span><span>Location</span><span>Notes</span>
                         </div>
-                        <div style="display: grid; grid-template-columns: 120px 1.5fr 1fr 1.5fr; align-items: center; padding: 10px; background: #e8f5e9; border-radius: 6px; border: 1px solid #c8e6c9;">
-                            <span style="font-weight: 600; color: #2e7d32;">Fri 01:00 PM</span>
-                            <span><strong>Final Project Sync (${teamCount} Teammates)</strong></span>
-                            <span>Online / Discord</span>
-                            <span style="color: #1b5e20; font-size: 12px;">Review milestone integration.</span>
-                        </div>
+                        ${syncRowHtml}
+                        ${customRowsHtml}
                     </div>`;
 
             } else if (viewType === 'day' || viewType === 'today') {
                 viewLabel.textContent = viewType === 'today' ? "Today's Scrollable Hourly Schedule" : "Scrollable Day View";
                 let html = `<div style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px;">`;
                 ['07:00 AM', '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM', '07:00 PM', '08:00 PM'].forEach(hour => {
+                    const slotRange = getRowSlotRange(hour, DEFAULT_BLOCK_MINUTES);
+                    const matching = customItems.filter(item => rangesOverlap(slotRange, parseScheduleItemRange(item)));
+                    const cellContent = matching.length > 0
+                        ? `<span style="font-weight: 600; color: var(--up-maroon);">${matching.map(m => `${escapeHtml(m.title)} (${escapeHtml(m.day || 'Mon')}${m.time ? ' • ' + escapeHtml(m.time) : ''}${m.location ? ' • ' + escapeHtml(m.location) : ''})`).join(', ')}</span>`
+                        : `<span style="color: var(--text-muted); font-style: italic;">No events scheduled. Click '+ Add Event' or 'Scan Schedule Image' to add a block.</span>`;
                     html += `<div style="display: grid; grid-template-columns: 90px 1fr; gap: 15px; align-items: center; padding: 12px; background: #fff; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px;">
                         <span style="font-weight: bold; color: var(--up-maroon);">${hour}</span>
-                        <span style="color: var(--text-muted); font-style: italic;">No events scheduled. Click '+ Add Event' to add a block.</span>
+                        ${cellContent}
                     </div>`;
                 });
                 html += `</div>`;
@@ -278,27 +1035,57 @@
             } else if (viewType === 'month') {
                 viewLabel.textContent = "Month Overview • November 2026 Calendar Grid";
                 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                let html = `
+                const headerHtml = `
                     <div style="display: grid; grid-template-columns: repeat(7, 1fr); font-weight: bold; font-size: 12px; text-align: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); color: var(--text-muted);">
                         ${weekdays.map(w => `<span>${w}</span>`).join('')}
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px;">
                 `;
-                
-                for(let i = 1; i <= 30; i++) {
-                    html += `
-                        <div style="min-height: 85px; background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; font-size: 11px; display: flex; flex-direction: column; justify-content: space-between;">
-                            <span style="font-weight: bold; color: var(--text-muted);">${i}</span>
-                            ${i === 6 ? '<span style="background: #c3e6cb; color: #155724; padding: 2px 4px; border-radius: 3px; font-size: 9px; font-weight: bold;">Sync</span>' : ''}
-                        </div>
-                    `;
-                }
-                html += `</div>`;
-                container.innerHTML = html;
-            }
-        }
 
-        // View Switching Action Listeners
+                const dayCells = [];
+                for (let i = 1; i <= 30; i++) {
+                    const dateObj = new Date(2026, 10, i);
+                    const weekdayShort = weekdays[dateObj.getDay()];
+
+                    const dayEvents = customItems.filter(item => normalizeDayShort(item.day) === weekdayShort);
+                    const hasExplicitMeeting = dayEvents.some(e => e.isGroupMeeting || e.type === 'group_meeting');
+                    const showFallbackSyncChip = showMeetings && weekdayShort === 'Fri' && !hasExplicitMeeting;
+
+                    const pills = [];
+                    if (showFallbackSyncChip) {
+                        pills.push(`<span style="background: #c3e6cb; color: #155724; padding: 2px 5px; border-radius: 3px; font-size: 9px; font-weight: bold; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">🚀 Sync (${teamCount})</span>`);
+                    }
+
+                    dayEvents.forEach(ev => {
+                        const isMtg = Boolean(ev.isGroupMeeting || ev.type === 'group_meeting');
+                        const pillStyle = isMtg
+                            ? 'background: #c3e6cb; color: #155724; border: 1px solid #28a745;'
+                            : (ev.isConsultation
+                                ? 'background: #e7f1ff; color: #084298; border: 1px solid #9ec5fe;'
+                                : 'background: #f8d7da; color: #7b1113; border: 1px solid #f1aeb5;');
+                        const prefix = isMtg ? '🚀 ' : (ev.isConsultation ? '🤝 ' : '');
+                        const timePrefix = ev.time ? `${ev.time.split(' - ')[0]} ` : '';
+                        pills.push(`<span title="${escapeHtml(`${ev.title} (${ev.day} ${ev.time || ''})`)}" style="${pillStyle} padding: 2px 5px; border-radius: 3px; font-size: 9px; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${prefix}${escapeHtml(timePrefix)}${escapeHtml(ev.title)}</span>`);
+                    });
+
+                    const isTodayNov23 = i === 23;
+                    dayCells.push(`
+                        <div style="min-height: 92px; background: ${isTodayNov23 ? '#fffaf0' : '#f8f9fa'}; border: 1px solid ${isTodayNov23 ? 'var(--up-maroon)' : 'var(--border-color)'}; border-radius: 6px; padding: 6px; font-size: 11px; display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: bold; color: ${isTodayNov23 ? 'var(--up-maroon)' : 'var(--text-muted)'};">${i}</span>
+                                <span style="font-size: 9px; color: var(--text-muted);">${weekdayShort}</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                ${pills.slice(0, 3).join('')}
+                                ${pills.length > 3 ? `<span style="font-size: 9px; color: var(--text-muted); font-weight: 600;">+${pills.length - 3} more</span>` : ''}
+                            </div>
+                        </div>
+                    `);
+                }
+
+                container.innerHTML = `${headerHtml}<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px;">${dayCells.join('')}</div>`;
+            }
+        };
+
         const viewButtons = document.querySelectorAll('.view-btn');
         viewButtons.forEach(btn => {
             btn.addEventListener('click', function() {
@@ -315,18 +1102,216 @@
                 renderCalendarView(viewType);
             });
         });
-    </script>
 
-    <script>
-        // Header & Profile Management
-        const storedUser = localStorage.getItem('cs_sync_user') || 'Maria Santos';
-        const storedEmail = localStorage.getItem('cs_sync_email') || 'mahalkosiya@up.edu.ph';
-        
-        document.getElementById('userNameDisplay').textContent = storedUser;
-        document.getElementById('profileDropdownName').textContent = storedUser;
-        document.getElementById('profileDropdownEmail').textContent = storedEmail;
-        document.getElementById('userAvatar').textContent = storedUser.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        const scanImageBtn = document.getElementById('scanImageBtn');
+        const scanImageInput = document.getElementById('scanImageInput');
+        const ocrReviewModal = document.getElementById('ocrReviewModal');
+        const closeOcrModal = document.getElementById('closeOcrModal');
+        const cancelOcrBtn = document.getElementById('cancelOcrBtn');
+        const ocrImagePreview = document.getElementById('ocrImagePreview');
+        const ocrStatusText = document.getElementById('ocrStatusText');
+        const ocrProgressBar = document.getElementById('ocrProgressBar');
+        const ocrRawTextOutput = document.getElementById('ocrRawTextOutput');
+        const ocrRowsContainer = document.getElementById('ocrRowsContainer');
+        const addOcrRowBtn = document.getElementById('addOcrRowBtn');
+        const confirmOcrSaveBtn = document.getElementById('confirmOcrSaveBtn');
 
+        function createOcrRowElement(row = { title: '', day: 'Monday', time: '09:00 AM', location: '' }) {
+            const div = document.createElement('div');
+            div.className = 'ocr-review-row';
+            div.style.cssText = 'display: grid; grid-template-columns: 2fr 1fr 1.2fr 1.3fr 32px; gap: 8px; align-items: center; background: #fdfdfd; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;';
+            div.innerHTML = `
+                <input type="text" class="ocr-title" value="${escapeHtml(row.title || '')}" placeholder="Course / Event name" style="padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 12px;">
+                <select class="ocr-day" style="padding: 6px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 12px; background: white;">
+                    ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(d => `<option ${row.day === d ? 'selected' : ''}>${d}</option>`).join('')}
+                </select>
+                <input type="text" class="ocr-time" value="${escapeHtml(row.time || '')}" placeholder="e.g. 11:00 AM - 12:30 PM" style="padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 12px;">
+                <input type="text" class="ocr-location" value="${escapeHtml(row.location || '')}" placeholder="Room / Location" style="padding: 6px 8px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 12px;">
+                <button type="button" class="remove-ocr-row" title="Remove row" style="background: #f8d7da; color: #842029; border: none; border-radius: 5px; height: 28px; cursor: pointer; font-weight: bold;">&times;</button>
+            `;
+            div.querySelector('.remove-ocr-row').onclick = () => div.remove();
+            return div;
+        }
+
+        function expandDayTokensFromLine(line = '') {
+            const matches = [];
+            if (/\bMWF\b/i.test(line)) {
+                matches.push('Monday', 'Wednesday', 'Friday');
+            } else if (/\bTTh\b/i.test(line)) {
+                matches.push('Tuesday', 'Thursday');
+            } else if (/\bMTWThF?\b/i.test(line)) {
+                matches.push('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday');
+            }
+            if (matches.length > 0) return Array.from(new Set(matches));
+
+            const singles = [
+                { regex: /\b(mon|monday)\b/i, full: 'Monday' },
+                { regex: /\b(tue|tues|tuesday)\b/i, full: 'Tuesday' },
+                { regex: /\b(wed|weds|wednesday)\b/i, full: 'Wednesday' },
+                { regex: /\b(thu|thur|thurs|thursday|th)\b/i, full: 'Thursday' },
+                { regex: /\b(fri|friday)\b/i, full: 'Friday' },
+                { regex: /\b(sat|saturday)\b/i, full: 'Saturday' },
+                { regex: /\b(sun|sunday)\b/i, full: 'Sunday' }
+            ];
+            for (const s of singles) {
+                if (s.regex.test(line)) matches.push(s.full);
+            }
+            return Array.from(new Set(matches));
+        }
+
+        function parseScheduleFromOcrText(rawText = '') {
+            const sanitizedText = sanitizeOcrHourString(rawText);
+            const lines = sanitizedText
+                .split(/\r?\n/)
+                .map(l => l.trim())
+                .filter(Boolean);
+
+            const clockToken = `(?:(?:[01]?\\d|2[0-3])[:.][0-5]\\d(?:\\s?[AP]M)?|(?:0?[1-9]|1[0-2])\\s?[AP]M)`;
+            const timeRangeRegex = new RegExp(`\\b(${clockToken}(?:\\s*(?:-|–|—|to)\\s*${clockToken})?)\\b`, 'i');
+            const roomRegex = /\b([A-Z]{2,5}\s*\d{2,4}[A-Z]?)\b/;
+            const parsedRows = [];
+
+            for (const line of lines) {
+                const daysFound = expandDayTokensFromLine(line);
+                const timeMatch = line.match(timeRangeRegex);
+
+                if (daysFound.length > 0 || timeMatch) {
+                    const roomMatch = line.match(roomRegex);
+                    const courseCodeMatch = line.match(/\b([A-Z]{2,6}\s*\d{1,3}[A-Z]?)\b/);
+
+                    let cleanedTitle = line
+                        .replace(timeRangeRegex, '')
+                        .replace(/\b(MWF|TTh|MTWThF?|mon|monday|tue|tues|tuesday|wed|weds|wednesday|thu|thur|thurs|thursday|th|fri|friday|sat|saturday|sun|sunday)\b/gi, '')
+                        .replace(roomRegex, '')
+                        .replace(/\b\d+\s*[NWLS]\b/g, '')
+                        .replace(/\b\d+L\b/gi, '')
+                        .replace(/\b(CHSS|CSM|SOM|EE|DR|PROF\.?|SIR|MA'?AM)\b/gi, '')
+                        .replace(/\b[A-Z]{2,}[A-Z][a-z]+\b/g, '')
+                        .replace(/[-|•/]+/g, ' ')
+                        .replace(/\s{2,}/g, ' ')
+                        .trim();
+
+                    if (courseCodeMatch && cleanedTitle.length > 42) {
+                        cleanedTitle = courseCodeMatch[1].toUpperCase();
+                    }
+
+                    const targetDays = daysFound.length > 0 ? daysFound : ['Monday'];
+                    const normalizedTime = timeMatch ? formatNormalizedTime(timeMatch[0]) : '09:00 AM';
+                    const location = roomMatch ? roomMatch[1].replace(/\s+/g, ' ').trim() : '';
+
+                    targetDays.forEach((dayName) => {
+                        parsedRows.push({
+                            title: cleanedTitle || line,
+                            day: dayName,
+                            time: normalizedTime,
+                            location
+                        });
+                    });
+                }
+            }
+
+            if (parsedRows.length === 0 && lines.length > 0) {
+                return lines.slice(0, 5).map(line => ({
+                    title: line,
+                    day: 'Monday',
+                    time: '09:00 AM',
+                    location: ''
+                }));
+            }
+
+            return parsedRows;
+        }
+
+        scanImageBtn.addEventListener('click', () => scanImageInput.click());
+
+        scanImageInput.addEventListener('change', async (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+
+            const objectUrl = URL.createObjectURL(file);
+            ocrImagePreview.src = objectUrl;
+            ocrRowsContainer.innerHTML = '';
+            ocrRawTextOutput.textContent = '';
+            ocrStatusText.textContent = 'Scanning image with Tesseract.js...';
+            ocrProgressBar.style.width = '10%';
+            confirmOcrSaveBtn.disabled = true;
+            ocrReviewModal.style.display = 'flex';
+
+            try {
+                const result = await Tesseract.recognize(file, 'eng', {
+                    logger: (m) => {
+                        if (m.status === 'recognizing text' && typeof m.progress === 'number') {
+                            const pct = Math.min(100, Math.round(m.progress * 100));
+                            ocrProgressBar.style.width = `${pct}%`;
+                            ocrStatusText.textContent = `Recognizing text... ${pct}%`;
+                        }
+                    }
+                });
+
+                const text = (result && result.data && result.data.text) ? result.data.text : '';
+                ocrRawTextOutput.textContent = text || '(No text detected)';
+                ocrProgressBar.style.width = '100%';
+
+                const detected = parseScheduleFromOcrText(text);
+                ocrStatusText.textContent = `Detected ${detected.length} item(s). Review below before saving.`;
+
+                if (detected.length === 0) {
+                    ocrRowsContainer.appendChild(createOcrRowElement());
+                } else {
+                    detected.forEach(item => ocrRowsContainer.appendChild(createOcrRowElement(item)));
+                }
+            } catch (err) {
+                console.error('OCR error:', err);
+                ocrStatusText.textContent = 'Could not read image clearly. You can still add/edit rows manually.';
+                ocrRowsContainer.appendChild(createOcrRowElement());
+            } finally {
+                confirmOcrSaveBtn.disabled = false;
+                scanImageInput.value = '';
+            }
+        });
+
+        addOcrRowBtn.addEventListener('click', () => {
+            ocrRowsContainer.appendChild(createOcrRowElement());
+        });
+
+        confirmOcrSaveBtn.addEventListener('click', () => {
+            const rowEls = ocrRowsContainer.querySelectorAll('.ocr-review-row');
+            const verifiedItems = [];
+
+            rowEls.forEach(row => {
+                const title = row.querySelector('.ocr-title').value.trim();
+                const day = row.querySelector('.ocr-day').value;
+                const time = formatNormalizedTime(row.querySelector('.ocr-time').value.trim());
+                const location = row.querySelector('.ocr-location').value.trim();
+                if (title) {
+                    verifiedItems.push({
+                        title,
+                        day,
+                        time,
+                        location,
+                        notes: 'Imported via Tesseract OCR scanner',
+                        subjectTag: inferSubjectTag(title, '', location)
+                    });
+                }
+            });
+
+            if (verifiedItems.length === 0) {
+                alert('Please enter at least one schedule item title before saving.');
+                return;
+            }
+
+            const existing = readCustomSchedule();
+            const merged = deduplicateScheduleItems([...existing, ...verifiedItems]);
+            writeCustomSchedule(merged);
+            renderCalendarView(currentView);
+            ocrReviewModal.style.display = 'none';
+            alert(`✅ Saved ${merged.length - existing.length} new schedule item(s) (duplicates skipped)!`);
+        });
+
+        closeOcrModal.onclick = () => ocrReviewModal.style.display = 'none';
+        cancelOcrBtn.onclick = () => ocrReviewModal.style.display = 'none';
+
+        // Header & Add/Edit Event Modal Handlers
         const notifBtn = document.getElementById('notifBtn');
         const notifDropdown = document.getElementById('notifDropdown');
         const profileTrigger = document.getElementById('profileTrigger');
@@ -345,30 +1330,59 @@
         });
 
         window.addEventListener('click', function() {
-            if(notifDropdown) notifDropdown.style.display = 'none';
-            if(profileDropdown) profileDropdown.style.display = 'none';
+            if (notifDropdown) notifDropdown.style.display = 'none';
+            if (profileDropdown) profileDropdown.style.display = 'none';
         });
 
-        document.getElementById('clearAllNotifs').addEventListener('click', function() {
-            notifDropdown.querySelector('div:nth-child(2)').innerHTML = '<p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>';
+        document.getElementById('clearAllNotifs').addEventListener('click', async function() {
+            await window.clearAllCalendarNotifications();
         });
 
         document.getElementById('logoutBtn').addEventListener('click', function(e) {
             e.preventDefault();
             localStorage.removeItem('cs_sync_user');
             localStorage.removeItem('cs_sync_email');
+            localStorage.removeItem('cs_sync_role');
+            localStorage.removeItem('cs_sync_program');
+            localStorage.removeItem('cs_sync_batch');
+            localStorage.removeItem('cs_sync_dept');
             window.location.replace('index.html');
         });
 
-        // Add Event Modal logic
         const modal = document.getElementById('eventModal');
-        document.getElementById('addEventBtn').onclick = () => modal.style.display = 'flex';
-        document.getElementById('closeModal').onclick = () => modal.style.display = 'none';
-        document.getElementById('cancelModalBtn').onclick = () => modal.style.display = 'none';
+        document.getElementById('addEventBtn').onclick = () => {
+            editingScheduleIndex = null;
+            document.getElementById('eventModalTitle').textContent = 'Create Schedule Block';
+            document.getElementById('saveEventBtn').textContent = 'Save Event';
+            document.getElementById('inputName').value = '';
+            document.getElementById('inputTime').value = '09:00 AM';
+            document.getElementById('inputWhen').value = 'Monday';
+            document.getElementById('inputWhere').value = '';
+            document.getElementById('inputNotes').value = '';
+            modal.style.display = 'flex';
+        };
+        document.getElementById('closeModal').onclick = () => {
+            editingScheduleIndex = null;
+            modal.style.display = 'none';
+        };
+        document.getElementById('cancelModalBtn').onclick = () => {
+            editingScheduleIndex = null;
+            modal.style.display = 'none';
+        };
         document.getElementById('saveEventBtn').onclick = () => {
-            const name = document.getElementById('inputName').value;
-            if(!name) { alert('Please enter an event name.'); return; }
-            alert(`📅 Event "${name}" successfully saved!`);
+            const name = document.getElementById('inputName').value.trim();
+            const time = document.getElementById('inputTime').value;
+            const day = document.getElementById('inputWhen').value;
+            const location = document.getElementById('inputWhere').value.trim();
+            const notes = document.getElementById('inputNotes').value.trim();
+
+            if (!name) { alert('Please enter an event name.'); return; }
+
+            const wasEditing = typeof editingScheduleIndex === 'number' && editingScheduleIndex >= 0;
+            upsertScheduleItemFromModal({ name, time, day, location, notes });
+            editingScheduleIndex = null;
+
+            alert(wasEditing ? `✏️ Event "${name}" updated!` : `📅 Event "${name}" successfully saved!`);
             modal.style.display = 'none';
         };
     </script>

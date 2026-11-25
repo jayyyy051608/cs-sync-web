@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // 3. Interactive Modal Handling for Faculty Booking (database.html)
+    // 3. Interactive Modal Handling for Faculty Booking (faculty.html)
     const bookingModal = document.getElementById("bookingModal");
     const openModalBtn = document.getElementById("open-booking-modal");
     const closeModalBtn = document.getElementById("closeModal");

@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="styles/variables.css">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .matrix-slot { cursor: pointer; transition: transform 0.1s, filter 0.1s; }
+        .matrix-slot:hover { transform: scale(1.02); filter: brightness(0.95); }
+        .group-item { cursor: pointer; transition: background 0.2s; }
+        .group-item:hover { background: #f8f9fa !important; }
+    </style>
 </head>
 <body class="dashboard-body" style="background: var(--bg-color, #f4f6f8); margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
 
@@ -17,19 +23,19 @@
             <nav style="display: flex; gap: 24px;">
                 <a href="dashboard.html" style="color: var(--text-muted, #6c757d); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-house"></i> Home</a>
                 <a href="overlap.html" style="color: var(--up-maroon); font-weight: 600; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-users"></i> Overlap</a>
-                <a href="database.html" style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-graduation-cap"></i> Faculty</a>
+                <a href="faculty.html" style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-graduation-cap"></i> Faculty</a>
                 <a href="calendar.html" style="color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 6px;"><i class="fa-regular fa-calendar"></i> Calendar</a>
             </nav>
         </div>
 
         <!-- Right Side Icons & Profile Dropdown -->
         <div style="display: flex; align-items: center; gap: 20px; position: relative;">
-            
+
             <!-- Notification Bell Icon -->
             <div style="position: relative;">
-                <button id="notifBtn" style="background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; position: relative;">
+                <button id="notifBtn" type="button" style="background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; position: relative;">
                     <i class="fa-regular fa-bell"></i>
-                    <span style="position: absolute; top: -4px; right: -4px; background: #dc3545; color: white; font-size: 9px; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">3</span>
+                    <span id="notifBadge" style="position: absolute; top: -4px; right: -4px; background: #dc3545; color: white; font-size: 9px; width: 14px; height: 14px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-weight: bold;">0</span>
                 </button>
 
                 <!-- Notifications Dropdown Center -->
@@ -38,16 +44,8 @@
                         <h4 style="margin: 0; font-size: 14px; color: var(--up-maroon);">Notifications & Invites</h4>
                         <span style="font-size: 11px; color: var(--text-muted); cursor: pointer;" id="clearAllNotifs">Clear all</span>
                     </div>
-                    <div style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
-                        <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; font-size: 12px;">
-                            <strong>New Group Overlap Invite</strong><br>
-                            Juan wants to add you to group overlap for Final Project CMSC 3.
-                            <div style="margin-top: 6px; display: flex; gap: 8px;">
-                                <button style="padding: 2px 8px; background: var(--up-maroon); color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer;">Accept</button>
-                                <button style="padding: 2px 8px; background: #e9ecef; border: none; border-radius: 4px; font-size: 10px; cursor: pointer;">Decline</button>
-                            </div>
-                            <span style="font-size: 10px; color: var(--text-muted);">5 hours ago</span>
-                        </div>
+                    <div id="notifListBody" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Rendered dynamically -->
                     </div>
                 </div>
             </div>
@@ -65,11 +63,11 @@
                     <div style="padding: 16px; border-bottom: 1px solid var(--border-color); background: #fdfdfd;">
                         <p id="profileDropdownName" style="margin: 0; font-weight: bold; font-size: 13px; color: #333;">Maria Santos</p>
                         <p id="profileDropdownEmail" style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-muted);">mahalkosiya@up.edu.ph</p>
-                        <span style="display: inline-block; margin-top: 6px; background: #e9ecef; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; color: #495057;">Student • BSCS</span>
+                        <span id="roleBadge" style="display: inline-block; margin-top: 6px; background: #e9ecef; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; color: #495057;">Student • BSCS</span>
                     </div>
                     <div style="padding: 6px 0;">
                         <a href="profile.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-user" style="width: 16px;"></i> My Profile</a>
-                        <a href="settings.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-gear fa-regular" style="width: 16px;"></i> Settings</a>
+                        <a href="settings.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-gear fa-solid" style="width: 16px;"></i> Settings</a>
                         <a href="help.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-circle-question" style="width: 16px;"></i> Help & Support</a>
                     </div>
                     <div style="border-top: 1px solid var(--border-color); padding: 6px 0;">
@@ -81,89 +79,156 @@
         </div>
     </header>
 
-    <!-- Main Container for Overlap Tool -->
-    <div class="overlap-container" style="max-width: 1100px; margin: 24px auto; display: grid; grid-template-columns: 320px 1fr; gap: 20px; padding: 0 16px;">
-        
-        <!-- Left Sidebar: Group Selector & Teammates -->
-        <aside class="overlap-sidebar" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); height: fit-content;">
-            <h3 style="font-size: 15px; margin-bottom: 10px;">Select Active Group</h3>
-            <select id="groupSelect" class="group-select" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; margin-bottom: 20px; background: white;">
-                <option value="Final Project CMSC 3" selected>Final Project CMSC 3</option>
-                <option value="CS 198 Thesis Group">CS 198 Thesis Group</option>
-            </select>
+    <!-- Student-Only Access Guard -->
+    <script>
+        (function () {
+            const role = (localStorage.getItem('cs_sync_role') || 'student').toLowerCase();
+            if (role === 'faculty' || role === 'professor') {
+                document.write(`
+                    <div style="max-width: 520px; margin: 72px auto; background: white; padding: 32px; border-radius: 12px; border: 1px solid var(--border-color, #dee2e6); text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.05);">
+                        <div style="width: 48px; height: 48px; margin: 0 auto 14px auto; border-radius: 50%; background: #f8d7da; color: #842029; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <h2 style="margin: 0 0 8px 0; font-size: 20px; color: var(--up-maroon, #7b1113);">Access Restricted</h2>
+                        <p style="margin: 0 0 20px 0; font-size: 14px; color: #495057;">Only student account can access it.</p>
+                        <a href="dashboard.html" style="display: inline-block; padding: 10px 18px; background: var(--up-maroon, #7b1113); color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600;">Back to Dashboard</a>
+                    </div>
+                `);
+                window.__BLOCK_NON_STUDENT__ = true;
+            }
+        })();
+    </script>
 
-            <div class="teammates-box" style="margin-bottom: 20px;">
+    <!-- Main Container for Overlap Tool -->
+    <div id="overlapMainWrapper" class="overlap-container" style="max-width: 1100px; margin: 24px auto; display: grid; grid-template-columns: 320px 1fr; gap: 20px; padding: 0 16px;">
+
+        <!-- Left Sidebar: Active Group & My Groups List -->
+        <aside class="overlap-sidebar" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); height: fit-content; display: flex; flex-direction: column; gap: 20px;">
+
+            <!-- Active Group Selector Box -->
+            <div>
+                <h3 style="font-size: 15px; margin-bottom: 6px;">Select Active Group</h3>
+                <input type="text" id="groupNameInput" value="Final Project CMSC 3" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; font-weight: 600; box-sizing: border-box; background: white;">
+            </div>
+
+            <!-- My Groups Quick-Switch List -->
+            <div style="border-top: 1px solid var(--border-color); padding-top: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h4 style="font-size: 13px; color: var(--text-muted); margin: 0;">My Project Groups</h4>
+                    <button id="addNewGroupBtn" type="button" style="background: none; border: none; color: var(--up-maroon); font-size: 12px; font-weight: 600; cursor: pointer;">+ New Group</button>
+                </div>
+                <div id="myGroupsList" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto;">
+                    <!-- Rendered dynamically -->
+                </div>
+            </div>
+
+            <!-- Active Teammates Box -->
+            <div class="teammates-box" style="border-top: 1px solid var(--border-color); padding-top: 16px;">
                 <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Active Teammates (<span id="teammateCount">0</span>)</h4>
                 <div id="teammateChipsContainer" class="teammate-chips" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px;">
                     <span style="font-size: 12px; color: var(--text-muted); font-style: italic;">Loading cloud teammates...</span>
                 </div>
-                <button id="addMemberBtn" class="add-member-btn" style="padding: 4px 10px; border-radius: 12px; font-size: 12px; background: none; border: 1px dashed var(--up-maroon); color: var(--up-maroon); cursor: pointer;">Add +</button>
+                <button id="addMemberBtn" type="button" class="add-member-btn" style="padding: 4px 10px; border-radius: 12px; font-size: 12px; background: none; border: 1px dashed var(--up-maroon); color: var(--up-maroon); cursor: pointer;">Add Teammate +</button>
             </div>
 
-            <div class="ideal-window-banner" style="background: #e8f5e9; border: 1px solid #c8e6c9; padding: 12px; border-radius: 6px; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 20px;">
-                <span class="banner-icon" style="font-size: 16px;">✨</span>
+            <div id="idealWindowBanner" class="ideal-window-banner" style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; display: flex; gap: 10px; align-items: flex-start;">
+                <span class="banner-icon" style="font-size: 16px;">👥</span>
                 <div>
-                    <h5 style="font-size: 13px; color: #2e7d32; margin: 0 0 4px 0;">Ideal Free Window Found!</h5>
-                    <p style="font-size: 12px; color: #1b5e20; margin: 0;">Fridays 1:00 PM - 2:00 PM is <strong>100% Free</strong></p>
+                    <h5 id="idealWindowTitle" style="font-size: 13px; color: #333; margin: 0 0 4px 0;">Add a Student Teammate</h5>
+                    <p id="idealWindowText" style="font-size: 12px; color: var(--text-muted); margin: 0;">Add at least one student to compare group free windows.</p>
                 </div>
             </div>
-            
-            <button id="openConfirmModalBtn" class="confirm-meeting-btn" style="width: 100%; padding: 12px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer;">Confirm Group Meeting</button>
+
+            <button id="openConfirmModalBtn" type="button" class="confirm-meeting-btn" style="width: 100%; padding: 12px; background: var(--up-maroon); color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer;">Confirm Group Meeting</button>
         </aside>
 
-        <!-- Right Section: Overlap Grid Matrix -->
-        <main class="overlap-matrix-main" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
-            <h2 style="font-size: 18px; margin-bottom: 16px;">Group Availability Matrix</h2>
-            <div class="matrix-grid-box" style="display: flex; flex-direction: column; gap: 8px;">
-                <div class="matrix-row header-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); font-weight: bold; font-size: 13px; text-align: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-color);">
-                    <span>Time</span>
-                    <span>Mon</span>
-                    <span>Tue</span>
-                    <span>Wed</span>
-                    <span>Thu</span>
-                    <span>Fri</span>
+        <!-- Right Section: Pending Invites Banner + Interactive Overlap Grid Matrix -->
+        <main class="overlap-matrix-main" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 16px;">
+
+            <!-- Pending Invites Prompt Box on Overlap Page -->
+            <div id="overlapInvitesBox" style="display: none; background: #fff8e7; border: 1px solid #ffd875; border-radius: 8px; padding: 14px 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 13px; font-weight: 700; color: #664d03;"><i class="fa-solid fa-envelope-open-text" style="margin-right: 6px;"></i> Pending Group & Meeting Invites</span>
+                    <span id="overlapInviteCount" style="font-size: 11px; font-weight: 700; background: #ffc107; color: #212529; padding: 2px 8px; border-radius: 999px;">0</span>
                 </div>
-                <div class="matrix-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); gap: 6px; align-items: center; font-size: 12px; text-align: center;">
-                    <span style="font-weight: 600; color: var(--text-muted); text-align: left;">09:00 AM</span>
-                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
-                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
-                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
-                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
-                    <span class="free-100" style="background: #d1e7dd; color: #0f5132; padding: 8px; border-radius: 4px; font-weight: bold;">FREE</span>
+                <div id="overlapInvitesList" style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- Populated dynamically -->
                 </div>
-                <div class="matrix-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); gap: 6px; align-items: center; font-size: 12px; text-align: center;">
-                    <span style="font-weight: 600; color: var(--text-muted); text-align: left;">11:30 AM</span>
-                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
-                    <span class="free-100" style="background: #d1e7dd; color: #0f5132; padding: 8px; border-radius: 4px; font-weight: bold;">FREE</span>
-                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
-                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
-                    <span class="free-100" style="background: #d1e7dd; color: #0f5132; padding: 8px; border-radius: 4px; font-weight: bold;">FREE</span>
+            </div>
+
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+                    <h2 style="font-size: 18px; margin: 0;">Group Availability Matrix</h2>
+                    <span id="liveSyncStatusLabel" style="font-size: 11px; color: #2e7d32; font-weight: 600;"><i class="fa-solid fa-bolt"></i> Live Schedule & Consultation Sync</span>
+                    <span style="font-size: 11px; color: var(--text-muted); font-style: italic;"><i class="fa-solid fa-circle-info"></i> Click any time slot to see who is free/busy</span>
                 </div>
-                <div class="matrix-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); gap: 6px; align-items: center; font-size: 12px; text-align: center;">
-                    <span style="font-weight: 600; color: var(--text-muted); text-align: left;">01:00 PM</span>
-                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
-                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
-                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
-                    <span class="busy" style="background: #f8d7da; color: #842029; padding: 8px; border-radius: 4px; font-weight: bold;">BUSY</span>
-                    <span class="free-100" style="background: #c3e6cb; color: #155724; padding: 8px; border-radius: 4px; font-weight: bold; border: 2px solid #28a745;">100% FREE</span>
+
+                <div class="matrix-grid-box" id="matrixGridBox" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div class="matrix-row header-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); font-weight: bold; font-size: 13px; text-align: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-color);">
+                        <span>Time</span>
+                        <span>Mon</span>
+                        <span>Tue</span>
+                        <span>Wed</span>
+                        <span>Thu</span>
+                        <span>Fri</span>
+                    </div>
+                    <!-- Rendered dynamically by renderAvailabilityMatrix() -->
                 </div>
             </div>
         </main>
 
     </div>
 
-    <!-- Add Teammate Modal -->
-    <div class="modal-backdrop" id="addTeammateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;">
-        <div class="modal-card" style="background: white; width: 400px; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+    <!-- Interactive Availability Breakdown Modal -->
+    <div id="slotModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 1100;">
+        <div style="background: white; width: 380px; padding: 24px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <h4 id="modalSlotTitle" style="margin: 0; font-size: 15px; color: var(--up-maroon);">Availability Breakdown</h4>
+                <span onclick="closeSlotModal()" style="font-size: 22px; cursor: pointer; color: var(--text-muted);">&times;</span>
+            </div>
+            <div id="modalSlotBody" style="font-size: 13px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+                <!-- Populated dynamically -->
+            </div>
+            <button onclick="closeSlotModal()" type="button" style="width: 100%; padding: 8px; background: #e9ecef; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; color: #495057;">Close</button>
+        </div>
+    </div>
+
+    <!-- Add Teammate & Register Student User Modal -->
+    <div class="modal-backdrop" id="addTeammateModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px;">
+        <div class="modal-card" style="background: white; width: 440px; max-width: 100%; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <h3 style="margin: 0; font-size: 16px; color: var(--up-maroon);">Add Teammate to Cloud Group</h3>
                 <span id="closeAddModal" style="font-size: 24px; cursor: pointer; color: var(--text-muted);">&times;</span>
             </div>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Verify student in Firestore directory and sync to group.</p>
-            
-            <div style="margin-bottom: 16px;">
-                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">TEAMMATE NAME</label>
-                <input type="text" id="teammateNameInput" placeholder="e.g. Jay Ceriaca" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Pick a registered student from Firestore, enter a name, or create a new student user.</p>
+
+            <div style="margin-bottom: 12px;">
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">REGISTERED STUDENTS IN DIRECTORY</label>
+                <select id="directoryStudentSelect" style="width: 100%; padding: 9px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white; box-sizing: border-box;">
+                    <option value="">-- Choose a student user --</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">OR TYPE TEAMMATE FULL NAME</label>
+                <input type="text" id="teammateNameInput" placeholder="e.g. pgceriaca or Jay Ceriaca" style="width: 100%; padding: 9px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 14px;">
+                <button type="button" id="toggleNewStudentBtn" style="background: none; border: none; color: var(--up-maroon); font-size: 12px; font-weight: 600; cursor: pointer; padding: 0;">+ Create & Register New Student User</button>
+            </div>
+
+            <div id="newStudentPanel" style="display: none; background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; margin-bottom: 16px;">
+                <div style="font-size: 12px; font-weight: 700; color: #333; margin-bottom: 8px;">New Student Account Details</div>
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+                    <input type="text" id="newStudentFullName" placeholder="Full Name (e.g. Jay Ceriaca)" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: white; box-sizing: border-box;">
+                    <input type="email" id="newStudentEmail" placeholder="UP Email (e.g. pgceriaca@up.edu.ph)" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: white; box-sizing: border-box;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <input type="text" id="newStudentProgram" value="BSCS" placeholder="Program" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: white; box-sizing: border-box;">
+                        <input type="text" id="newStudentBatch" placeholder="Batch / Year (e.g. 2026)" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: white; box-sizing: border-box;">
+                    </div>
+                    <button type="button" id="registerStudentBtn" style="padding: 8px 12px; background: #198754; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px;">Register Student & Add to Group</button>
+                </div>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 12px;">
@@ -173,23 +238,61 @@
         </div>
     </div>
 
-    <!-- Scenario B - Step 4: Meeting Confirmation Modal -->
+    <!-- Meeting Confirmation Modal -->
     <div class="modal-backdrop" id="meetingModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;">
-        <div class="modal-card" style="background: white; width: 500px; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+        <div class="modal-card" style="background: white; width: 520px; max-width: 95%; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
             <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <h3 style="margin: 0; font-size: 16px;">Confirm Group Meeting</h3>
                 <span class="close-modal" id="closeModal" style="font-size: 24px; cursor: pointer; color: var(--text-muted);">&times;</span>
             </div>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Creating a mutual meeting invite for Project Group Bravo.</p>
-            
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Creating a mutual meeting invite for <span id="confirmGroupNameDisplay" style="font-weight: bold; color: var(--up-maroon);">Final Project CMSC 3</span>.</p>
+
+            <!-- Choose Day & Time Slot -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                <div>
+                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">DAY</label>
+                    <select id="meetingDaySelect" style="width: 100%; padding: 9px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white; box-sizing: border-box;">
+                        <option value="Mon">Monday</option>
+                        <option value="Tue">Tuesday</option>
+                        <option value="Wed" selected>Wednesday</option>
+                        <option value="Thu">Thursday</option>
+                        <option value="Fri">Friday</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">TIME SLOT</label>
+                    <select id="meetingTimeSelect" style="width: 100%; padding: 9px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white; box-sizing: border-box;">
+                        <option value="07:00 AM">07:00 AM - 08:00 AM</option>
+                        <option value="08:00 AM">08:00 AM - 09:00 AM</option>
+                        <option value="09:00 AM">09:00 AM - 10:00 AM</option>
+                        <option value="10:00 AM">10:00 AM - 11:00 AM</option>
+                        <option value="11:00 AM">11:00 AM - 12:00 PM</option>
+                        <option value="12:00 PM">12:00 PM - 01:00 PM</option>
+                        <option value="01:00 PM">01:00 PM - 02:00 PM</option>
+                        <option value="02:00 PM">02:00 PM - 03:00 PM</option>
+                        <option value="03:00 PM">03:00 PM - 04:00 PM</option>
+                        <option value="04:00 PM">04:00 PM - 05:00 PM</option>
+                        <option value="05:00 PM">05:00 PM - 06:00 PM</option>
+                        <option value="06:00 PM">06:00 PM - 07:00 PM</option>
+                        <option value="07:00 PM">07:00 PM - 08:00 PM</option>
+                    </select>
+                </div>
+            </div>
+
             <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 14px; border: 1px solid var(--border-color);">
-                <div style="font-size: 13px; font-weight: 600; color: var(--up-maroon);">Friday, 1:00 PM - 2:00 PM</div>
-                <div style="font-size: 11px; color: #664d03; background: #fff3cd; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px;">Exclusive group slot</div>
+                <div id="meetingSlotLabel" style="font-size: 13px; font-weight: 600; color: var(--up-maroon);">Checking free slot...</div>
+                <div id="meetingSlotStatusBadge" style="font-size: 11px; color: #664d03; background: #fff3cd; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px;">Checking availability...</div>
+                <div id="meetingConflictsBox" style="display: none; margin-top: 10px; padding-top: 8px; border-top: 1px solid #dee2e6; font-size: 12px; color: #842029;"></div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">LOCATION / LINK</label>
+                <input type="text" id="meetingLocationInput" value="Online / Discord" style="width: 100%; padding: 9px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; box-sizing: border-box;">
             </div>
 
             <div style="margin-bottom: 16px;">
                 <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">AGENDA / NOTES</label>
-                <textarea rows="3" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: none; box-sizing: border-box;">Project Sprint Alignment and milestone tracking...</textarea>
+                <textarea id="meetingAgendaTextarea" rows="3" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; resize: none; box-sizing: border-box;">Project Sprint Alignment and milestone tracking...</textarea>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 12px;">
@@ -199,178 +302,332 @@
         </div>
     </div>
 
-    <!-- Scripts with Real-Time Cloud Group Sync & Strict Firestore Verification -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Firebase Configuration for cs-sync
+        function detectUserRole(name = '', email = '') {
+            const cleanName = String(name).trim().toLowerCase();
+            const cleanEmail = String(email).trim().toLowerCase();
+            const localPart = cleanEmail.split('@')[0] || '';
+            const facultyTitleRegex = /\b(prof\.?|professor|dr\.?|assoc\.?\s*prof\.?|asst\.?\s*prof\.?|instructor|lecturer|engr\.?|sir|ma'?am)\b/i;
+            const facultyHandleKeywords = ['prof', 'faculty', 'chair', 'dean', 'instructor', 'lecturer'];
+            if (facultyTitleRegex.test(cleanName) || facultyHandleKeywords.some(k => localPart.includes(k))) {
+                return 'faculty';
+            }
+            return 'student';
+        }
+
+        const storedUser = localStorage.getItem('cs_sync_user') || 'Maria Santos';
+        const storedEmail = localStorage.getItem('cs_sync_email') || 'mahalkosiya@up.edu.ph';
+        const storedRole = (localStorage.getItem('cs_sync_role') || detectUserRole(storedUser, storedEmail)).toLowerCase();
+        localStorage.setItem('cs_sync_role', storedRole);
+        const isFaculty = storedRole === 'faculty' || storedRole === 'professor';
+
+        document.getElementById('userNameDisplay').textContent = storedUser;
+        document.getElementById('profileDropdownName').textContent = storedUser;
+        document.getElementById('profileDropdownEmail').textContent = storedEmail;
+        document.getElementById('userAvatar').textContent = storedUser.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'MS';
+        const roleBadge = document.getElementById('roleBadge');
+        if (roleBadge) roleBadge.textContent = isFaculty ? 'Faculty • CS' : 'Student • BSCS';
+
+        const notifBtn = document.getElementById('notifBtn');
+        const notifDropdown = document.getElementById('notifDropdown');
+        const notifBadge = document.getElementById('notifBadge');
+        const notifListBody = document.getElementById('notifListBody');
+        const profileTrigger = document.getElementById('profileTrigger');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        function escapeHtml(value = '') {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function toDocSlug(value = '') {
+            return String(value)
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '_')
+                .replace(/^_|_$/g, '');
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
             authDomain: "cs-sync-8a6a0.firebaseapp.com",
             projectId: "cs-sync-8a6a0",
             storageBucket: "cs-sync-8a6a0.appspot.com",
             messagingSenderId: "340561797624",
-            appId: "1:340561797624:web:f417af5001d576882d360d",
+            appId: "1:34056179764:web:f417af5001d576882d360d",
             measurementId: "G-F663CN4012"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let currentGroupName = "Final Project CMSC 3";
-        let activeTeammates = [];
+        let notifications = [];
+        let hasInitializedCloudNotifs = false;
+        let registeredStudents = [];
+        let notifUnsubscribers = [];
 
-        function getGroupDocId() {
-            return currentGroupName === "Final Project CMSC 3" ? "project_cmsc_3" : "cs_198_thesis";
-        }
+        function getCandidateUserDocIds(nameOrEmail = '') {
+            const ids = new Set();
+            const raw = String(nameOrEmail || '').trim();
+            if (!raw) return ids;
 
-        // Check saved theme preference on page load
-        const currentTheme = localStorage.getItem('cs_sync_theme');
-        if (currentTheme === 'dark' || (currentTheme === 'device' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.body.style.background = '#121212';
-            document.body.style.color = '#e0e0e0';
-            
-            window.addEventListener('DOMContentLoaded', () => {
-                document.querySelectorAll('header, aside, main, div[style*="background: white"], div[style*="background: #fff"], div[style*="background: #fdfdfd"]').forEach(el => {
-                    el.style.background = '#1e1e1e';
-                    el.style.color = '#e0e0e0';
-                    el.style.borderColor = '#333';
-                });
-                document.querySelectorAll('select, textarea, input[type="text"]').forEach(input => {
-                    input.style.background = '#2a2a2a';
-                    input.style.color = '#e0e0e0';
-                    input.style.borderColor = '#444';
-                });
-            });
-        }
+            const lower = raw.toLowerCase();
+            const slug = toDocSlug(raw);
+            if (slug) ids.add(slug);
 
-        // Load stored user name and email if available from localStorage
-        const storedUser = localStorage.getItem('cs_sync_user') || 'Maria Santos';
-        const storedEmail = localStorage.getItem('cs_sync_email') || 'mahalkosiya@up.edu.ph';
-        
-        document.getElementById('userNameDisplay').textContent = storedUser;
-        document.getElementById('profileDropdownName').textContent = storedUser;
-        document.getElementById('profileDropdownEmail').textContent = storedEmail;
+            const localHandle = lower.includes('@') ? lower.split('@')[0] : lower;
+            const handleSlug = toDocSlug(localHandle);
+            if (handleSlug) ids.add(handleSlug);
 
-        const initials = storedUser.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-        document.getElementById('userAvatar').textContent = initials;
+            registeredStudents.forEach((s) => {
+                const sName = String(s.fullName || '').trim().toLowerCase();
+                const sEmail = String(s.email || '').trim().toLowerCase();
+                const sDocId = String(s.docId || '').trim().toLowerCase();
+                const sHandle = sEmail.includes('@') ? sEmail.split('@')[0] : sName;
 
-        // Fetch Group Teammates from Firestore Cloud Database
-        async function loadGroupFromCloud() {
-            const groupId = getGroupDocId();
-            const groupRef = doc(db, "groups", groupId);
-            const groupSnap = await getDoc(groupRef);
+                const matches =
+                    (sName && (sName === lower || toDocSlug(sName) === slug)) ||
+                    (sEmail && (sEmail === lower || toDocSlug(sEmail) === slug || toDocSlug(sHandle) === handleSlug)) ||
+                    (sDocId && (sDocId === slug || sDocId === handleSlug));
 
-            const container = document.getElementById('teammateChipsContainer');
-            const countDisplay = document.getElementById('teammateCount');
-
-            if (groupSnap.exists()) {
-                activeTeammates = groupSnap.data().teammates || [];
-            } else {
-                await setDoc(groupRef, { groupName: currentGroupName, teammates: [] });
-                activeTeammates = [];
-            }
-
-            countDisplay.textContent = activeTeammates.length;
-
-            if (activeTeammates.length === 0) {
-                container.innerHTML = '<span style="font-size: 12px; color: var(--text-muted); font-style: italic;">No cloud teammates synced yet.</span>';
-                return;
-            }
-
-            container.innerHTML = '';
-            activeTeammates.forEach((name) => {
-                const chip = document.createElement('span');
-                chip.className = 'chip';
-                chip.style.cssText = 'background: var(--bg-color); padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 6px;';
-                chip.innerHTML = `${name} <i class="fa-solid fa-xmark remove-chip" data-name="${name}" style="cursor: pointer; font-size: 10px; color: var(--text-muted);"></i>`;
-                container.appendChild(chip);
-            });
-
-            document.querySelectorAll('.remove-chip').forEach(btn => {
-                btn.addEventListener('click', async function() {
-                    const nameToRemove = this.getAttribute('data-name');
-                    await removeTeammateFromCloud(nameToRemove);
-                });
-            });
-        }
-
-        async function removeTeammateFromCloud(name) {
-            const groupId = getGroupDocId();
-            const groupRef = doc(db, "groups", groupId);
-            try {
-                await updateDoc(groupRef, {
-                    teammates: arrayRemove(name)
-                });
-                loadGroupFromCloud();
-            } catch (err) {
-                console.error("Error removing teammate:", err);
-            }
-        }
-
-        // Switch active group dropdown listener
-        document.getElementById('groupSelect').addEventListener('change', function(e) {
-            currentGroupName = e.target.value;
-            loadGroupFromCloud();
-        });
-
-        // Modal triggers
-        const addTeammateModal = document.getElementById('addTeammateModal');
-        const teammateNameInput = document.getElementById('teammateNameInput');
-
-        document.getElementById('addMemberBtn').addEventListener('click', () => {
-            teammateNameInput.value = '';
-            addTeammateModal.style.display = 'flex';
-            teammateNameInput.focus();
-        });
-
-        document.getElementById('closeAddModal').onclick = () => addTeammateModal.style.display = 'none';
-        document.getElementById('cancelAddModalBtn').onclick = () => addTeammateModal.style.display = 'none';
-
-        // STRICT Search user in directory & push to Cloud Group
-        document.getElementById('saveTeammateBtn').onclick = async function() {
-            const searchName = teammateNameInput.value.trim();
-            if (!searchName) {
-                alert('Please enter a teammate name.');
-                return;
-            }
-
-            try {
-                // 1. Verify user exists strictly in Firestore users collection
-                const userQuery = query(collection(db, "users"), where("fullName", "==", searchName));
-                const userSnap = await getDocs(userQuery);
-
-                if (userSnap.empty) {
-                    alert(`❌ Access Denied: "${searchName}" is not registered in the Firebase Firestore user directory.`);
-                    return;
+                if (matches) {
+                    if (sDocId) ids.add(sDocId);
+                    if (sEmail) ids.add(toDocSlug(sEmail));
+                    if (sName) ids.add(toDocSlug(sName));
+                    if (sHandle) ids.add(toDocSlug(sHandle));
                 }
+            });
 
-                // 2. Add to Firestore Group document array
-                const groupId = getGroupDocId();
-                const groupRef = doc(db, "groups", groupId);
+            return ids;
+        }
 
-                await updateDoc(groupRef, {
-                    teammates: arrayUnion(searchName)
-                });
+        function getCurrentUserDocIds() {
+            const combined = new Set([
+                ...getCandidateUserDocIds(storedEmail),
+                ...getCandidateUserDocIds(storedUser)
+            ]);
+            if (combined.size === 0) combined.add('current_student');
+            return Array.from(combined);
+        }
 
-                addTeammateModal.style.display = 'none';
-                loadGroupFromCloud();
-            } catch (error) {
-                console.error("Cloud sync error:", error);
-                alert("Error updating cloud group. Check console.");
+        function getPrimaryCurrentUserDocId() {
+            return toDocSlug(storedEmail || storedUser) || 'current_student';
+        }
+
+        async function sendNotificationToRecipient(recipientNameOrEmail, notifPayload) {
+            const targetIds = Array.from(getCandidateUserDocIds(recipientNameOrEmail));
+            if (targetIds.length === 0) return;
+
+            const currentIds = new Set(getCurrentUserDocIds());
+            const payloadWithId = {
+                ...notifPayload,
+                id: notifPayload.id || `notif_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+                timeAgo: notifPayload.timeAgo || 'Just now'
+            };
+
+            if (targetIds.some(id => currentIds.has(id))) {
+                await persistNotificationsToCloud([...notifications, payloadWithId]);
+                return;
             }
-        };
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadGroupFromCloud();
-        });
+            for (const targetDocId of targetIds) {
+                try {
+                    await setDoc(doc(db, "users", targetDocId), {
+                        notifications: arrayUnion(payloadWithId)
+                    }, { merge: true });
+                } catch (err) {
+                    console.warn(`Could not send notification to ${targetDocId}:`, err);
+                }
+            }
+        }
 
-        // Toggle Notification Dropdown
-        const notifBtn = document.getElementById('notifBtn');
-        const notifDropdown = document.getElementById('notifDropdown');
-        const profileTrigger = document.getElementById('profileTrigger');
-        const profileDropdown = document.getElementById('profileDropdown');
+        function writeLocalNotificationsCache(list) {
+            try {
+                localStorage.setItem('cs_sync_notifications', JSON.stringify(list));
+            } catch (_) {}
+        }
+
+        async function persistNotificationsToCloud(nextList) {
+            notifications = Array.isArray(nextList) ? nextList : [];
+            writeLocalNotificationsCache(notifications);
+            renderNotifications();
+
+            const docIds = getCurrentUserDocIds();
+            for (const docId of docIds) {
+                try {
+                    await setDoc(doc(db, "users", docId), {
+                        fullName: storedUser,
+                        email: storedEmail,
+                        role: isFaculty ? 'faculty' : 'student',
+                        notifications
+                    }, { merge: true });
+                } catch (err) {
+                    console.warn(`Could not persist notifications to ${docId}:`, err);
+                }
+            }
+        }
+
+        async function handleAcceptInvite(notif) {
+            if (!notif) return;
+            if (notif.groupName && typeof window.__joinGroupFromInvite === 'function') {
+                await window.__joinGroupFromInvite(notif.groupName);
+            }
+            if (notif.meetingBlock && typeof window.__addAcceptedMeetingToSelf === 'function') {
+                await window.__addAcceptedMeetingToSelf(notif.meetingBlock);
+            }
+            const remaining = notifications.filter(item => item.id !== notif.id);
+            await persistNotificationsToCloud(remaining);
+        }
+
+        async function handleDeclineInvite(notifId) {
+            const remaining = notifications.filter(item => item.id !== notifId);
+            await persistNotificationsToCloud(remaining);
+        }
+
+        function renderOverlapInvitesPrompt() {
+            const box = document.getElementById('overlapInvitesBox');
+            const listEl = document.getElementById('overlapInvitesList');
+            const countEl = document.getElementById('overlapInviteCount');
+            if (!box || !listEl || !countEl) return;
+
+            const actionableInvites = notifications.filter(n => n && n.hasActions);
+            countEl.textContent = String(actionableInvites.length);
+
+            if (actionableInvites.length === 0) {
+                box.style.display = 'none';
+                listEl.innerHTML = '';
+                return;
+            }
+
+            box.style.display = 'block';
+            listEl.innerHTML = actionableInvites.map(n => `
+                <div style="background: white; border: 1px solid #ffe69c; border-radius: 6px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <div style="font-size: 12px;">
+                        <strong>${escapeHtml(n.title || 'Group Invite')}</strong><br>
+                        <span style="color: #495057;">${escapeHtml(n.message || '')}</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="overlap-accept-btn" data-id="${escapeHtml(n.id)}" style="padding: 5px 12px; background: #198754; color: white; border: none; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer;">Accept</button>
+                        <button type="button" class="overlap-decline-btn" data-id="${escapeHtml(n.id)}" style="padding: 5px 12px; background: #e9ecef; color: #333; border: none; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer;">Decline</button>
+                    </div>
+                </div>
+            `).join('');
+
+            listEl.querySelectorAll('.overlap-accept-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    const target = notifications.find(item => item.id === id);
+                    await handleAcceptInvite(target);
+                });
+            });
+
+            listEl.querySelectorAll('.overlap-decline-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    await handleDeclineInvite(id);
+                });
+            });
+        }
+
+        function renderNotifications() {
+            renderOverlapInvitesPrompt();
+            if (!notifListBody || !notifBadge) return;
+
+            notifBadge.textContent = String(notifications.length);
+            notifBadge.style.display = notifications.length > 0 ? 'flex' : 'none';
+
+            if (notifications.length === 0) {
+                notifListBody.innerHTML = '<p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>';
+                return;
+            }
+
+            notifListBody.innerHTML = notifications.map(n => `
+                <div data-notif-id="${escapeHtml(n.id)}" style="padding: 8px; background: #f8f9fa; border-radius: 6px; font-size: 12px;">
+                    <strong>${escapeHtml(n.title || 'Notification')}</strong><br>
+                    ${escapeHtml(n.message || '')}
+                    ${n.hasActions ? `
+                        <div style="margin-top: 6px; display: flex; gap: 8px;">
+                            <button type="button" class="notif-accept-btn" data-id="${escapeHtml(n.id)}" style="padding: 2px 8px; background: var(--up-maroon); color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer;">Accept</button>
+                            <button type="button" class="notif-decline-btn" data-id="${escapeHtml(n.id)}" style="padding: 2px 8px; background: #e9ecef; border: none; border-radius: 4px; font-size: 10px; cursor: pointer;">Decline</button>
+                        </div>
+                    ` : ''}
+                    <span style="font-size: 10px; color: var(--text-muted); display: block; margin-top: 4px;">${escapeHtml(n.timeAgo || 'Just now')}</span>
+                </div>
+            `).join('');
+
+            notifListBody.querySelectorAll('.notif-accept-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    const targetNotif = notifications.find(item => item.id === id);
+                    await handleAcceptInvite(targetNotif);
+                });
+            });
+
+            notifListBody.querySelectorAll('.notif-decline-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    await handleDeclineInvite(id);
+                });
+            });
+        }
+
+        function startNotificationsRealtimeListener() {
+            notifUnsubscribers.forEach(unsub => {
+                if (typeof unsub === 'function') unsub();
+            });
+            notifUnsubscribers = [];
+
+            const docIds = getCurrentUserDocIds();
+            const perDocNotifs = new Map();
+
+            const mergeAndRender = () => {
+                const mergedMap = new Map();
+                perDocNotifs.forEach((arr) => {
+                    if (Array.isArray(arr)) {
+                        arr.forEach((item) => {
+                            if (item && item.id) {
+                                mergedMap.set(item.id, item);
+                            }
+                        });
+                    }
+                });
+                notifications = Array.from(mergedMap.values());
+                writeLocalNotificationsCache(notifications);
+                renderNotifications();
+            };
+
+            docIds.forEach((docId) => {
+                const unsub = onSnapshot(doc(db, "users", docId), (snap) => {
+                    if (snap.exists()) {
+                        const data = snap.data() || {};
+                        if (Array.isArray(data.notifications)) {
+                            hasInitializedCloudNotifs = true;
+                            perDocNotifs.set(docId, data.notifications);
+                            mergeAndRender();
+                            return;
+                        }
+                    }
+                    perDocNotifs.set(docId, []);
+                    if (!hasInitializedCloudNotifs) {
+                        hasInitializedCloudNotifs = true;
+                    }
+                    mergeAndRender();
+                }, (err) => {
+                    console.warn(`Notifications listener error on ${docId}:`, err);
+                });
+                notifUnsubscribers.push(unsub);
+            });
+        }
+
+        renderNotifications();
+        startNotificationsRealtimeListener();
 
         notifBtn.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -384,41 +641,954 @@
             notifDropdown.style.display = 'none';
         });
 
-        window.addEventListener('click', function(e) {
-            notifDropdown.style.display = 'none';
-            profileDropdown.style.display = 'none';
-            if (e.target === addTeammateModal) addTeammateModal.style.display = 'none';
-        });
-
-        document.getElementById('clearAllNotifs').addEventListener('click', function() {
-            notifDropdown.querySelector('div:nth-child(2)').innerHTML = '<p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>';
+        document.getElementById('clearAllNotifs').addEventListener('click', async function() {
+            await persistNotificationsToCloud([]);
         });
 
         document.getElementById('logoutBtn').addEventListener('click', function(e) {
             e.preventDefault();
             localStorage.removeItem('cs_sync_user');
             localStorage.removeItem('cs_sync_email');
+            localStorage.removeItem('cs_sync_role');
+            localStorage.removeItem('cs_sync_program');
+            localStorage.removeItem('cs_sync_batch');
+            localStorage.removeItem('cs_sync_dept');
             window.location.replace('index.html');
         });
 
-        // Meeting Confirmation Modal triggers
-        const openModalBtn = document.getElementById('openConfirmModalBtn');
-        const modal = document.getElementById('meetingModal');
-        const closeModalBtn = document.getElementById('closeModal');
-        const cancelModalBtn = document.getElementById('cancelModalBtn');
-        const confirmInviteBtn = document.getElementById('confirmInviteBtn');
+        const overlapMainWrapper = document.getElementById('overlapMainWrapper');
+        if (window.__BLOCK_NON_STUDENT__ || isFaculty) {
+            if (overlapMainWrapper) overlapMainWrapper.style.display = 'none';
+        } else {
+            let currentGroupName = "Final Project CMSC 3";
+            let activeTeammates = [];
+            let acceptedConsultations = [];
+            let myGroups = ["Final Project CMSC 3", "CS 198 Thesis Group", "Discrete Structures Study Group"];
+            let unsubscribeGroupListener = null;
 
-        if (openModalBtn) openModalBtn.onclick = () => modal.style.display = 'flex';
-        if (closeModalBtn) closeModalBtn.onclick = () => modal.style.display = 'none';
-        if (cancelModalBtn) cancelModalBtn.onclick = () => modal.style.display = 'none';
-        if (confirmInviteBtn) confirmInviteBtn.onclick = () => {
-            alert('🎉 Group meeting invite successfully sent to all teammates!');
-            modal.style.display = 'none';
-            window.location.href = 'calendar.html';
-        };
-        window.onclick = (e) => { 
-            if (e.target == modal) modal.style.display = 'none'; 
-            if (e.target == addTeammateModal) addTeammateModal.style.display = 'none';
+            const matrixTimes = [
+                '07:00 AM', '08:00 AM', '09:00 AM', '10:00 AM',
+                '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM',
+                '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM',
+                '07:00 PM'
+            ];
+            const matrixDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+            const SLOT_DURATION_MINUTES = 60;
+
+            function getPrimaryLocalScheduleKey() {
+                return storedEmail
+                    ? `cs_sync_schedule_${encodeURIComponent(storedEmail.trim().toLowerCase())}`
+                    : `cs_sync_schedule_${encodeURIComponent(storedUser.trim().toLowerCase())}`;
+            }
+
+            function getCurrentLocalSchedule() {
+                const keys = [
+                    storedEmail ? `cs_sync_schedule_${encodeURIComponent(storedEmail.trim().toLowerCase())}` : null,
+                    storedUser ? `cs_sync_schedule_${encodeURIComponent(storedUser.trim().toLowerCase())}` : null,
+                    'cs_sync_schedule'
+                ].filter(Boolean);
+
+                for (const key of keys) {
+                    try {
+                        const raw = localStorage.getItem(key);
+                        if (raw !== null) {
+                            const parsed = JSON.parse(raw);
+                            if (Array.isArray(parsed)) return parsed;
+                        }
+                    } catch (_) {}
+                }
+                return [];
+            }
+
+            async function syncCurrentUserScheduleToCloud() {
+                const localSchedule = getCurrentLocalSchedule();
+                const docId = getPrimaryCurrentUserDocId();
+                const userRef = doc(db, "users", docId);
+
+                try {
+                    const existingSnap = await getDoc(userRef);
+                    const existingData = existingSnap.exists() ? (existingSnap.data() || {}) : {};
+                    const cloudSchedule = Array.isArray(existingData.schedule) ? existingData.schedule : [];
+
+                    const scheduleToUse = localSchedule.length > 0 ? localSchedule : cloudSchedule;
+
+                    await setDoc(userRef, {
+                        fullName: existingData.fullName || storedUser,
+                        email: existingData.email || storedEmail,
+                        role: existingData.role || (isFaculty ? 'faculty' : 'student'),
+                        schedule: scheduleToUse
+                    }, { merge: true });
+
+                    if (localSchedule.length === 0 && cloudSchedule.length > 0) {
+                        localStorage.setItem(getPrimaryLocalScheduleKey(), JSON.stringify(cloudSchedule));
+                    }
+                } catch (err) {
+                    console.warn("Could not sync user schedule with Firestore:", err);
+                }
+            }
+
+            function hasAddedTeammate() {
+                const selfLower = String(storedUser || '').trim().toLowerCase();
+                return activeTeammates.some(name => String(name || '').trim().toLowerCase() !== selfLower);
+            }
+
+            function getGroupDocId(name) {
+                return toDocSlug(name || currentGroupName) || 'final_project_cmsc_3';
+            }
+
+            window.__joinGroupFromInvite = async function(groupTitle) {
+                const cleanTitle = String(groupTitle || '').trim();
+                if (!cleanTitle) return;
+                if (!myGroups.includes(cleanTitle)) {
+                    myGroups.push(cleanTitle);
+                }
+                currentGroupName = cleanTitle;
+                document.getElementById('groupNameInput').value = cleanTitle;
+                document.getElementById('confirmGroupNameDisplay').textContent = cleanTitle;
+                renderGroupsList();
+                await addTeammateNameToGroup(storedUser, false);
+                subscribeToGroupRealtime();
+            };
+
+            window.__addAcceptedMeetingToSelf = async function(meetingBlock) {
+                if (!meetingBlock) return;
+                const docId = getPrimaryCurrentUserDocId();
+                try {
+                    await setDoc(doc(db, "users", docId), {
+                        fullName: storedUser,
+                        email: storedEmail,
+                        role: isFaculty ? 'faculty' : 'student',
+                        schedule: arrayUnion(meetingBlock),
+                        scheduleUpdatedAt: new Date().toISOString()
+                    }, { merge: true });
+
+                    const primaryKey = getPrimaryLocalScheduleKey();
+                    const updatedLocal = [...getCurrentLocalSchedule(), meetingBlock];
+                    localStorage.setItem(primaryKey, JSON.stringify(updatedLocal));
+                    window.dispatchEvent(new StorageEvent('storage', { key: primaryKey }));
+                } catch (err) {
+                    console.warn("Could not add accepted meeting to schedule:", err);
+                }
+            };
+
+            function getLocalStudentCache() {
+                try {
+                    const raw = localStorage.getItem('cs_sync_registered_students');
+                    return raw ? JSON.parse(raw) : [];
+                } catch (_) {
+                    return [];
+                }
+            }
+
+            function saveLocalStudentCache(list) {
+                localStorage.setItem('cs_sync_registered_students', JSON.stringify(list));
+            }
+
+            function parseClockToMinutes(token = '') {
+                const match = String(token).trim().match(/\b(\d{1,2})(?:[:.](\d{2}))?\s*(AM|PM)?\b/i);
+                if (!match) return null;
+                let hour = parseInt(match[1], 10);
+                const minute = match[2] ? parseInt(match[2], 10) : 0;
+                const period = (match[3] || '').toUpperCase();
+
+                if (period === 'PM' && hour < 12) hour += 12;
+                if (period === 'AM' && hour === 12) hour = 0;
+                if (!period && hour >= 1 && hour <= 6) {
+                    hour += 12;
+                }
+                return hour * 60 + minute;
+            }
+
+            function formatEndHour(timeStr) {
+                const start = parseClockToMinutes(timeStr);
+                if (start === null) return '';
+                const end = (start + SLOT_DURATION_MINUTES) % (24 * 60);
+                const rawHour = Math.floor(end / 60);
+                const minute = String(end % 60).padStart(2, '0');
+                const period = rawHour >= 12 ? 'PM' : 'AM';
+                const hour12 = rawHour % 12 === 0 ? 12 : rawHour % 12;
+                return `${String(hour12).padStart(2, '0')}:${minute} ${period}`;
+            }
+
+            function parseScheduleItemRange(item = {}) {
+                const rawTime = String(item.time || '').trim();
+                const parts = rawTime.split(/\s*(?:-|–|—|to)\s*/i);
+                const startMins = parseClockToMinutes(parts[0] || rawTime);
+                if (startMins === null) return null;
+
+                let endMins = parts[1] ? parseClockToMinutes(parts[1]) : null;
+                if (endMins === null || endMins <= startMins) {
+                    endMins = startMins + SLOT_DURATION_MINUTES;
+                }
+                return { start: startMins, end: endMins };
+            }
+
+            function getMatrixSlotRange(timeStr) {
+                const start = parseClockToMinutes(timeStr);
+                if (start === null) return null;
+                return { start, end: start + SLOT_DURATION_MINUTES };
+            }
+
+            function rangesOverlap(a, b) {
+                if (!a || !b) return false;
+                return a.start < b.end && a.end > b.start;
+            }
+
+            function matchesDayShort(rawDay = '', shortDay = '') {
+                const d = String(rawDay || '').trim().toLowerCase();
+                const target = String(shortDay || '').trim().toLowerCase();
+                if (!d || !target) return false;
+                return d.startsWith(target) || (target === 'thu' && (d === 'th' || d.startsWith('thur')));
+            }
+
+            function findMemberRecord(memberName) {
+                const target = String(memberName || '').trim().toLowerCase();
+                const targetSlug = toDocSlug(target);
+                return registeredStudents.find((s) => {
+                    const nameMatch = String(s.fullName || '').trim().toLowerCase() === target;
+                    const emailMatch = String(s.email || '').trim().toLowerCase() === target;
+                    const docIdMatch = String(s.docId || '').trim().toLowerCase() === targetSlug;
+                    return nameMatch || emailMatch || docIdMatch;
+                });
+            }
+
+            function readScheduleForMember(memberName) {
+                const target = String(memberName || '').trim().toLowerCase();
+                const currentUserLower = String(storedUser || '').trim().toLowerCase();
+                const currentEmailLower = String(storedEmail || '').trim().toLowerCase();
+                const studentRecord = findMemberRecord(memberName);
+
+                if (studentRecord && Array.isArray(studentRecord.schedule)) {
+                    return studentRecord.schedule;
+                }
+
+                const candidateKeys = new Set();
+                if (target) {
+                    candidateKeys.add(`cs_sync_schedule_${encodeURIComponent(target)}`);
+                }
+                if (studentRecord?.email) {
+                    candidateKeys.add(`cs_sync_schedule_${encodeURIComponent(String(studentRecord.email).trim().toLowerCase())}`);
+                }
+                if (studentRecord?.fullName) {
+                    candidateKeys.add(`cs_sync_schedule_${encodeURIComponent(String(studentRecord.fullName).trim().toLowerCase())}`);
+                }
+                if (target === currentUserLower || target === currentEmailLower || target === currentEmailLower.split('@')[0]) {
+                    if (currentEmailLower) candidateKeys.add(`cs_sync_schedule_${encodeURIComponent(currentEmailLower)}`);
+                    if (currentUserLower) candidateKeys.add(`cs_sync_schedule_${encodeURIComponent(currentUserLower)}`);
+                }
+
+                for (const key of candidateKeys) {
+                    try {
+                        const raw = localStorage.getItem(key);
+                        if (raw !== null) {
+                            const parsed = JSON.parse(raw);
+                            if (Array.isArray(parsed)) return parsed;
+                        }
+                    } catch (_) {}
+                }
+
+                if (target === currentUserLower || target === currentEmailLower || target === currentEmailLower.split('@')[0]) {
+                    try {
+                        const legacyRaw = localStorage.getItem('cs_sync_schedule');
+                        const legacyParsed = legacyRaw ? JSON.parse(legacyRaw) : [];
+                        return Array.isArray(legacyParsed) ? legacyParsed : [];
+                    } catch (_) {}
+                }
+
+                return [];
+            }
+
+            function getMemberConflictsAtSlot(memberName, day, time) {
+                const conflicts = [];
+                const items = readScheduleForMember(memberName);
+                const slotRange = getMatrixSlotRange(time);
+
+                items.forEach(item => {
+                    if (!matchesDayShort(item.day, day)) return;
+                    const itemRange = parseScheduleItemRange(item);
+                    if (rangesOverlap(slotRange, itemRange)) {
+                        const isMeeting = item.type === 'group_meeting';
+                        conflicts.push({
+                            kind: isMeeting ? 'Group Meeting' : 'Class',
+                            label: item.title || (isMeeting ? 'Group Sync' : 'Scheduled Class')
+                        });
+                    }
+                });
+
+                const record = findMemberRecord(memberName);
+                const aliases = new Set([
+                    String(memberName || '').trim().toLowerCase(),
+                    toDocSlug(memberName),
+                    String(record?.fullName || '').trim().toLowerCase(),
+                    String(record?.email || '').trim().toLowerCase(),
+                    toDocSlug(record?.email || '')
+                ].filter(Boolean));
+
+                acceptedConsultations.forEach(c => {
+                    const cStudent = String(c.studentName || '').trim().toLowerCase();
+                    const cStudentEmail = String(c.studentEmail || '').trim().toLowerCase();
+                    const cFaculty = String(c.facultyName || '').trim().toLowerCase();
+                    const cFacultyEmail = String(c.facultyEmail || '').trim().toLowerCase();
+
+                    const involvesMember = [
+                        cStudent, cStudentEmail, toDocSlug(cStudent), toDocSlug(cStudentEmail),
+                        cFaculty, cFacultyEmail, toDocSlug(cFaculty), toDocSlug(cFacultyEmail)
+                    ].filter(Boolean).some(token => aliases.has(token));
+
+                    if (!involvesMember) return;
+
+                    const rawSlot = String(c.slot || c.time || '').trim();
+                    const dayMatch = rawSlot.match(/\b(mon|monday|tue|tues|tuesday|wed|weds|wednesday|thu|thur|thurs|thursday|fri|friday)\b/i);
+                    const cDay = dayMatch ? dayMatch[1] : (c.day || '');
+                    if (!matchesDayShort(cDay, day)) return;
+
+                    const consultRange = parseScheduleItemRange({ time: rawSlot });
+                    if (rangesOverlap(slotRange, consultRange)) {
+                        conflicts.push({
+                            kind: 'Consultation',
+                            label: c.course ? `Consultation: ${c.course}` : `Consultation with ${c.facultyName || 'Faculty'}`
+                        });
+                    }
+                });
+
+                return conflicts;
+            }
+
+            function getMemberSlotStatus(memberName, day, time) {
+                const conflicts = getMemberConflictsAtSlot(memberName, day, time);
+                if (conflicts.length === 0) {
+                    return { busy: false, reason: 'FREE', conflicts: [] };
+                }
+                const first = conflicts[0];
+                const reason = first.kind === 'Consultation'
+                    ? `BUSY (${first.label})`
+                    : `BUSY (${first.kind}: ${first.label})`;
+                return { busy: true, reason, conflicts };
+            }
+
+            function isMemberBusyAtSlot(memberName, day, time) {
+                return getMemberSlotStatus(memberName, day, time).busy;
+            }
+
+            function formatDayFull(shortDay) {
+                const map = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday' };
+                return map[shortDay] || shortDay;
+            }
+
+            function getBestFreeSlot() {
+                if (!hasAddedTeammate()) {
+                    return { day: 'Fri', time: '01:00 PM', isFree: false };
+                }
+                for (const time of matrixTimes) {
+                    for (const day of matrixDays) {
+                        if (activeTeammates.every(m => !isMemberBusyAtSlot(m, day, time))) {
+                            return { day, time, isFree: true };
+                        }
+                    }
+                }
+                return { day: 'Fri', time: '01:00 PM', isFree: false };
+            }
+
+            function renderAvailabilityMatrix() {
+                const box = document.getElementById('matrixGridBox');
+                const headerHtml = `
+                    <div class="matrix-row header-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); font-weight: bold; font-size: 13px; text-align: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-color);">
+                        <span>Time</span>
+                        <span>Mon</span>
+                        <span>Tue</span>
+                        <span>Wed</span>
+                        <span>Thu</span>
+                        <span>Fri</span>
+                    </div>
+                `;
+
+                const addedTeammatePresent = hasAddedTeammate();
+                let allFreeSlots = [];
+
+                const rowsHtml = matrixTimes.map((time) => {
+                    const cellsHtml = matrixDays.map((day) => {
+                        const busyCount = activeTeammates.filter((member) => isMemberBusyAtSlot(member, day, time)).length;
+                        const isSlotFree = busyCount === 0;
+                        if (addedTeammatePresent && isSlotFree) {
+                            allFreeSlots.push(`${day} ${time}`);
+                        }
+
+                        const label = isSlotFree ? 'FREE' : 'BUSY';
+                        const bg = isSlotFree ? '#d1e7dd' : '#f8d7da';
+                        const color = isSlotFree ? '#0f5132' : '#842029';
+
+                        return `<div class="matrix-slot" onclick="showSlotDetails('${escapeHtml(time)}', '${escapeHtml(day)}')" style="background: ${bg}; color: ${color}; padding: 8px; border-radius: 4px; font-weight: bold;">${label}</div>`;
+                    }).join('');
+
+                    return `
+                        <div class="matrix-row" style="display: grid; grid-template-columns: 100px repeat(5, 1fr); gap: 6px; align-items: center; font-size: 12px; text-align: center;">
+                            <span style="font-weight: 600; color: var(--text-muted); text-align: left;">${escapeHtml(time)}</span>
+                            ${cellsHtml}
+                        </div>
+                    `;
+                }).join('');
+
+                box.innerHTML = headerHtml + rowsHtml;
+
+                const banner = document.getElementById('idealWindowBanner');
+                const bannerTitle = document.getElementById('idealWindowTitle');
+                const idealText = document.getElementById('idealWindowText');
+
+                if (banner && bannerTitle && idealText) {
+                    if (!addedTeammatePresent) {
+                        banner.style.background = '#f8f9fa';
+                        banner.style.borderColor = 'var(--border-color)';
+                        bannerTitle.style.color = '#333';
+                        bannerTitle.textContent = 'Add a Student Teammate';
+                        idealText.style.color = 'var(--text-muted)';
+                        idealText.textContent = 'Add at least one student to check group free overlap.';
+                    } else if (allFreeSlots.length > 0) {
+                        banner.style.background = '#e8f5e9';
+                        banner.style.borderColor = '#c8e6c9';
+                        bannerTitle.style.color = '#2e7d32';
+                        bannerTitle.textContent = 'Free Window Found!';
+                        idealText.style.color = '#1b5e20';
+                        idealText.innerHTML = `Available together: <strong>${escapeHtml(allFreeSlots[0])}</strong>`;
+                    } else {
+                        banner.style.background = '#fff3cd';
+                        banner.style.borderColor = '#ffecb5';
+                        bannerTitle.style.color = '#664d03';
+                        bannerTitle.textContent = 'Schedule Overlap Detected';
+                        idealText.style.color = '#664d03';
+                        idealText.textContent = 'No mutually free slots found across added teammates.';
+                    }
+                }
+            }
+
+            function rebuildRegisteredStudentsFromSnapshot(userDocs = []) {
+                const localList = getLocalStudentCache();
+                const mapByName = new Map();
+
+                [storedUser, 'Leo Vandyck Seanderz S. Estana', 'Jay Ceriaca', 'pgceriaca', ...localList.map(s => s.fullName)].forEach(name => {
+                    if (name) {
+                        const match = localList.find(s => s.fullName === name);
+                        mapByName.set(name, {
+                            ...(match || { fullName: name, role: 'student' }),
+                            schedule: Array.isArray(match?.schedule) ? match.schedule : []
+                        });
+                    }
+                });
+
+                userDocs.forEach(({ id, data }) => {
+                    const role = (data.role || 'student').toLowerCase();
+                    if ((role === 'student' || role === 'faculty' || role === 'professor') && data.fullName) {
+                        const existing = mapByName.get(data.fullName) || {};
+                        const cloudSchedule = Array.isArray(data.schedule) ? data.schedule : existing.schedule;
+                        mapByName.set(data.fullName, {
+                            ...existing,
+                            ...data,
+                            docId: id,
+                            schedule: Array.isArray(cloudSchedule) ? cloudSchedule : []
+                        });
+                    }
+                });
+
+                registeredStudents = Array.from(mapByName.values());
+                startNotificationsRealtimeListener();
+                populateStudentSelect();
+                renderAvailabilityMatrix();
+            }
+
+            function startUsersRealtimeListener() {
+                onSnapshot(
+                    collection(db, "users"),
+                    (snap) => {
+                        const docs = snap.docs.map(docSnap => ({
+                            id: docSnap.id,
+                            data: docSnap.data() || {}
+                        }));
+                        rebuildRegisteredStudentsFromSnapshot(docs);
+                    },
+                    async (err) => {
+                        console.warn("Realtime users listener error, falling back to one-time load:", err);
+                        await loadRegisteredStudents();
+                    }
+                );
+            }
+
+            function startConsultationsRealtimeListener() {
+                onSnapshot(
+                    query(collection(db, "consultations"), where("status", "==", "Accepted")),
+                    (snap) => {
+                        acceptedConsultations = snap.docs.map(docSnap => ({
+                            id: docSnap.id,
+                            ...(docSnap.data() || {})
+                        }));
+                        renderAvailabilityMatrix();
+                    },
+                    (err) => {
+                        console.warn("Realtime consultations listener error:", err);
+                    }
+                );
+            }
+
+            async function loadRegisteredStudents() {
+                const localList = getLocalStudentCache();
+                const docs = [];
+
+                try {
+                    const snap = await getDocs(collection(db, "users"));
+                    snap.forEach(docSnap => {
+                        docs.push({ id: docSnap.id, data: docSnap.data() || {} });
+                    });
+                } catch (err) {
+                    console.warn("Could not query Firestore users collection:", err);
+                }
+
+                if (docs.length === 0 && localList.length > 0) {
+                    localList.forEach(s => docs.push({ id: toDocSlug(s.fullName), data: s }));
+                }
+                rebuildRegisteredStudentsFromSnapshot(docs);
+            }
+
+            function populateStudentSelect() {
+                const select = document.getElementById('directoryStudentSelect');
+                if (!select) return;
+                const activeLower = new Set(activeTeammates.map(n => String(n || '').trim().toLowerCase()));
+                const candidates = registeredStudents.filter(s =>
+                    (s.role || 'student').toLowerCase() === 'student' &&
+                    !activeLower.has(String(s.fullName || '').trim().toLowerCase())
+                );
+                select.innerHTML = '<option value="">-- Choose a student user --</option>' +
+                    candidates.map(s => `<option value="${escapeHtml(s.fullName)}">${escapeHtml(s.fullName)}${s.program ? ` (${escapeHtml(s.program)})` : ''}</option>`).join('');
+            }
+
+            const groupNameInput = document.getElementById('groupNameInput');
+
+            function renderGroupsList() {
+                const listContainer = document.getElementById('myGroupsList');
+                listContainer.innerHTML = '';
+
+                myGroups.forEach(group => {
+                    const isActive = group === currentGroupName;
+                    const item = document.createElement('div');
+                    item.className = 'group-item';
+                    item.style.cssText = `padding: 8px 10px; border-radius: 6px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; background: ${isActive ? '#fdf2f2' : 'white'}; border: 1px solid ${isActive ? 'var(--up-maroon)' : 'var(--border-color)'}; color: ${isActive ? 'var(--up-maroon)' : '#333'}; font-weight: ${isActive ? 'bold' : 'normal'};`;
+                    item.innerHTML = `
+                        <span><i class="fa-solid fa-users-rectangle" style="margin-right: 6px;"></i> ${escapeHtml(group)}</span>
+                        <span style="font-size: 10px; background: ${isActive ? 'var(--up-maroon)' : '#e9ecef'}; color: ${isActive ? 'white' : '#6c757d'}; padding: 2px 6px; border-radius: 10px;">${isActive ? 'Active' : 'Switch'}</span>
+                    `;
+                    item.onclick = () => {
+                        currentGroupName = group;
+                        groupNameInput.value = group;
+                        document.getElementById('confirmGroupNameDisplay').textContent = group;
+                        renderGroupsList();
+                        subscribeToGroupRealtime();
+                    };
+                    listContainer.appendChild(item);
+                });
+            }
+
+            document.getElementById('addNewGroupBtn').addEventListener('click', () => {
+                const newName = prompt("Enter new project group name:");
+                if (newName && newName.trim() !== '') {
+                    const formattedName = newName.trim();
+                    if (!myGroups.includes(formattedName)) {
+                        myGroups.push(formattedName);
+                    }
+                    currentGroupName = formattedName;
+                    groupNameInput.value = formattedName;
+                    document.getElementById('confirmGroupNameDisplay').textContent = formattedName;
+                    renderGroupsList();
+                    subscribeToGroupRealtime();
+                }
+            });
+
+            groupNameInput.addEventListener('input', function(e) {
+                currentGroupName = e.target.value.trim() || 'Untitled Group';
+                document.getElementById('confirmGroupNameDisplay').textContent = currentGroupName;
+                if (!myGroups.includes(currentGroupName)) {
+                    myGroups.push(currentGroupName);
+                }
+                renderGroupsList();
+                subscribeToGroupRealtime();
+            });
+
+            function renderTeammatesUI(teammatesList) {
+                activeTeammates = Array.isArray(teammatesList) ? teammatesList : [];
+                const container = document.getElementById('teammateChipsContainer');
+                const countDisplay = document.getElementById('teammateCount');
+
+                countDisplay.textContent = activeTeammates.length;
+                populateStudentSelect();
+                renderAvailabilityMatrix();
+
+                if (activeTeammates.length === 0) {
+                    container.innerHTML = '<span style="font-size: 12px; color: var(--text-muted); font-style: italic;">No cloud teammates synced yet.</span>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                activeTeammates.forEach((name) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'chip';
+                    chip.style.cssText = 'background: var(--bg-color); padding: 4px 10px; border-radius: 12px; font-size: 12px; border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 6px;';
+                    chip.innerHTML = `${escapeHtml(name)} <i class="fa-solid fa-xmark remove-chip" data-name="${escapeHtml(name)}" style="cursor: pointer; font-size: 10px; color: var(--text-muted);"></i>`;
+                    container.appendChild(chip);
+                });
+
+                document.querySelectorAll('.remove-chip').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const nameToRemove = this.getAttribute('data-name');
+                        await removeTeammateFromCloud(nameToRemove);
+                    });
+                });
+            }
+
+            function subscribeToGroupRealtime() {
+                if (typeof unsubscribeGroupListener === 'function') {
+                    unsubscribeGroupListener();
+                    unsubscribeGroupListener = null;
+                }
+
+                const groupId = getGroupDocId(currentGroupName);
+                const groupRef = doc(db, "groups", groupId);
+
+                unsubscribeGroupListener = onSnapshot(
+                    groupRef,
+                    async (groupSnap) => {
+                        if (groupSnap.exists()) {
+                            renderTeammatesUI(groupSnap.data().teammates || []);
+                        } else {
+                            try {
+                                await setDoc(groupRef, { groupName: currentGroupName, teammates: [storedUser] }, { merge: true });
+                            } catch (err) {
+                                console.warn("Could not initialize group doc:", err);
+                                renderTeammatesUI([storedUser]);
+                            }
+                        }
+                    },
+                    (err) => {
+                        console.warn("Realtime group listener error:", err);
+                    }
+                );
+            }
+
+            async function removeTeammateFromCloud(name) {
+                const groupId = getGroupDocId(currentGroupName);
+                const groupRef = doc(db, "groups", groupId);
+                try {
+                    await updateDoc(groupRef, { teammates: arrayRemove(name) });
+                } catch (err) {
+                    console.error("Error removing teammate:", err);
+                }
+            }
+
+            async function addTeammateNameToGroup(memberName, notifyTeammate = true) {
+                const cleanName = (memberName || '').trim();
+                if (!cleanName) return;
+                const groupId = getGroupDocId(currentGroupName);
+                const groupRef = doc(db, "groups", groupId);
+                await setDoc(groupRef, {
+                    groupName: currentGroupName,
+                    teammates: arrayUnion(cleanName)
+                }, { merge: true });
+
+                if (notifyTeammate && cleanName.toLowerCase() !== String(storedUser || '').trim().toLowerCase()) {
+                    await sendNotificationToRecipient(cleanName, {
+                        title: 'Group Overlap Invite',
+                        message: `${storedUser} added you to "${currentGroupName}". Accept or decline to join.`,
+                        groupName: currentGroupName,
+                        hasActions: true
+                    });
+                }
+            }
+
+            const addTeammateModal = document.getElementById('addTeammateModal');
+            const teammateNameInput = document.getElementById('teammateNameInput');
+            const directoryStudentSelect = document.getElementById('directoryStudentSelect');
+            const newStudentPanel = document.getElementById('newStudentPanel');
+
+            document.getElementById('addMemberBtn').addEventListener('click', async () => {
+                teammateNameInput.value = '';
+                populateStudentSelect();
+                addTeammateModal.style.display = 'flex';
+                directoryStudentSelect.focus();
+            });
+
+            directoryStudentSelect.addEventListener('change', () => {
+                if (directoryStudentSelect.value) {
+                    teammateNameInput.value = directoryStudentSelect.value;
+                }
+            });
+
+            document.getElementById('toggleNewStudentBtn').addEventListener('click', () => {
+                newStudentPanel.style.display = newStudentPanel.style.display === 'none' ? 'block' : 'none';
+            });
+
+            document.getElementById('registerStudentBtn').addEventListener('click', async () => {
+                const fullName = document.getElementById('newStudentFullName').value.trim();
+                const email = document.getElementById('newStudentEmail').value.trim();
+                const program = document.getElementById('newStudentProgram').value.trim() || 'BSCS';
+                const batch = document.getElementById('newStudentBatch').value.trim() || '2026';
+
+                if (!fullName) {
+                    alert('Please enter the new student\'s full name.');
+                    return;
+                }
+
+                const studentDocId = toDocSlug(email || fullName) || `student_${Date.now()}`;
+                const studentPayload = {
+                    fullName,
+                    email: email || `${toDocSlug(fullName)}@up.edu.ph`,
+                    role: 'student',
+                    program,
+                    batch
+                };
+
+                try {
+                    await setDoc(doc(db, "users", studentDocId), studentPayload, { merge: true });
+                } catch (err) {
+                    console.warn("Firestore user write fallback to local cache:", err);
+                }
+
+                const cached = getLocalStudentCache();
+                const filtered = cached.filter(s => s.fullName.toLowerCase() !== fullName.toLowerCase());
+                saveLocalStudentCache([...filtered, studentPayload]);
+
+                await addTeammateNameToGroup(fullName, true);
+                document.getElementById('newStudentFullName').value = '';
+                document.getElementById('newStudentEmail').value = '';
+                document.getElementById('newStudentBatch').value = '';
+                newStudentPanel.style.display = 'none';
+                addTeammateModal.style.display = 'none';
+            });
+
+            document.getElementById('closeAddModal').onclick = () => addTeammateModal.style.display = 'none';
+            document.getElementById('cancelAddModalBtn').onclick = () => addTeammateModal.style.display = 'none';
+
+            document.getElementById('saveTeammateBtn').onclick = async function() {
+                const searchName = teammateNameInput.value.trim() || directoryStudentSelect.value.trim();
+                if (!searchName) { alert('Please select or enter a teammate name.'); return; }
+
+                try {
+                    const userQuery = query(collection(db, "users"), where("fullName", "==", searchName));
+                    const userSnap = await getDocs(userQuery);
+                    const inLocalCache = getLocalStudentCache().some(s => s.fullName.toLowerCase() === searchName.toLowerCase());
+
+                    if (userSnap.empty && !inLocalCache) {
+                        const docId = toDocSlug(searchName) || `student_${Date.now()}`;
+                        await setDoc(doc(db, "users", docId), {
+                            fullName: searchName,
+                            role: 'student',
+                            program: 'BSCS'
+                        }, { merge: true });
+                    }
+
+                    await addTeammateNameToGroup(searchName, true);
+                    addTeammateModal.style.display = 'none';
+                } catch (error) {
+                    console.error("Cloud sync error:", error);
+                    alert("Error updating cloud group. Check console.");
+                }
+            };
+
+            document.getElementById('confirmGroupNameDisplay').textContent = currentGroupName;
+            renderGroupsList();
+            await syncCurrentUserScheduleToCloud();
+            startUsersRealtimeListener();
+            startConsultationsRealtimeListener();
+            subscribeToGroupRealtime();
+
+            window.addEventListener('storage', (e) => {
+                if (!e.key || e.key.startsWith('cs_sync_schedule')) {
+                    renderAvailabilityMatrix();
+                }
+            });
+
+            window.showSlotDetails = function(time, day) {
+                const modal = document.getElementById('slotModal');
+                const title = document.getElementById('modalSlotTitle');
+                const body = document.getElementById('modalSlotBody');
+
+                title.textContent = `${day} at ${time} — Availability Breakdown`;
+
+                let html = '';
+                activeTeammates.forEach((member) => {
+                    const status = getMemberSlotStatus(member, day, time);
+                    const memberFree = !status.busy;
+                    html += `
+                        <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); gap: 8px;">
+                            <span>👤 ${escapeHtml(member)}</span>
+                            <span style="font-weight: 600; font-size: 11px; color: ${memberFree ? '#2e7d32' : '#c62828'}; text-align: right;">${escapeHtml(status.reason)}</span>
+                        </div>
+                    `;
+                });
+
+                if (activeTeammates.length === 0) {
+                    html = '<p style="color: var(--text-muted); text-align: center; font-style: italic; margin: 10px 0;">No active teammates in this group yet.</p>';
+                }
+
+                body.innerHTML = html;
+                modal.style.display = 'flex';
+            };
+
+            window.closeSlotModal = function() {
+                document.getElementById('slotModal').style.display = 'none';
+            };
+
+            const openModalBtn = document.getElementById('openConfirmModalBtn');
+            const meetingModal = document.getElementById('meetingModal');
+            const closeModalBtn = document.getElementById('closeModal');
+            const cancelModalBtn = document.getElementById('cancelModalBtn');
+            const confirmInviteBtn = document.getElementById('confirmInviteBtn');
+            const meetingDaySelect = document.getElementById('meetingDaySelect');
+            const meetingTimeSelect = document.getElementById('meetingTimeSelect');
+
+            function refreshMeetingModalSlotPreview() {
+                const added = hasAddedTeammate();
+                const selectedDay = meetingDaySelect?.value || getBestFreeSlot().day;
+                const selectedTime = meetingTimeSelect?.value || getBestFreeSlot().time;
+                const endTime = formatEndHour(selectedTime);
+                const slotLabel = document.getElementById('meetingSlotLabel');
+                const statusBadge = document.getElementById('meetingSlotStatusBadge');
+                const conflictsBox = document.getElementById('meetingConflictsBox');
+
+                if (slotLabel) {
+                    slotLabel.textContent = endTime
+                        ? `${formatDayFull(selectedDay)}, ${selectedTime} - ${endTime}`
+                        : `${formatDayFull(selectedDay)}, ${selectedTime}`;
+                }
+
+                const slotConflicts = [];
+                activeTeammates.forEach(member => {
+                    const found = getMemberConflictsAtSlot(member, selectedDay, selectedTime);
+                    found.forEach(c => {
+                        slotConflicts.push(`• <strong>${escapeHtml(member)}</strong>: ${escapeHtml(c.label)} (${escapeHtml(c.kind)})`);
+                    });
+                });
+
+                if (conflictsBox) {
+                    if (slotConflicts.length > 0) {
+                        conflictsBox.style.display = 'block';
+                        conflictsBox.innerHTML = `<strong>Conflicts at this slot:</strong><br>${slotConflicts.join('<br>')}`;
+                    } else {
+                        conflictsBox.style.display = 'none';
+                        conflictsBox.innerHTML = '';
+                    }
+                }
+
+                if (statusBadge) {
+                    if (!added) {
+                        statusBadge.textContent = 'Add a teammate first to verify overlap';
+                        statusBadge.style.background = '#e9ecef';
+                        statusBadge.style.color = '#495057';
+                    } else if (slotConflicts.length === 0) {
+                        statusBadge.textContent = 'Mutual free group slot';
+                        statusBadge.style.background = '#d1e7dd';
+                        statusBadge.style.color = '#0f5132';
+                    } else {
+                        statusBadge.textContent = 'Conflict found — review slot availability';
+                        statusBadge.style.background = '#fff3cd';
+                        statusBadge.style.color = '#664d03';
+                    }
+                }
+            }
+
+            if (meetingDaySelect) meetingDaySelect.addEventListener('change', refreshMeetingModalSlotPreview);
+            if (meetingTimeSelect) meetingTimeSelect.addEventListener('change', refreshMeetingModalSlotPreview);
+
+            if (openModalBtn) {
+                openModalBtn.onclick = () => {
+                    const best = getBestFreeSlot();
+                    if (meetingDaySelect && matrixDays.includes(best.day)) {
+                        meetingDaySelect.value = best.day;
+                    }
+                    if (meetingTimeSelect && matrixTimes.includes(best.time)) {
+                        meetingTimeSelect.value = best.time;
+                    }
+                    refreshMeetingModalSlotPreview();
+                    meetingModal.style.display = 'flex';
+                };
+            }
+            if (closeModalBtn) closeModalBtn.onclick = () => meetingModal.style.display = 'none';
+            if (cancelModalBtn) cancelModalBtn.onclick = () => meetingModal.style.display = 'none';
+            if (confirmInviteBtn) {
+                confirmInviteBtn.onclick = async () => {
+                    const selectedDay = meetingDaySelect?.value || getBestFreeSlot().day;
+                    const selectedTime = meetingTimeSelect?.value || getBestFreeSlot().time;
+                    const endTime = formatEndHour(selectedTime);
+                    const formattedTime = endTime ? `${selectedTime} - ${endTime}` : selectedTime;
+                    const fullDay = formatDayFull(selectedDay);
+                    const location = (document.getElementById('meetingLocationInput')?.value || 'Online / Discord').trim();
+                    const notes = (document.getElementById('meetingAgendaTextarea')?.value || 'Group sync meeting').trim();
+
+                    const meetingBlock = {
+                        id: `mtg_${Date.now()}`,
+                        title: `${currentGroupName} Sync`,
+                        day: fullDay,
+                        time: formattedTime,
+                        location,
+                        notes,
+                        type: 'group_meeting',
+                        groupId: getGroupDocId(currentGroupName),
+                        groupName: currentGroupName,
+                        teammates: [...activeTeammates],
+                        createdBy: storedEmail || storedUser,
+                        createdAt: new Date().toISOString()
+                    };
+
+                    const groupId = getGroupDocId(currentGroupName);
+                    const userDocId = getPrimaryCurrentUserDocId();
+
+                    try {
+                        await setDoc(doc(db, "groups", groupId), {
+                            groupId,
+                            groupName: currentGroupName,
+                            teammates: activeTeammates.length > 0 ? activeTeammates : [storedUser],
+                            nextMeeting: meetingBlock,
+                            meetings: arrayUnion(meetingBlock),
+                            updatedAt: new Date().toISOString()
+                        }, { merge: true });
+
+                        await setDoc(doc(db, "users", userDocId), {
+                            fullName: storedUser,
+                            email: storedEmail,
+                            role: isFaculty ? 'faculty' : 'student',
+                            schedule: arrayUnion(meetingBlock),
+                            scheduleUpdatedAt: new Date().toISOString()
+                        }, { merge: true });
+
+                        const otherTeammates = activeTeammates.filter(
+                            m => String(m || '').trim().toLowerCase() !== String(storedUser || '').trim().toLowerCase()
+                        );
+                        for (const mate of otherTeammates) {
+                            await sendNotificationToRecipient(mate, {
+                                title: `Meeting Invite: ${currentGroupName}`,
+                                message: `${storedUser} invited you to "${meetingBlock.title}" on ${fullDay}, ${formattedTime} (${location}).`,
+                                groupName: currentGroupName,
+                                meetingBlock,
+                                hasActions: true
+                            });
+                        }
+
+                        const primaryKey = getPrimaryLocalScheduleKey();
+                        const updatedLocal = [...getCurrentLocalSchedule(), meetingBlock];
+                        localStorage.setItem(primaryKey, JSON.stringify(updatedLocal));
+                        window.dispatchEvent(new StorageEvent('storage', { key: primaryKey }));
+
+                        alert(`🎉 Group meeting invite successfully sent for "${currentGroupName}" (${fullDay}, ${formattedTime})!`);
+                        meetingModal.style.display = 'none';
+                        window.location.href = 'calendar.html';
+                    } catch (err) {
+                        console.error("Failed to save group meeting to Firestore:", err);
+                        alert("Could not sync meeting to Firestore. Please try again.");
+                    }
+                };
+            }
+
+            window.addEventListener('click', function(e) {
+                if (notifDropdown && !notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) notifDropdown.style.display = 'none';
+                if (profileDropdown && !profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) profileDropdown.style.display = 'none';
+                if (e.target === addTeammateModal) addTeammateModal.style.display = 'none';
+                if (e.target === document.getElementById('slotModal')) closeSlotModal();
+                if (e.target === meetingModal) meetingModal.style.display = 'none';
+            });
         }
     </script>
 </body>

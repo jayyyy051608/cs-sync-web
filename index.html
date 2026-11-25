@@ -35,27 +35,27 @@
             
             <!-- Full Name (Sign Up Only) -->
             <div id="nameFieldContainer" style="margin-bottom: 16px; display: none;">
-                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">FULL NAME</label>
-                <input type="text" id="fullNameInput" placeholder="Maria Santos" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
+                <label for="fullNameInput" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">FULL NAME</label>
+                <input type="text" id="fullNameInput" placeholder="Maria Santos or Prof. Juan Dela Cruz" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
             </div>
 
             <!-- UP Mail Address -->
             <div style="margin-bottom: 16px;">
-                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">UP MAIL ADDRESS</label>
+                <label for="upMailInput" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">UP MAIL ADDRESS</label>
                 <input type="email" id="upMailInput" value="mahalkosiya@up.edu.ph" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
                 <small id="domainError" style="color: #dc3545; font-size: 11px; display: none; margin-top: 4px; font-weight: 500;"></small>
             </div>
 
             <!-- Password -->
             <div style="margin-bottom: 16px;">
-                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">PASSWORD</label>
+                <label for="passwordInput" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">PASSWORD</label>
                 <input type="password" id="passwordInput" placeholder="••••••••" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
             </div>
 
-            <!-- Security Question & Program (Sign Up Only) -->
+            <!-- Sign Up Only Fields -->
             <div id="signupSecurityFields" style="display: none;">
                 <div style="margin-bottom: 16px;">
-                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">SECURITY QUESTION</label>
+                    <label for="securityQuestion" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">SECURITY QUESTION</label>
                     <select id="securityQuestion" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
                         <option value="pet">What was the name of your first pet?</option>
                         <option value="highschool">What high school did you graduate from?</option>
@@ -64,30 +64,31 @@
                 </div>
 
                 <div style="margin-bottom: 16px;">
-                    <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">SECURITY ANSWER</label>
+                    <label for="securityAnswer" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">SECURITY ANSWER</label>
                     <input type="text" id="securityAnswer" placeholder="Enter your answer" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label for="accountRoleSelect" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">ACCOUNT TYPE</label>
+                    <select id="accountRoleSelect" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
+                        <option value="student" selected>Student</option>
+                        <option value="faculty">Professor / Faculty</option>
+                    </select>
+                </div>
+
+                <div id="batchYearContainer" style="margin-bottom: 20px;">
+                    <label for="batchYear" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">BATCH YEAR</label>
+                    <select id="batchYear" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
+                        <option value="2026 (Freshie)" selected>2026 (Freshie)</option>
+                        <option value="2025 (Sophomore)">2025 (Sophomore)</option>
+                        <option value="2024 (Junior)">2024 (Junior)</option>
+                        <option value="2023 (Senior)">2023 (Senior)</option>
+                    </select>
                 </div>
             </div>
 
-            <div style="margin-bottom: 16px;">
-                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">ACADEMIC PROGRAM</label>
-                <select id="academicProgram" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
-                    <option value="BS Computer Science" selected>BS Computer Science</option>
-                </select>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">BATCH YEAR</label>
-                <select id="batchYear" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
-                    <option value="2026 (Freshie)" selected>2026 (Freshie)</option>
-                    <option value="2025 (Sophomore)">2025 (Sophomore)</option>
-                    <option value="2024 (Junior)">2024 (Junior)</option>
-                    <option value="2023 (Senior)">2023 (Senior)</option>
-                </select>
-            </div>
-
             <!-- Submit Button -->
-            <button type="submit" id="submitBtn" style="width: 100%; padding: 12px; background: var(--up-maroon, #7b1113); color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer;">
+            <button type="submit" id="submitBtn" style="width: 100%; padding: 12px; background: var(--up-maroon, #7b1113); color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer; margin-top: 4px;">
                 Continue
             </button>
         </form>
@@ -95,7 +96,7 @@
         <!-- Forgot Password Form -->
         <form id="forgotForm" style="display: none;">
             <div style="margin-bottom: 16px;">
-                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">ENTER YOUR UP MAIL</label>
+                <label for="recoveryEmail" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">ENTER YOUR UP MAIL</label>
                 <input type="email" id="recoveryEmail" placeholder="mahalkosiya@up.edu.ph" required style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
                 <small id="resetError" style="color: #dc3545; font-size: 11px; display: none; margin-top: 4px; font-weight: 500;"></small>
             </div>
@@ -121,11 +122,11 @@
         </div>
     </div>
 
-    <!-- Firebase Script Logic -->
+    <!-- Firebase + localStorage Auto-Role Script Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
@@ -141,7 +142,37 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        const AUTOMATIC_PROGRAM = "BS Computer Science";
+        const AUTOMATIC_DEPT = "Computer Science";
+
+        function detectUserRole(name = '', email = '') {
+            const cleanName = name.trim().toLowerCase();
+            const cleanEmail = email.trim().toLowerCase();
+            const localPart = cleanEmail.split('@')[0] || '';
+
+            const facultyTitleRegex = /\b(prof\.?|professor|dr\.?|assoc\.?\s*prof\.?|asst\.?\s*prof\.?|instructor|lecturer|engr\.?|sir|ma'?am)\b/i;
+            const facultyHandleKeywords = ['prof', 'faculty', 'chair', 'dean', 'instructor', 'lecturer'];
+
+            if (facultyTitleRegex.test(cleanName)) {
+                return 'faculty';
+            }
+            if (facultyHandleKeywords.some(keyword => localPart.includes(keyword))) {
+                return 'faculty';
+            }
+            return 'student';
+        }
+
+        function formatNameFromEmail(email = '') {
+            const localPart = email.split('@')[0] || 'User';
+            return localPart
+                .split(/[._-]+/)
+                .filter(Boolean)
+                .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                .join(' ');
+        }
+
         let currentMode = 'signin';
+        let userManuallyChoseRole = false;
 
         const authForm = document.getElementById('authForm');
         const forgotForm = document.getElementById('forgotForm');
@@ -149,23 +180,47 @@
         const formSubtitle = document.getElementById('formSubtitle');
         const submitBtn = document.getElementById('submitBtn');
         const toggleText = document.getElementById('toggleText');
-        const toggleModeBtn = document.getElementById('toggleModeBtn');
         const forgotPasswordContainer = document.getElementById('forgotPasswordContainer');
         const forgotPasswordLink = document.getElementById('forgotPasswordLink');
         const backToLoginBtn = document.getElementById('backToLoginBtn');
         const nameFieldContainer = document.getElementById('nameFieldContainer');
+        const fullNameInput = document.getElementById('fullNameInput');
         const signupSecurityFields = document.getElementById('signupSecurityFields');
+        const accountRoleSelect = document.getElementById('accountRoleSelect');
+        const batchYearContainer = document.getElementById('batchYearContainer');
+        const batchYearSelect = document.getElementById('batchYear');
         const upMailInput = document.getElementById('upMailInput');
         const domainError = document.getElementById('domainError');
         const recoveryEmail = document.getElementById('recoveryEmail');
         const resetError = document.getElementById('resetError');
 
-        toggleModeBtn.addEventListener('click', function(e) {
-            e.preventDefault();
+        function updateBatchVisibility() {
+            if (!accountRoleSelect || !batchYearContainer) return;
+            const showStudentBatch = currentMode === 'signup' && accountRoleSelect.value === 'student';
+            batchYearContainer.style.display = showStudentBatch ? 'block' : 'none';
+        }
+
+        function syncAccountRoleFromInputs() {
+            if (!accountRoleSelect || userManuallyChoseRole) return;
+            accountRoleSelect.value = detectUserRole(fullNameInput?.value || '', upMailInput?.value || '');
+            updateBatchVisibility();
+        }
+
+        accountRoleSelect?.addEventListener('change', function() {
+            userManuallyChoseRole = true;
+            updateBatchVisibility();
+        });
+
+        fullNameInput?.addEventListener('input', syncAccountRoleFromInputs);
+        upMailInput?.addEventListener('input', syncAccountRoleFromInputs);
+
+        function setAuthMode(mode) {
+            currentMode = mode;
             domainError.style.display = 'none';
             upMailInput.style.borderColor = 'var(--border-color)';
-            if (currentMode === 'signin') {
-                currentMode = 'signup';
+
+            if (mode === 'signup') {
+                userManuallyChoseRole = false;
                 formTitle.textContent = "Create Account";
                 formSubtitle.textContent = "Set up your university account profile.";
                 submitBtn.textContent = "Continue";
@@ -173,8 +228,8 @@
                 signupSecurityFields.style.display = 'block';
                 forgotPasswordContainer.style.display = 'none';
                 toggleText.innerHTML = 'Already have an account? <a href="#" id="toggleModeBtn" style="color: var(--up-maroon); font-weight: bold; text-decoration: none;">Sign In</a>';
+                syncAccountRoleFromInputs();
             } else {
-                currentMode = 'signin';
                 formTitle.textContent = "Welcome to CS-Sync";
                 formSubtitle.textContent = "Set up your university account profile.";
                 submitBtn.textContent = "Continue";
@@ -182,7 +237,15 @@
                 signupSecurityFields.style.display = 'none';
                 forgotPasswordContainer.style.display = 'block';
                 toggleText.innerHTML = 'Don\'t have an account? <a href="#" id="toggleModeBtn" style="color: var(--up-maroon); font-weight: bold; text-decoration: none;">Create Account</a>';
+                updateBatchVisibility();
             }
+        }
+
+        toggleText.addEventListener('click', function(e) {
+            const target = e.target.closest('#toggleModeBtn');
+            if (!target) return;
+            e.preventDefault();
+            setAuthMode(currentMode === 'signin' ? 'signup' : 'signin');
         });
 
         forgotPasswordLink.addEventListener('click', function(e) {
@@ -197,14 +260,11 @@
             resetError.style.display = 'none';
         });
 
-        backToLoginBtn.addEventListener('click', function(e) {
-            currentMode = 'signin';
-            formTitle.textContent = "Welcome to CS-Sync";
-            formSubtitle.textContent = "Set up your university account profile.";
+        backToLoginBtn.addEventListener('click', function() {
             forgotForm.style.display = 'none';
             authForm.style.display = 'block';
-            forgotPasswordContainer.style.display = 'block';
             toggleText.style.display = 'block';
+            setAuthMode('signin');
         });
 
         authForm.addEventListener('submit', async function(e) {
@@ -223,10 +283,15 @@
 
             try {
                 if (currentMode === 'signup') {
-                    const fullName = document.getElementById('fullNameInput').value.trim() || "Maria Santos";
+                    const fullName = fullNameInput.value.trim() || formatNameFromEmail(emailValue);
                     const secQuestion = document.getElementById('securityQuestion').value;
                     const secAnswer = document.getElementById('securityAnswer').value.trim();
-                    const batchYear = document.getElementById('batchYear').value;
+                    const selectedRole = accountRoleSelect
+                        ? accountRoleSelect.value
+                        : detectUserRole(fullName, emailValue);
+                    const batchValue = selectedRole === 'faculty'
+                        ? 'N/A (Faculty)'
+                        : (batchYearSelect?.value || '2026 (Freshie)');
 
                     const userCredential = await createUserWithEmailAndPassword(auth, emailValue, passwordValue);
                     const user = userCredential.user;
@@ -234,34 +299,58 @@
                     await setDoc(doc(db, "users", user.uid), {
                         fullName: fullName,
                         email: emailValue,
-                        program: "BS Computer Science",
-                        batchYear: batchYear,
+                        role: selectedRole,
+                        program: AUTOMATIC_PROGRAM,
+                        batchYear: batchValue,
+                        department: AUTOMATIC_DEPT,
                         securityQuestion: secQuestion,
                         securityAnswer: secAnswer,
                         createdAt: new Date()
                     });
 
+                    localStorage.setItem('cs_sync_user', fullName);
+                    localStorage.setItem('cs_sync_email', emailValue);
+                    localStorage.setItem('cs_sync_role', selectedRole);
+                    localStorage.setItem('cs_sync_program', AUTOMATIC_PROGRAM);
+                    localStorage.setItem('cs_sync_batch', batchValue);
+                    localStorage.setItem('cs_sync_dept', AUTOMATIC_DEPT);
+
                     domainError.style.color = '#28a745';
-                    domainError.textContent = "Account created successfully! Please sign in.";
+                    domainError.textContent = `Account created (${selectedRole === 'faculty' ? 'Professor / Faculty' : 'Student'})! Please sign in.`;
                     domainError.style.display = 'block';
-                    
-                    currentMode = 'signin';
-                    formTitle.textContent = "Welcome to CS-Sync";
-                    formSubtitle.textContent = "Set up your university account profile.";
-                    submitBtn.textContent = "Continue";
-                    nameFieldContainer.style.display = 'none';
-                    signupSecurityFields.style.display = 'none';
-                    forgotPasswordContainer.style.display = 'block';
-                    toggleText.innerHTML = 'Don\'t have an account? <a href="#" id="toggleModeBtn" style="color: var(--up-maroon); font-weight: bold; text-decoration: none;">Create Account</a>';
+
                     authForm.reset();
+                    upMailInput.value = emailValue;
+                    setAuthMode('signin');
 
                 } else {
-                    await signInWithEmailAndPassword(auth, emailValue, passwordValue);
-                    
-                    const username = emailValue.split('@')[0];
-                    const formattedName = username.charAt(0).toUpperCase() + username.slice(1);
-                    localStorage.setItem('cs_sync_user', formattedName);
+                    const cred = await signInWithEmailAndPassword(auth, emailValue, passwordValue);
+                    let displayName = formatNameFromEmail(emailValue);
+                    let resolvedRole = detectUserRole(displayName, emailValue);
+                    let resolvedProgram = AUTOMATIC_PROGRAM;
+                    let resolvedBatch = '2026 (Freshie)';
+                    let resolvedDept = AUTOMATIC_DEPT;
+
+                    try {
+                        const userDoc = await getDoc(doc(db, "users", cred.user.uid));
+                        if (userDoc.exists()) {
+                            const data = userDoc.data();
+                            if (data.fullName) displayName = data.fullName;
+                            if (data.program) resolvedProgram = data.program;
+                            if (data.batchYear) resolvedBatch = data.batchYear;
+                            if (data.department) resolvedDept = data.department;
+                            resolvedRole = data.role || detectUserRole(displayName, emailValue);
+                        }
+                    } catch (_) {
+                        // Fall back to email/name auto-detection if Firestore read is unavailable
+                    }
+
+                    localStorage.setItem('cs_sync_user', displayName);
                     localStorage.setItem('cs_sync_email', emailValue);
+                    localStorage.setItem('cs_sync_role', resolvedRole);
+                    localStorage.setItem('cs_sync_program', resolvedProgram);
+                    localStorage.setItem('cs_sync_batch', resolvedBatch);
+                    localStorage.setItem('cs_sync_dept', resolvedDept);
 
                     window.location.href = 'dashboard.html';
                 }

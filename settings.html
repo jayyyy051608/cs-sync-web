@@ -39,7 +39,7 @@
             <!-- Appearance / Theme Section -->
             <div>
                 <h3 style="margin: 0 0 12px 0; font-size: 15px; color: #212529; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">Appearance & Theme</h3>
-                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">THEME PREFERENCE</label>
+                <label for="themeSelect" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">THEME PREFERENCE</label>
                 <select id="themeSelect" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
                     <option value="light">Light Mode</option>
                     <option value="dark">Dark Mode</option>
@@ -52,16 +52,16 @@
                 <h3 style="margin: 0 0 12px 0; font-size: 15px; color: #212529; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">Security & Password</h3>
                 <form id="passwordForm" style="display: flex; flex-direction: column; gap: 14px;">
                     <div>
-                        <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">CURRENT PASSWORD</label>
-                        <input type="password" id="currentPassword" placeholder="••••••••" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;">
+                        <label for="currentPassword" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">CURRENT PASSWORD</label>
+                        <input type="password" id="currentPassword" placeholder="••••••••" autocomplete="current-password" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;">
                     </div>
                     <div>
-                        <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">NEW PASSWORD</label>
-                        <input type="password" id="newPassword" placeholder="••••••••" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;">
+                        <label for="newPassword" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">NEW PASSWORD</label>
+                        <input type="password" id="newPassword" placeholder="••••••••" autocomplete="new-password" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;">
                     </div>
                     <div>
-                        <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">CONFIRM NEW PASSWORD</label>
-                        <input type="password" id="confirmPassword" placeholder="••••••••" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;">
+                        <label for="confirmPassword" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">CONFIRM NEW PASSWORD</label>
+                        <input type="password" id="confirmPassword" placeholder="••••••••" autocomplete="new-password" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px;">
                     </div>
                 </form>
             </div>
@@ -82,13 +82,16 @@
             <!-- Privacy & Visibility Section -->
             <div>
                 <h3 style="margin: 0 0 12px 0; font-size: 15px; color: #212529; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">Schedule Privacy</h3>
-                <label style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">WHO CAN VIEW YOUR "OPEN WINDOWS"</label>
+                <label for="privacySelect" style="font-size: 11px; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 6px;">WHO CAN VIEW YOUR "OPEN WINDOWS"</label>
                 <select id="privacySelect" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: white;">
                     <option value="everyone">Everyone in Class / Group Overlaps</option>
                     <option value="faculty">Faculty Members Only</option>
                     <option value="private">Only Me</option>
                 </select>
             </div>
+
+            <!-- Status Feedback -->
+            <p id="settingsStatus" style="display: none; margin: 0; font-size: 12px; font-weight: 600; color: #198754;"></p>
 
             <!-- Action Buttons -->
             <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 20px;">
@@ -101,41 +104,69 @@
 
     <!-- Global Theme Script & Settings Logic -->
     <script>
-        // Check saved theme preference on page load
-        const currentTheme = localStorage.getItem('cs_sync_theme');
-        if (currentTheme === 'dark' || (currentTheme === 'device' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.body.style.background = '#121212';
-            document.body.style.color = '#e0e0e0';
-            
-            window.addEventListener('DOMContentLoaded', () => {
-                document.querySelectorAll('header, div[style*="background: white"], div[style*="background: #fff"], div[style*="background: #fdfdfd"]').forEach(el => {
-                    el.style.background = '#1e1e1e';
-                    el.style.color = '#e0e0e0';
-                    el.style.borderColor = '#333';
-                });
-                document.querySelectorAll('input, select').forEach(input => {
-                    input.style.background = '#2a2a2a';
-                    input.style.color = '#e0e0e0';
-                    input.style.borderColor = '#444';
-                });
+        function shouldUseDarkTheme(themeMode) {
+            return themeMode === 'dark' || (themeMode === 'device' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        }
+
+        function applyTheme(themeMode) {
+            const isDark = shouldUseDarkTheme(themeMode);
+            document.body.style.background = isDark ? '#121212' : 'var(--bg-color, #f4f6f8)';
+            document.body.style.color = isDark ? '#e0e0e0' : '#212529';
+
+            document.querySelectorAll('header, main > div:nth-of-type(2)').forEach(el => {
+                el.style.background = isDark ? '#1e1e1e' : 'white';
+                el.style.color = isDark ? '#e0e0e0' : '#212529';
+                el.style.borderColor = isDark ? '#333' : 'var(--border-color)';
+            });
+
+            document.querySelectorAll('h1, h3').forEach(heading => {
+                heading.style.color = isDark ? '#f1f3f5' : '#212529';
+            });
+
+            document.querySelectorAll('div[style*="color: #333"]').forEach(group => {
+                group.style.color = isDark ? '#e0e0e0' : '#333';
+            });
+
+            document.querySelectorAll('input:not([type="checkbox"]), select').forEach(input => {
+                input.style.background = isDark ? '#2a2a2a' : 'white';
+                input.style.color = isDark ? '#e0e0e0' : '#212529';
+                input.style.borderColor = isDark ? '#444' : 'var(--border-color)';
             });
         }
 
-        // Load saved values into inputs
         window.addEventListener('DOMContentLoaded', () => {
-            if (currentTheme) document.getElementById('themeSelect').value = currentTheme;
+            const savedTheme = localStorage.getItem('cs_sync_theme') || 'device';
             const savedPrivacy = localStorage.getItem('cs_sync_privacy');
+            const savedEmailNotif = localStorage.getItem('cs_sync_notif_email');
+            const savedPushNotif = localStorage.getItem('cs_sync_notif_push');
+
+            document.getElementById('themeSelect').value = savedTheme;
             if (savedPrivacy) document.getElementById('privacySelect').value = savedPrivacy;
+            if (savedEmailNotif !== null) document.getElementById('notifEmail').checked = savedEmailNotif === 'true';
+            if (savedPushNotif !== null) document.getElementById('notifPush').checked = savedPushNotif === 'true';
+
+            applyTheme(savedTheme);
+        });
+
+        document.getElementById('themeSelect').addEventListener('change', function() {
+            applyTheme(this.value);
         });
 
         // Save settings handler
         document.getElementById('saveSettingsBtn').addEventListener('click', function() {
             const theme = document.getElementById('themeSelect').value;
             const privacy = document.getElementById('privacySelect').value;
+            const notifEmail = document.getElementById('notifEmail').checked;
+            const notifPush = document.getElementById('notifPush').checked;
+            const currentPass = document.getElementById('currentPassword').value;
             const newPass = document.getElementById('newPassword').value;
             const confirmPass = document.getElementById('confirmPassword').value;
 
-            if (newPass || confirmPass) {
+            if (currentPass || newPass || confirmPass) {
+                if (!currentPass) {
+                    alert('❌ Please enter your current password.');
+                    return;
+                }
                 if (newPass !== confirmPass) {
                     alert('❌ New passwords do not match!');
                     return;
@@ -148,7 +179,17 @@
 
             localStorage.setItem('cs_sync_theme', theme);
             localStorage.setItem('cs_sync_privacy', privacy);
-            window.location.href = 'dashboard.html';
+            localStorage.setItem('cs_sync_notif_email', String(notifEmail));
+            localStorage.setItem('cs_sync_notif_push', String(notifPush));
+            applyTheme(theme);
+
+            const statusEl = document.getElementById('settingsStatus');
+            statusEl.textContent = '✓ Preferences saved! Redirecting to dashboard...';
+            statusEl.style.display = 'block';
+
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 400);
         });
     </script>
 </body>

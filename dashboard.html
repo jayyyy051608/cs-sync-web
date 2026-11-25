@@ -24,12 +24,12 @@
 
         <!-- Right Side Icons & Profile Dropdown -->
         <div style="display: flex; align-items: center; gap: 20px; position: relative;">
-            
+
             <!-- Notification Bell Icon -->
             <div style="position: relative;">
-                <button id="notifBtn" style="background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; position: relative;">
+                <button id="notifBtn" type="button" style="background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; position: relative;">
                     <i class="fa-regular fa-bell"></i>
-                    <span style="position: absolute; top: -4px; right: -4px; background: #dc3545; color: white; font-size: 9px; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">0</span>
+                    <span id="notifBadge" style="position: absolute; top: -4px; right: -4px; background: #dc3545; color: white; font-size: 9px; width: 14px; height: 14px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-weight: bold;">0</span>
                 </button>
 
                 <!-- Notifications Dropdown Center -->
@@ -38,7 +38,7 @@
                         <h4 style="margin: 0; font-size: 14px; color: var(--up-maroon);">Notifications & Invites</h4>
                         <span style="font-size: 11px; color: var(--text-muted); cursor: pointer;" id="clearAllNotifs">Clear all</span>
                     </div>
-                    <div style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+                    <div id="notifList" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
                         <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>
                     </div>
                 </div>
@@ -57,11 +57,11 @@
                     <div style="padding: 16px; border-bottom: 1px solid var(--border-color); background: #fdfdfd;">
                         <p id="profileDropdownName" style="margin: 0; font-weight: bold; font-size: 13px; color: #333;">Maria Santos</p>
                         <p id="profileDropdownEmail" style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-muted);">mahalkosiya@up.edu.ph</p>
-                        <span style="display: inline-block; margin-top: 6px; background: #e9ecef; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; color: #495057;">Student • BSCS</span>
+                        <span id="roleBadge" style="display: inline-block; margin-top: 6px; background: #e9ecef; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; color: #495057;">Student • BSCS</span>
                     </div>
                     <div style="padding: 6px 0;">
                         <a href="profile.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-user" style="width: 16px;"></i> My Profile</a>
-                        <a href="settings.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-gear fa-regular" style="width: 16px;"></i> Settings</a>
+                        <a href="settings.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-solid fa-gear" style="width: 16px;"></i> Settings</a>
                         <a href="help.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #333; text-decoration: none; font-size: 13px;"><i class="fa-regular fa-circle-question" style="width: 16px;"></i> Help & Support</a>
                     </div>
                     <div style="border-top: 1px solid var(--border-color); padding: 6px 0;">
@@ -78,44 +78,49 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <div>
                 <h1 style="margin: 0; font-size: 24px; color: #212529;">My Dashboard</h1>
-                <p style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">Upcoming consultations and daily schedule overview.</p>
+                <p id="dashboardSubtitle" style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">Upcoming consultations and daily schedule overview.</p>
             </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
-            
+
             <!-- Left Column: Schedule & Upcoming Consultations -->
             <div>
-                <!-- Your Schedule Card (Empty State) -->
+                <!-- Your Schedule Card -->
                 <div style="background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 24px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h3 style="margin: 0; font-size: 16px; color: #333;">Your Schedule</h3>
+                        <div>
+                            <h3 style="margin: 0; font-size: 16px; color: #333;">Your Schedule</h3>
+                            <span id="todayScheduleLabel" style="font-size: 12px; color: var(--text-muted);">Today's schedule only</span>
+                        </div>
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; text-align: center;">
-                                21<br><span style="font-size: 10px; color: var(--up-maroon);">OCT</span>
+                            <div id="todayDateBadge" style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; text-align: center;">
+                                23<br><span style="font-size: 10px; color: var(--up-maroon);">NOV</span>
                             </div>
                             <a href="calendar.html" style="font-size: 12px; color: var(--up-maroon); text-decoration: none; font-weight: 600;">Open Calendar</a>
                         </div>
                     </div>
 
-                    <!-- Empty State -->
-                    <div style="padding: 24px; text-align: center; color: var(--text-muted); background: #fdfdfd; border: 1px dashed var(--border-color); border-radius: 6px;">
-                        <i class="fa-regular fa-calendar-days" style="font-size: 24px; margin-bottom: 8px; color: #adb5bd;"></i>
-                        <p style="margin: 0; font-size: 13px;">No schedule items for today.</p>
+                    <div id="scheduleContainer">
+                        <div style="padding: 24px; text-align: center; color: var(--text-muted); background: #fdfdfd; border: 1px dashed var(--border-color); border-radius: 6px;">
+                            <i class="fa-regular fa-calendar-days" style="font-size: 24px; margin-bottom: 8px; color: #adb5bd;"></i>
+                            <p style="margin: 0; font-size: 13px;">No schedule items for today.</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Upcoming Consultations Card (Placed Below Schedule & Empty) -->
+                <!-- Upcoming Consultations Card -->
                 <div style="background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 24px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                         <h3 style="margin: 0; font-size: 16px; color: #212529;">Upcoming Consultations</h3>
                         <a href="calendar.html" style="font-size: 12px; color: var(--up-maroon); text-decoration: none; font-weight: 600;">See all</a>
                     </div>
-                    
-                    <!-- Empty State -->
-                    <div style="padding: 24px; text-align: center; color: var(--text-muted); background: #fdfdfd; border: 1px dashed var(--border-color); border-radius: 6px;">
-                        <i class="fa-regular fa-clock" style="font-size: 24px; margin-bottom: 8px; color: #adb5bd;"></i>
-                        <p style="margin: 0; font-size: 13px;">No upcoming consultations scheduled.</p>
+
+                    <div id="consultationsContainer">
+                        <div style="padding: 24px; text-align: center; color: var(--text-muted); background: #fdfdfd; border: 1px dashed var(--border-color); border-radius: 6px;">
+                            <i class="fa-regular fa-clock" style="font-size: 24px; margin-bottom: 8px; color: #adb5bd;"></i>
+                            <p id="consultationsEmptyText" style="margin: 0; font-size: 13px;">No upcoming consultations scheduled.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -132,7 +137,7 @@
                     <h3 id="sidebarName" style="margin: 0; font-size: 16px; color: #212529;">Maria Santos</h3>
                     <p id="sidebarEmail" style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-muted);">mahalkosiya@up.edu.ph</p>
                 </div>
-                <div style="font-size: 13px; display: flex; flex-direction: column; gap: 10px; color: #495057;">
+                <div id="sidebarDetails" style="font-size: 13px; display: flex; flex-direction: column; gap: 10px; color: #495057;">
                     <div style="display: flex; justify-content: space-between;">
                         <span style="color: var(--text-muted);">Program:</span>
                         <strong>BS Computer Science</strong>
@@ -150,20 +155,433 @@
         </div>
     </main>
 
-    <!-- Dashboard Interactive Scripts -->
-    <script>
+    <!-- Dashboard Interactive & Firestore Real-Time Sync Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, query, where, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const MONTH_SHORT = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        const SHORT_TO_DAY = {
+            mon: 'Monday', m: 'Monday',
+            tue: 'Tuesday', tues: 'Tuesday', t: 'Tuesday',
+            wed: 'Wednesday', weds: 'Wednesday', w: 'Wednesday',
+            thu: 'Thursday', thur: 'Thursday', thurs: 'Thursday', th: 'Thursday',
+            fri: 'Friday', f: 'Friday',
+            sat: 'Saturday', s: 'Saturday',
+            sun: 'Sunday'
+        };
+
+        function escapeHtml(value = '') {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function toDocSlug(value = '') {
+            return String(value)
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '_')
+                .replace(/^_|_$/g, '');
+        }
+
+        function getTodayInfo() {
+            const now = new Date();
+            return {
+                dayName: DAY_NAMES[now.getDay()],
+                dayNum: String(now.getDate()).padStart(2, '0'),
+                monthShort: MONTH_SHORT[now.getMonth()]
+            };
+        }
+
+        function normalizeDayName(rawDay = '') {
+            const cleaned = String(rawDay).trim().toLowerCase();
+            if (!cleaned) return null;
+            const exactFull = DAY_NAMES.find(d => d.toLowerCase() === cleaned);
+            if (exactFull) return exactFull;
+            return SHORT_TO_DAY[cleaned] || null;
+        }
+
+        function sanitizeOcrHourString(raw = '') {
+            return String(raw).replace(/\b([789])0:([0-5]\d)\b/g, (_, hDigit, mins) => `${parseInt(hDigit, 10)}:${mins}`);
+        }
+
+        function inferSubjectTag(title = '', notes = '', location = '') {
+            const text = `${title} ${notes} ${location}`.toLowerCase();
+            if (/\b(cmsc|cs\s*\d+|data structures|algorithms|programming|computing|software|database)\b/.test(text)) {
+                return 'CMSC';
+            }
+            if (/\b(pe\s*\d*|physical fitness|athletics|badminton|volleyball|basketball|fitness|dance|exercise)\b/.test(text)) {
+                return 'PE';
+            }
+            if (/\b(sas\s*\d*|ge\s*\d*|ethics|history|sts|arts|purposive|mathematics in the modern world|mmw|nstp|cwts|self and society)\b/.test(text)) {
+                return 'GE';
+            }
+            return 'General';
+        }
+
+        function parseClockToMinutes(rawTime = '') {
+            const str = sanitizeOcrHourString(rawTime).trim();
+            const match = str.match(/\b(\d{1,2})(?:[:.](\d{2}))?\s*(AM|PM)?\b/i);
+            if (!match) return null;
+
+            let hour = parseInt(match[1], 10);
+            const minute = match[2] ? parseInt(match[2], 10) : 0;
+            if (hour < 1 || hour > 23 || minute < 0 || minute > 59) return null;
+
+            const period = (match[3] || '').toUpperCase();
+            if (period === 'PM' && hour < 12) hour += 12;
+            if (period === 'AM' && hour === 12) hour = 0;
+
+            if (!period && hour >= 1 && hour <= 6) {
+                hour += 12;
+            }
+            return hour * 60 + minute;
+        }
+
+        function formatMinutesToClock(totalMinutes) {
+            if (typeof totalMinutes !== 'number' || Number.isNaN(totalMinutes)) return '';
+            const mins24 = ((totalMinutes % 1440) + 1440) % 1440;
+            const h24 = Math.floor(mins24 / 60);
+            const mm = String(mins24 % 60).padStart(2, '0');
+            const period = h24 >= 12 ? 'PM' : 'AM';
+            const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+            return `${String(h12).padStart(2, '0')}:${mm} ${period}`;
+        }
+
+        function formatItemTimeLabel(rawTime = '') {
+            const parts = sanitizeOcrHourString(rawTime).trim().split(/\s*(?:-|–|—|to)\s*/i);
+            const startMins = parseClockToMinutes(parts[0] || rawTime);
+            if (startMins === null) return { startMinutes: null, label: '' };
+
+            const startLabel = formatMinutesToClock(startMins);
+            const endMins = parts[1] ? parseClockToMinutes(parts[1]) : null;
+            if (endMins !== null && endMins > startMins) {
+                return { startMinutes: startMins, label: `${startLabel} - ${formatMinutesToClock(endMins)}` };
+            }
+            return { startMinutes: startMins, label: startLabel };
+        }
+
+        function deduplicateScheduleItems(items = []) {
+            const seen = new Set();
+            const deduped = [];
+            for (const raw of (Array.isArray(items) ? items : [])) {
+                if (!raw || typeof raw !== 'object') continue;
+                const title = String(raw.title || '').trim();
+                const dayNormalized = normalizeDayName(raw.day);
+                const parsedTime = formatItemTimeLabel(raw.time);
+                if (!title || title.length < 2 || !dayNormalized || parsedTime.startMinutes === null) continue;
+
+                const key = `${title.toLowerCase().replace(/\s+/g, ' ')}__${dayNormalized.toLowerCase()}__${parsedTime.startMinutes}`;
+                if (seen.has(key)) continue;
+                seen.add(key);
+
+                deduped.push({
+                    ...raw,
+                    title,
+                    day: dayNormalized,
+                    dayNormalized,
+                    time: parsedTime.label,
+                    startMinutes: parsedTime.startMinutes,
+                    formattedTime: parsedTime.label,
+                    subjectTag: raw.subjectTag || inferSubjectTag(title, raw.notes || '', raw.location || '')
+                });
+            }
+            return deduped;
+        }
+
+        function detectUserRole(name = '', email = '') {
+            const cleanName = String(name).trim().toLowerCase();
+            const cleanEmail = String(email).trim().toLowerCase();
+            const localPart = cleanEmail.split('@')[0] || '';
+
+            const facultyTitleRegex = /\b(prof\.?|professor|dr\.?|assoc\.?\s*prof\.?|asst\.?\s*prof\.?|instructor|lecturer|engr\.?|sir|ma'?am)\b/i;
+            const facultyHandleKeywords = ['prof', 'faculty', 'chair', 'dean', 'instructor', 'lecturer'];
+
+            if (facultyTitleRegex.test(cleanName) || facultyHandleKeywords.some(k => localPart.includes(k))) {
+                return 'faculty';
+            }
+            return 'student';
+        }
+
+        function readJsonStorage(key, fallback) {
+            try {
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : fallback;
+            } catch (_) {
+                return fallback;
+            }
+        }
+
         const storedUser = localStorage.getItem('cs_sync_user') || 'Maria Santos';
         const storedEmail = localStorage.getItem('cs_sync_email') || 'mahalkosiya@up.edu.ph';
-        
+        const storedRole = (localStorage.getItem('cs_sync_role') || detectUserRole(storedUser, storedEmail)).toLowerCase();
+        const storedProgram = localStorage.getItem('cs_sync_program') || 'BS Computer Science';
+        const storedBatch = localStorage.getItem('cs_sync_batch') || '2026 (Freshie)';
+        const storedDept = localStorage.getItem('cs_sync_dept') || 'Computer Science';
+
+        localStorage.setItem('cs_sync_role', storedRole);
+        const isFaculty = storedRole === 'faculty' || storedRole === 'professor';
+
         document.getElementById('userNameDisplay').textContent = storedUser;
         document.getElementById('profileDropdownName').textContent = storedUser;
         document.getElementById('profileDropdownEmail').textContent = storedEmail;
         document.getElementById('sidebarName').textContent = storedUser;
         document.getElementById('sidebarEmail').textContent = storedEmail;
 
-        const initials = storedUser.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-        document.getElementById('userAvatar').textContent = initials;
-        document.getElementById('sidebarAvatar').textContent = initials;
+        const initials = storedUser
+            .split(' ')
+            .filter(Boolean)
+            .map(n => n[0])
+            .join('')
+            .substring(0, 2)
+            .toUpperCase();
+
+        document.getElementById('userAvatar').textContent = initials || 'MS';
+        document.getElementById('sidebarAvatar').textContent = initials || 'MS';
+
+        const roleBadge = document.getElementById('roleBadge');
+        if (roleBadge) {
+            roleBadge.textContent = isFaculty ? 'Faculty • CS' : 'Student • BSCS';
+        }
+
+        const sidebarDetails = document.getElementById('sidebarDetails');
+        if (sidebarDetails) {
+            if (isFaculty) {
+                sidebarDetails.innerHTML = `
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Role:</span>
+                        <strong>Faculty / Professor</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Department:</span>
+                        <strong>${escapeHtml(storedDept)}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Consultations:</span>
+                        <strong>Faculty Host</strong>
+                    </div>
+                `;
+            } else {
+                sidebarDetails.innerHTML = `
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Program:</span>
+                        <strong>${escapeHtml(storedProgram)}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Batch Year:</span>
+                        <strong>${escapeHtml(storedBatch)}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);">Department:</span>
+                        <strong>${escapeHtml(storedDept)}</strong>
+                    </div>
+                `;
+            }
+        }
+
+        if (isFaculty) {
+            document.getElementById('dashboardSubtitle').textContent = 'Manage consultation hours, student requests, and daily schedule overview.';
+            document.getElementById('consultationsEmptyText').textContent = 'No student consultations scheduled yet.';
+        }
+
+        const todayInfo = getTodayInfo();
+        const todayDateBadge = document.getElementById('todayDateBadge');
+        if (todayDateBadge) {
+            todayDateBadge.innerHTML = `${todayInfo.dayNum}<br><span style="font-size: 10px; color: var(--up-maroon);">${todayInfo.monthShort}</span>`;
+        }
+        const todayScheduleLabel = document.getElementById('todayScheduleLabel');
+        if (todayScheduleLabel) {
+            todayScheduleLabel.textContent = `Showing ${todayInfo.dayName} only`;
+        }
+
+        const scheduleContainer = document.getElementById('scheduleContainer');
+
+        function renderTodaySchedule(rawItems = []) {
+            if (!scheduleContainer) return;
+            const todayScheduleItems = deduplicateScheduleItems(rawItems)
+                .filter(item => item.dayNormalized === todayInfo.dayName)
+                .sort((a, b) => a.startMinutes - b.startMinutes);
+
+            if (todayScheduleItems.length > 0) {
+                scheduleContainer.innerHTML = todayScheduleItems.map(item => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; background: #fcfcfd; gap: 12px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <strong style="font-size: 13px; color: #212529;">${escapeHtml(item.title)}</strong>
+                                <span style="font-size: 10px; font-weight: 700; color: var(--up-maroon); background: #f8d7da; padding: 2px 7px; border-radius: 999px;">${escapeHtml(item.subjectTag)}</span>
+                            </div>
+                            <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 3px;">${escapeHtml(todayInfo.dayName)}${item.location ? ` • ${escapeHtml(item.location)}` : ''}</span>
+                        </div>
+                        <span style="font-size: 12px; font-weight: 600; color: var(--up-maroon); background: #fdf2f2; padding: 4px 10px; border-radius: 6px; white-space: nowrap;">${escapeHtml(item.formattedTime)}</span>
+                    </div>
+                `).join('');
+            } else {
+                scheduleContainer.innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: var(--text-muted); background: #fdfdfd; border: 1px dashed var(--border-color); border-radius: 6px;">
+                        <i class="fa-regular fa-calendar-days" style="font-size: 24px; margin-bottom: 8px; color: #adb5bd;"></i>
+                        <p style="margin: 0; font-size: 13px;">No schedule items for <strong>${escapeHtml(todayInfo.dayName)}</strong>.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function getScopedLocalSchedule() {
+            const identity = (storedEmail || storedUser || 'default').trim().toLowerCase();
+            const userKey = `cs_sync_schedule_${encodeURIComponent(identity)}`;
+            const rawUserList = readJsonStorage(userKey, null);
+            if (Array.isArray(rawUserList)) return rawUserList;
+            const legacyList = readJsonStorage('cs_sync_schedule', []);
+            return Array.isArray(legacyList) ? legacyList : [];
+        }
+
+        renderTodaySchedule(getScopedLocalSchedule());
+
+        const consultationsContainer = document.getElementById('consultationsContainer');
+        const notifList = document.getElementById('notifList');
+        const notifBadge = document.getElementById('notifBadge');
+
+        let cloudNotifications = [];
+        let latestConsultationItems = [];
+
+        function refreshNotificationDropdown() {
+            if (!notifList || !notifBadge) return;
+            const combined = [
+                ...cloudNotifications.map(n => ({
+                    id: n.id || '',
+                    title: n.title || 'Notification',
+                    message: n.message || '',
+                    timeAgo: n.timeAgo || ''
+                })),
+                ...latestConsultationItems.map(item => ({
+                    id: item.id || '',
+                    title: `Consultation Request (${item.status || 'Pending'})`,
+                    message: `${isFaculty ? (item.studentName || 'Student') : (item.facultyName || 'Faculty')} • ${item.slot || ''}`,
+                    timeAgo: ''
+                }))
+            ];
+
+            notifBadge.textContent = String(combined.length);
+            notifBadge.style.display = combined.length > 0 ? 'flex' : 'none';
+
+            if (combined.length === 0) {
+                notifList.innerHTML = '<p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>';
+                return;
+            }
+
+            notifList.innerHTML = combined.map(entry => `
+                <div style="padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; background: #fdfdfd;">
+                    <strong>${escapeHtml(entry.title)}</strong><br>
+                    ${escapeHtml(entry.message)}
+                    ${entry.timeAgo ? `<span style="font-size: 10px; color: var(--text-muted); display: block; margin-top: 4px;">${escapeHtml(entry.timeAgo)}</span>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderConsultations(items) {
+            if (!consultationsContainer) return;
+            if (!items || items.length === 0) {
+                consultationsContainer.innerHTML = `
+                    <div style="padding: 24px; text-align: center; color: var(--text-muted); background: #fdfdfd; border: 1px dashed var(--border-color); border-radius: 6px;">
+                        <i class="fa-regular fa-clock" style="font-size: 24px; margin-bottom: 8px; color: #adb5bd;"></i>
+                        <p style="margin: 0; font-size: 13px;">${isFaculty ? 'No student consultations scheduled yet.' : 'No upcoming consultations scheduled.'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            consultationsContainer.innerHTML = items.map(item => {
+                const status = item.status || 'Pending';
+                const badgeColor = status === 'Accepted' ? '#155724' : (status === 'Declined' ? '#842029' : '#664d03');
+                const badgeBg = status === 'Accepted' ? '#d1e7dd' : (status === 'Declined' ? '#f8d7da' : '#fff3cd');
+
+                const actionButtons = (isFaculty && item.id) ? `
+                    <div style="display: flex; gap: 6px; margin-top: 8px;">
+                        <button type="button" class="consultation-status-btn" data-id="${escapeHtml(item.id)}" data-status="Accepted" style="padding: 4px 10px; background: #198754; color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Accept</button>
+                        <button type="button" class="consultation-status-btn" data-id="${escapeHtml(item.id)}" data-status="Declined" style="padding: 4px 10px; background: #e9ecef; color: #333; border: 1px solid var(--border-color); border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Decline</button>
+                    </div>
+                ` : '';
+
+                return `
+                    <div style="padding: 14px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; background: #fcfcfd;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                            <div>
+                                <strong style="font-size: 13px; color: #212529; display: block;">${escapeHtml(isFaculty ? (item.studentName || 'Student') : (item.facultyName || 'Faculty'))} • ${escapeHtml(item.course || 'Consultation')}</strong>
+                                <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">${escapeHtml(item.reason || '')}</span>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="font-size: 12px; font-weight: 600; color: var(--up-maroon); display: block;">${escapeHtml(item.slot || '')}</span>
+                                <span style="display: inline-block; margin-top: 4px; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; background: ${badgeBg}; color: ${badgeColor};">${escapeHtml(status)}</span>
+                            </div>
+                        </div>
+                        ${actionButtons}
+                    </div>
+                `;
+            }).join('');
+
+            document.querySelectorAll('.consultation-status-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const docId = this.getAttribute('data-id');
+                    const nextStatus = this.getAttribute('data-status');
+                    try {
+                        await updateDoc(doc(db, "consultations", docId), { status: nextStatus });
+                    } catch (err) {
+                        console.error("Failed to update consultation status:", err);
+                    }
+                });
+            });
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2v0d2x50ze6we6hiDG999ecj1ZV3o9AI",
+            authDomain: "cs-sync-8a6a0.firebaseapp.com",
+            projectId: "cs-sync-8a6a0",
+            storageBucket: "cs-sync-8a6a0.appspot.com",
+            messagingSenderId: "340561797624",
+            appId: "1:34056179764:web:f417af5001d576882d360d",
+            measurementId: "G-F663CN4012"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const userDocId = toDocSlug(storedEmail || storedUser) || 'current_student';
+        const scopedScheduleKey = `cs_sync_schedule_${encodeURIComponent((storedEmail || storedUser || 'default').trim().toLowerCase())}`;
+
+        onSnapshot(doc(db, "users", userDocId), (snap) => {
+            if (!snap.exists()) return;
+            const data = snap.data() || {};
+            if (Array.isArray(data.schedule)) {
+                const deduped = deduplicateScheduleItems(data.schedule);
+                localStorage.setItem(scopedScheduleKey, JSON.stringify(deduped));
+                renderTodaySchedule(deduped);
+            }
+            if (Array.isArray(data.notifications)) {
+                cloudNotifications = data.notifications;
+                refreshNotificationDropdown();
+            }
+        }, (err) => {
+            console.warn("Dashboard user snapshot error:", err);
+        });
+
+        const consultationsQuery = isFaculty
+            ? query(collection(db, "consultations"), where("facultyName", "==", storedUser))
+            : query(collection(db, "consultations"), where("studentEmail", "==", storedEmail.toLowerCase()));
+
+        onSnapshot(consultationsQuery, (snap) => {
+            latestConsultationItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderConsultations(latestConsultationItems);
+            refreshNotificationDropdown();
+        }, (err) => {
+            console.error("Error streaming consultations from Firestore:", err);
+            const localConsultations = readJsonStorage('cs_sync_consultations', []);
+            if (Array.isArray(localConsultations) && localConsultations.length > 0) {
+                renderConsultations(localConsultations);
+            }
+        });
 
         // Toggle Notification Dropdown
         const notifBtn = document.getElementById('notifBtn');
@@ -177,29 +595,37 @@
             profileDropdown.style.display = 'none';
         });
 
-        // Toggle Profile Dropdown
         profileTrigger.addEventListener('click', function(e) {
             e.stopPropagation();
             profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
             notifDropdown.style.display = 'none';
         });
 
-        // Close dropdowns when clicking outside
         window.addEventListener('click', function() {
             notifDropdown.style.display = 'none';
             profileDropdown.style.display = 'none';
         });
 
-        // Clear notifications
-        document.getElementById('clearAllNotifs').addEventListener('click', function() {
-            notifDropdown.querySelector('div:nth-child(2)').innerHTML = '<p style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 10px 0;">No new notifications.</p>';
+        document.getElementById('clearAllNotifs').addEventListener('click', async function() {
+            cloudNotifications = [];
+            latestConsultationItems = [];
+            localStorage.removeItem('cs_sync_notifications');
+            refreshNotificationDropdown();
+            try {
+                await setDoc(doc(db, "users", userDocId), { notifications: [] }, { merge: true });
+            } catch (err) {
+                console.warn("Could not clear cloud notifications:", err);
+            }
         });
 
-        // Log Out Action
         document.getElementById('logoutBtn').addEventListener('click', function(e) {
             e.preventDefault();
             localStorage.removeItem('cs_sync_user');
             localStorage.removeItem('cs_sync_email');
+            localStorage.removeItem('cs_sync_role');
+            localStorage.removeItem('cs_sync_program');
+            localStorage.removeItem('cs_sync_batch');
+            localStorage.removeItem('cs_sync_dept');
             window.location.replace('index.html');
         });
     </script>
